@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คำนวณการจัดสินค้าลงกล่อง (Dynamic)</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+        .container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .section {
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+            min-width: 300px;
+            background-color: #f9f9f9;
+        }
+        .section h2 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"] {
+            width: calc(100% - 12px); /* Adjust for padding */
+            padding: 5px;
+            margin-bottom: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        .dimension-group input {
+            width: calc(33% - 10px); /* Adjust for spacing */
+            display: inline-block;
+        }
+         .dimension-group span {
+            margin: 0 2px;
+         }
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .remove-btn {
+            background-color: #dc3545;
+            font-size: 0.8em;
+            padding: 3px 8px;
+            margin-left: 10px;
+        }
+         .remove-btn:hover {
+            background-color: #c82333;
+         }
+        .product-entry, .box-entry {
+            border: 1px dashed #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            position: relative;
+            background-color: #fff;
+        }
+        .product-entry .remove-btn, .box-entry .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #e9f5ff;
+        }
+        #results h3 {
+            margin-top: 0;
+        }
+        pre {
+             background-color: #f0f0f0;
+             padding: 10px;
+             border-radius: 4px;
+             white-space: pre-wrap; /* Allow wrapping */
+             word-wrap: break-word; /* Break long words */
+        }
+    </style>
+</head>
+<body>
+
+<h1>ระบบคำนวณการจัดสินค้าลงกล่อง (Dynamic)</h1>
+
+<div class="container">
+    <div class="section">
+        <h2>รายการสินค้า</h2>
+        <div id="products-list">
+            <!-- Product entries will be added here -->
+        </div>
+        <button onclick="addProductEntry()">+ เพิ่มสินค้า</button>
+    </div>
+
+    <div class="section">
+        <h2>ขนาดกล่อง</h2>
+        <div id="boxes-list">
+            <!-- Box entries will be added here -->
+        </div>
+        <button onclick="addBoxEntry()">+ เพิ่มขนาดกล่อง</button>
+    </div>
+</div>
+
+<button onclick="calculatePacking()" style="margin-top: 20px; font-size: 1.1em; padding: 12px 20px;">คำนวณการจัดสินค้า</button>
+
+<div id="results" style="display: none;">
+    <h3>สรุปผลการคำนวณแบบ Dynamic</h3>
+    <pre id="calculation-summary"></pre>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

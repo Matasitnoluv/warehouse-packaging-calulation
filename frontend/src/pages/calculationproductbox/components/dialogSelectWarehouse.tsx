@@ -102,13 +102,16 @@ const DialogSelectWarehouse = ({ triggerButtonText = "Calculation", documentWare
     fetchWarehouseUsage();
   }, []);
 
-  const handleWarehouseSelect = (warehouseId: string) => {
+  const handleWarehouseSelect = (warehouse: WarehouseUsage) => {
+    console.log("Selected warehouse:", warehouse);
     if (documentWarehouseNo) {
-      // If we have a document number, we're in edit mode
-      navigate(`/warehouse-calculation/${warehouseId}`, { state: { documentWarehouseNo } });
+      navigate(`/warehouse-calculation/${warehouse.master_warehouse_id}`, {
+        state: { documentWarehouseNo, warehouseName: warehouse.master_warehouse_name }
+      });
     } else {
-      // Normal flow - go to calculation page
-      navigate(`/warehouse-calculation/${warehouseId}`);
+      navigate(`/warehouse-calculation/${warehouse.master_warehouse_id}`, {
+        state: { warehouseName: warehouse.master_warehouse_name }
+      });
     }
   };
 
@@ -228,7 +231,7 @@ const DialogSelectWarehouse = ({ triggerButtonText = "Calculation", documentWare
                       <Button
                         size="2"
                         className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
-                        onClick={() => handleWarehouseSelect(warehouse.master_warehouse_id)}
+                        onClick={() => handleWarehouseSelect(warehouse)}
                       >
                         Select Warehouse
                       </Button>

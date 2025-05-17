@@ -1,4 +1,3 @@
-
 import { Dialog, Button, Flex, Text, Strong } from "@radix-ui/themes";
 import { deleteCalWarehouse } from "@/services/calwarehouse.service";
 import { Trash2, AlertTriangle } from "lucide-react";
@@ -32,7 +31,7 @@ const AlrtdilogDeleteDocument = ({ getCalWarehouseData, document_warehouse_id }:
         <Dialog.Root>
             <Dialog.Trigger>
                 <Button
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200"
+                    className="inline-flex items-center gap-2 px-6 py-2 bg-red-400 hover:bg-red-500 text-white font-bold rounded-lg shadow-md flex items-center transition-colors"
                 >
                     <Trash2 size={16} />
                     Delete
@@ -74,7 +73,7 @@ const AlrtdilogDeleteDocument = ({ getCalWarehouseData, document_warehouse_id }:
                     <Dialog.Close>
                         <Button
                             onClick={handleDeleteCalWarehouse}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200"
+                            className="inline-flex items-center gap-2 px-6 py-2 bg-red-400 hover:bg-red-500 text-white font-bold rounded-lg shadow-md flex items-center transition-colors"
                         >
                             <Trash2 size={16} />
                             Delete

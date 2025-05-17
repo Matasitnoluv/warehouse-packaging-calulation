@@ -76,7 +76,7 @@ const ZoneDocumentSelector: React.FC<ZoneDocumentSelectorProps> = ({
             {selectedZone && selectedDocument && (
                 <div className="flex justify-end">
                     <button
-                        className="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition-all duration-200 text-lg"
+                        className="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg px-6 py-2 shadow-md flex items-center transition-colors"
                         onClick={onCalculate}
                     >
                         Calculate

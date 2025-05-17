@@ -6,7 +6,7 @@ import DialogAdd from "./components/dilogAddMswarehouse";
 import DialogEdit from "./components/dilogEditMswarehouse";
 import AlertDialogDelete from "./components/alertdilogDeleteMswarehouse";
 import DialogViewWarehouse from "./components/DialogViewWarehouse";
-import { Warehouse, Search } from "lucide-react";
+import { Warehouse, Search, Plus } from "lucide-react";
 
 export default function MsWarehousePage() {
     const [mswarehouse, setMswarehouse] = useState<TypeMswarehouseAll[]>([]);
@@ -14,6 +14,7 @@ export default function MsWarehousePage() {
     const [master_warehouse, setFilteredWarehouses] = useState<TypeMswarehouseAll[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [open, setOpen] = useState(false);
 
     const getmswarehouseData = () => {
         setIsLoading(true);
@@ -64,64 +65,50 @@ export default function MsWarehousePage() {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
             {/* Header Section */}
             <div className="max-w-7xl mx-auto mb-8">
-                <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
-                    {error && (
-                        <div className="mb-4 p-4 text-red-700 bg-red-100 rounded-lg">
-                            {error}
+                <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 flex flex-col lg:flex-row items-center gap-6 border border-gray-200">
+                    {/* Icon + Title + Description */}
+                    <div className="flex-1 flex items-center gap-4 min-w-0">
+                        <div className="bg-green-100 p-3 rounded-xl flex items-center justify-center shadow-sm">
+                            <Warehouse className="w-10 h-10 text-green-600" />
                         </div>
-                    )}
-                    {isLoading ? (
-                        <div className="flex items-center justify-center py-8">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
-                            <span className="ml-2">กำลังโหลดข้อมูล...</span>
+                        <div className="min-w-0">
+                            <h1 className="text-3xl font-extrabold text-gray-900 truncate tracking-tight">Warehouse Management</h1>
+                            <p className="mt-1 text-gray-500 truncate text-base">Manage and organize your warehouse inventory</p>
                         </div>
-                    ) : (
-                        <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
-                            {/* Title */}
-                            <div className="flex-1 flex items-center gap-3">
-                                <div className="p-2 bg-green-100 rounded-lg">
-                                    <Warehouse className="w-6 h-6 text-green-600" />
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                                        Warehouse Management
-                                    </h1>
-                                    <p className="mt-1 text-gray-600">
-                                        Manage and organize your warehouse inventory
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Search */}
-                            <div className="flex-1 w-full lg:max-w-xl flex flex-col sm:flex-row gap-4">
-                                {/* Search Bar */}
-                                <div className="relative flex-1">
-                                    <input
-                                        type="text"
-                                        placeholder="Search by name..."
-                                        value={searchTerm}
-                                        onChange={handleSearchChange}
-                                        onKeyDown={handleKeyDown}
-                                        className="w-full h-10 pl-10 pr-4 text-base rounded-lg border border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 outline-none"
-                                    />
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                    <button
-                                        onClick={handleSearch}
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 bg-green-500 hover:bg-green-600 text-white rounded-md transition-colors duration-200"
-                                    >
-                                        <Search size={16} />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Add Warehouse Button */}
-                            <div className="flex-shrink-0">
-                                <AlertDialog.Root>
-                                    <DialogAdd getMswarehouseData={getmswarehouseData} />
-                                </AlertDialog.Root>
-                            </div>
-                        </div>
-                    )}
+                    </div>
+                    {/* Search + Create Button */}
+                    <div className="flex w-full lg:w-auto gap-3 items-center mt-4 lg:mt-0">
+                        {/* Search Box with Button */}
+                        <form className="flex items-center w-full lg:w-72 bg-gray-100 border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                            <Search className="w-4 h-4 text-green-500 ml-3" />
+                            <input
+                                type="text"
+                                placeholder="Search by name..."
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                onKeyDown={handleKeyDown}
+                                className="outline-none flex-1 bg-transparent text-gray-700 placeholder-gray-400 px-2 py-2"
+                            />
+                            <button
+                                type="button"
+                                onClick={handleSearch}
+                                className="bg-green-500 hover:bg-green-600 text-white rounded-lg w-8 h-8 flex items-center justify-center mx-1 shadow-md focus:outline-none transition-colors"
+                            >
+                                <Search className="w-4 h-4 text-white" />
+                            </button>
+                        </form>
+                        {/* Create Button */}
+                        <AlertDialog.Root>
+                            <button
+                                type="button"
+                                onClick={() => setOpen(true)}
+                                className="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg px-6 py-2 shadow-md flex items-center transition-colors"
+                            >
+                                <Plus className="w-5 h-5 mr-2" />
+                                Create Warehouse
+                            </button>
+                        </AlertDialog.Root>
+                    </div>
                 </div>
             </div>
 

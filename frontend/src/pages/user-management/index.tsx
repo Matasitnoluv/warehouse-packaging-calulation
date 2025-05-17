@@ -277,14 +277,14 @@ const UserManagement = () => {
                       <td className="px-4 py-2 border-b text-center flex flex-col sm:flex-row gap-2 justify-center items-center">
                         <button
                           onClick={() => openEdit(u)}
-                          className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors"
+                          className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors text-sm"
                           type="button"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => setDeleteUserId(u.users_id)}
-                          className="bg-red-400 hover:bg-red-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors"
+                          className="bg-red-400 hover:bg-red-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors text-sm"
                           type="button"
                         >
                           Delete

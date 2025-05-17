@@ -35,7 +35,7 @@ const AlertDialogDelete = ({ getMsboxData, master_box_id, master_box_name, onDel
     return (
         <Dialog.Root>
             <Dialog.Trigger>
-                <Button className="bg-red-400 hover:bg-red-500 hover:cursor-pointer text-white font-bold py-2 px-4 rounded shadow-xl" size="2" variant="soft"  >Delete</Button>
+                <Button className="bg-red-400 hover:bg-red-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors" size="2" variant="soft">Delete</Button>
             </Dialog.Trigger>
 
             <Dialog.Content maxWidth="450px">
@@ -55,7 +55,7 @@ const AlertDialogDelete = ({ getMsboxData, master_box_id, master_box_name, onDel
                         </Button>
                     </Dialog.Close>
                     <Dialog.Close>
-                        <Button onClick={handleDeleteMsbox} className="bg-red-400 hover:bg-red-500 hover:cursor-pointer text-white font-bold py-2 px-4 rounded shadow-xl">Confirm</Button>
+                        <Button onClick={handleDeleteMsbox} className="bg-red-400 hover:bg-red-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors">Confirm</Button>
                     </Dialog.Close>
                 </Flex>
             </Dialog.Content>

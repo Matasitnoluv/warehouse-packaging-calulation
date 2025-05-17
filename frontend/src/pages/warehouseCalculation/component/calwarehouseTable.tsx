@@ -40,13 +40,13 @@ const CalWarehouseTable = () => {
                         <div className="flex gap-4">
                             <button
                                 onClick={() => navigate("/calculationproductbox")}
-                                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-lg transition-all duration-200"
+                                className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-6 py-2 rounded-md shadow-md transition-colors text-sm"
                             >
-                                <ArrowLeft size={20} />
+                                <ArrowLeft size={18} />
                                 Back to Calculator
                             </button>
                             <AlertDialog.Root>
-                                <DilogAddCalwarehouse getCalwarehouseData={getCalWarehouseData} />
+                                <DilogAddCalwarehouse getCalwarehouseData={getCalWarehouseData} buttonClassName="bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-md px-6 py-2 shadow-md flex items-center transition-colors" />
                             </AlertDialog.Root>
                         </div>
                     </div>
@@ -93,11 +93,8 @@ const CalWarehouseTable = () => {
                                                 <div className="flex justify-center">
                                                     <DialogSelectWarehouse
                                                         documentWarehouseNo={cal_warehouse.document_warehouse_no}
-                                                        triggerButtonText={
-                                                            <span className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200">
-                                                                Calculation
-                                                            </span>
-                                                        }
+                                                        triggerButtonText="Calculation"
+                                                        buttonClassName="inline-flex items-center gap-2 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-md shadow-md transition-colors text-sm"
                                                     />
                                                 </div>
                                             </Table.Cell>
@@ -107,6 +104,7 @@ const CalWarehouseTable = () => {
                                                         getCalWarehouseData={getCalWarehouseData}
                                                         document_warehouse_id={cal_warehouse.document_warehouse_id}
                                                         document_warehouse_no={cal_warehouse.document_warehouse_no}
+                                                        buttonClassName="bg-red-400 hover:bg-red-500 text-white font-bold rounded-md px-6 py-2 shadow-md flex items-center transition-colors"
                                                     />
                                                 </div>
                                             </Table.Cell>

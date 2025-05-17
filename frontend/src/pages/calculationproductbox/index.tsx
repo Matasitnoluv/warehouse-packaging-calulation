@@ -1,8 +1,14 @@
-import DialogSelectWarehouse from "./components/dialogSelectWarehouse";
+// import DialogSelectWarehouse from "./components/dialogSelectWarehouse";
 import DialogSelectCalculationMode from "./components/dialogSelectCalculationMode";
 import { Package2, Warehouse } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
 const CalculationProductAndBoxPage = () => {
+    const navigate = useNavigate();
+
+    const handleNavigateWarehouse = () => {
+        navigate("/calwarehouseTable");
+    };
+
     return (
         <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto mb-8">
@@ -59,13 +65,12 @@ const CalculationProductAndBoxPage = () => {
                                     <span className="text-sm font-medium text-gray-600">Warehouse Organization</span>
                                 </div>
 
-                                <DialogSelectWarehouse
-                                    triggerButtonText={
-                                        <span className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200 cursor-pointer">
-                                            Calculate
-                                        </span>
-                                    }
-                                />
+                                <button
+                                    onClick={handleNavigateWarehouse}
+                                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200"
+                                >
+                                    Calculate
+                                </button>
                             </div>
                         </div>
                     </div>

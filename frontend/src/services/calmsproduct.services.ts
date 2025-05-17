@@ -14,12 +14,12 @@ export const getCalMsproductByType = async (type: "single" | "mixed") => {
     const { data: response } = await mainApi.get(
         GET_CAL_MSPRODUCT,
     );
-    
+
     // Filter the response objects by document_product_no prefix
     if (response && response.responseObject && Array.isArray(response.responseObject)) {
         const filteredResponse = {
             ...response,
-            responseObject: response.responseObject.filter(item => {
+            responseObject: response.responseObject.filter((item: { document_product_no: string; }) => {
                 if (type === "single") {
                     // Only include SBox for single type
                     return item.document_product_no.startsWith("(SBox");
@@ -32,7 +32,7 @@ export const getCalMsproductByType = async (type: "single" | "mixed") => {
         };
         return filteredResponse;
     }
-    
+
     return response;
 };
 

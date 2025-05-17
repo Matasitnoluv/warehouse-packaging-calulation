@@ -74,6 +74,8 @@ model masterwarehouse{
     update_date                       DateTime? @updatedAt
 
     masterzone masterzone[]
+
+    cal_warehouse cal_warehouse[]
 }
 
 model masterzone {
@@ -169,6 +171,23 @@ model user {
   update_date  DateTime? @updatedAt
 }
 
+model cal_warehouse {
+    document_warehouse_id String @id @default(uuid()) @db.Uuid
+    document_warehouse_no String @unique // WH202502270001
+    status              Boolean? @default(false)
+    status_date         DateTime? @default(now())
+    status_by           String?
+    create_by           String?
+    create_date         DateTime? @default(now())
+    update_by           String?
+    update_date         DateTime? @updatedAt
+    sort_by             Int?
+
+    master_warehouse_id               String @db.Uuid
+
+    masterwarehouse     masterwarehouse? @relation(fields: [master_warehouse_id], references: [master_warehouse_id])
+}
+
 model cal_msproduct {
     document_product_id String @id @default(uuid()) @db.Uuid
     document_product_no String @unique // BOX202502270001
@@ -255,15 +274,11 @@ model shelf_box_storage {
   cal_box_id         String @db.Uuid
   stored_date        DateTime @default(now())
   stored_by          String?
-  position           Int? // Optional position within the shelf
-  status             String @default("stored") // stored, moved, removed
-  
-  // Volume information
+  position           Int?
+  status             String @default("stored")
   cubic_centimeter_box Float?
   count               Int?
   total_volume        Float?
-  
-  // Document information
   document_product_no String?
   
   // Relations
@@ -272,4 +287,12 @@ model shelf_box_storage {
   
   @@unique([master_shelf_id, cal_box_id])
   @@index([document_product_no])
+}
+
+export interface ShelfBoxPlacementPayload {
+  boxId: string;
+  shelfId: string;
+  count: number;
+  cubic_centimeter_box: number;
+  document_product_no: string;
 }

@@ -4,7 +4,6 @@ import Login from "@/pages/login";
 import MsproductFeature from "@/pages/msproduct";
 import MsboxFeature from "@/pages/msbox";
 import CalculationProductAndBoxFeature from "@/pages/calculationproductbox";
-import Commingsoon from "@/components/layouts/navbars/comingsoon";
 import CalculationProductAndBoxTable from "@/pages/calculationproductbox/calculationProductAndBoxTable";
 import CalculationProductAndBoxTableSingle from "@/pages/calculationproductbox/calculationProductAndBoxTableSingle";
 import CalculationProductAndBoxTableMixed from "@/pages/calculationproductbox/calculationProductAndBoxTableMixed";
@@ -14,6 +13,8 @@ import MsWarehousePage from "@/pages/mswarehouse/mswarehouse";
 import WarehouseCalculation from "@/pages/warehouseCalculation/warehouseCalculation";
 import ExportPage from "@/pages/export";
 import Dashboard from "@/pages/dashboard/dashboard";
+import CalWarehouseTable from "@/pages/warehouseCalculation/component/calwarehouseTable";
+import SelectWarehousePage from "@/pages/calculationproductbox/SelectWarehousePage";
 
 const router = createBrowserRouter([
     {
@@ -68,6 +69,18 @@ const router = createBrowserRouter([
             {
                 path: "/export",
                 element: <ExportPage />
+            },
+            {
+                path: "/warehouse-calculation",
+                element: <WarehouseCalculation />
+            },
+            {
+                path: "/calwarehouseTable",
+                element: <CalWarehouseTable />
+            },
+            {
+                path: "/calculationproductbox/select-warehouse",
+                element: <SelectWarehousePage />
             },
             {
                 path: "/dashboard",

@@ -15,6 +15,7 @@ import ExportPage from "@/pages/export";
 import Dashboard from "@/pages/dashboard/dashboard";
 import CalWarehouseTable from "@/pages/warehouseCalculation/component/calwarehouseTable";
 import SelectWarehousePage from "@/pages/calculationproductbox/SelectWarehousePage";
+import UserManagement from "@/pages/user-management";
 
 const router = createBrowserRouter([
     {
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
             {
                 path: "/dashboard",
                 element: <Dashboard />
+            },
+            {
+                path: "/user-management",
+                element: <UserManagement />
             },
         ],
     },

@@ -51,6 +51,11 @@ export const userService = {
 
   update: async (users_id: string, payload: Partial<TypePayloaduser>) => {
     try {
+      // Hash password if it exists in payload
+      if (payload.password) {
+        payload.password = await bcrypt.hash(payload.password, 10);
+      }
+      
       const users = await userRepository.update(users_id, payload);
       return new ServiceResponse<user>(
         ResponseStatus.Success,

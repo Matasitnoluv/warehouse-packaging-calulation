@@ -97,17 +97,8 @@ export default function MsWarehousePage() {
                                 <Search className="w-4 h-4 text-white" />
                             </button>
                         </form>
-                        {/* Create Button */}
-                        <AlertDialog.Root>
-                            <button
-                                type="button"
-                                onClick={() => setOpen(true)}
-                                className="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg px-6 py-2 shadow-md flex items-center transition-colors"
-                            >
-                                <Plus className="w-5 h-5 mr-2" />
-                                Create Warehouse
-                            </button>
-                        </AlertDialog.Root>
+                        {/* Create Button (Dialog) */}
+                        <DialogAdd getMswarehouseData={getmswarehouseData} />
                     </div>
                 </div>
             </div>

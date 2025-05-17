@@ -102,17 +102,8 @@ export default function MsproductFeature() {
                                 <svg className="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                             </button>
                         </form>
-                        {/* Create Button */}
-                        <AlertDialog.Root>
-                            <button
-                                type="button"
-                                onClick={() => setOpen(true)}
-                                className="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg px-6 py-2 shadow-md flex items-center transition-colors"
-                            >
-                                <Plus className="w-5 h-5 mr-2" />
-                                Create Product
-                            </button>
-                        </AlertDialog.Root>
+                        {/* Create Button (Dialog) */}
+                        <DialogAdd getMsproductData={getMsproduct} />
                     </div>
                 </div>
             </div>

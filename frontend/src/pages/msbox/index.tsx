@@ -5,7 +5,7 @@ import { TypeMsboxAll } from "@/types/response/reponse.msbox";
 import DialogAdd from "./components/dilogAddMsbox";
 import DialogEdit from "./components/dilogEditMsbox";
 import AlertDialogDelete from "./components/alertdilogDeleteMsbox";
-import { Package, Search } from "lucide-react";
+import { Package, Search, Plus } from "lucide-react";
 
 export default function MsboxFeature() {
     const [msbox, setMsbox] = useState<TypeMsboxAll[]>([]);
@@ -93,51 +93,49 @@ export default function MsboxFeature() {
 
             {/* Header Section */}
             <div className="max-w-7xl mx-auto mb-8">
-                <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
-                    <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
-                        {/* Title */}
-                        <div className="flex-1 flex items-center gap-4">
-                            <div className="bg-green-50 p-3 rounded-xl">
-                                <Package className="w-10 h-10 text-green-500" /> {/* Adjusted icon size like msproduct */}
-                            </div>
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                                    Box Management
-                                </h1>
-                                <p className="mt-2 text-gray-600"> {/* Adjusted margin like msproduct */}
-                                    Manage and organize your box inventory
-                                </p>
-                            </div>
+                <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 flex flex-col lg:flex-row items-center gap-6 border border-gray-200">
+                    {/* Icon + Title + Description */}
+                    <div className="flex-1 flex items-center gap-4 min-w-0">
+                        <div className="bg-green-100 p-3 rounded-xl flex items-center justify-center shadow-sm">
+                            <Package className="w-10 h-10 text-green-500" />
                         </div>
-
-                        {/* Search Bar */}
-                        <div className="flex-1 w-full lg:max-w-md">
-                            <div className="flex items-center gap-3">
-                                <div className="flex-1 relative">
-                                    <input
-                                        type="text"
-                                        placeholder="Search by name or code..."
-                                        value={searchTerm}
-                                        onChange={handleSearchChange}
-                                        onKeyDown={handleKeyDown}
-                                        className="w-full h-12 pl-5 pr-12 text-base rounded-xl border-2 border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 outline-none shadow-sm"
-                                    />
-                                    <button
-                                        onClick={handleSearch}
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200"
-                                    >
-                                        <Search size={20} /> {/* Adjusted icon size */}
-                                    </button>
-                                </div>
-                            </div>
+                        <div className="min-w-0">
+                            <h1 className="text-3xl font-extrabold text-gray-900 truncate tracking-tight">Box Management</h1>
+                            <p className="mt-1 text-gray-500 truncate text-base">Manage and organize your box inventory</p>
                         </div>
-
-                        {/* Add Button */}
-                        <div className="flex-shrink-0">
-                            <AlertDialog.Root>
-                                <DialogAdd getMsboxData={loadMsboxData} />
-                            </AlertDialog.Root>
-                        </div>
+                    </div>
+                    {/* Search + Create Button */}
+                    <div className="flex w-full lg:w-auto gap-3 items-center mt-4 lg:mt-0">
+                        {/* Search Box with Button */}
+                        <form className="flex items-center w-full lg:w-72 bg-gray-100 border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                            <Search className="w-4 h-4 text-green-500 ml-3" />
+                            <input
+                                type="text"
+                                placeholder="Search by name or code..."
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                onKeyDown={handleKeyDown}
+                                className="outline-none flex-1 bg-transparent text-gray-700 placeholder-gray-400 px-2 py-2"
+                            />
+                            <button
+                                type="button"
+                                onClick={handleSearch}
+                                className="bg-green-500 hover:bg-green-600 text-white rounded-lg w-8 h-8 flex items-center justify-center mx-1 shadow-md focus:outline-none transition-colors"
+                            >
+                                <Search className="w-4 h-4 text-white" />
+                            </button>
+                        </form>
+                        {/* Create Button */}
+                        <AlertDialog.Root>
+                            <button
+                                type="button"
+                                onClick={() => setOpen(true)}
+                                className="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg px-6 py-2 shadow-md flex items-center transition-colors"
+                            >
+                                <Plus className="w-5 h-5 mr-2" />
+                                Create Box
+                            </button>
+                        </AlertDialog.Root>
                     </div>
                 </div>
             </div>

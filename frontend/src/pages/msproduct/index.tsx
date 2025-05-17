@@ -5,6 +5,7 @@ import { TypeMsproductAll } from "@/types/response/reponse.msproduct";
 import DialogAdd from "./components/dilogAddMsproduct";
 import DialogEdit from "./components/dilogEditMsproduct";
 import AlertDialogDelete from "./components/alertdilogDeleteMsproduct";
+import { Plus } from "lucide-react";
 
 export default function MsproductFeature() {
     const [msproduct, setMsproduct] = useState<TypeMsproductAll[]>([]);
@@ -67,56 +68,51 @@ export default function MsproductFeature() {
         <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
             {/* Header Section */}
             <div className="max-w-7xl mx-auto mb-8">
-                <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8">
-                    <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
-                        {/* Title */}
-                        <div className="flex-1 flex items-center gap-4">
-                            <div className="bg-green-50 p-3 rounded-xl">
-                                <svg className="w-10 h-10 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m-8-4l8 4m8 4l-8 4m8-4l-8-4m8-4v12M4 7v12l8-4" />
-                                </svg>
-                            </div>
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                                    Product Management
-                                </h1>
-                                <p className="mt-2 text-gray-600">
-                                    Manage and organize your product inventory
-                                </p>
-                            </div>
+                <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 flex flex-col lg:flex-row items-center gap-6 border border-gray-200">
+                    {/* Icon + Title + Description */}
+                    <div className="flex-1 flex items-center gap-4 min-w-0">
+                        <div className="bg-green-100 p-3 rounded-xl flex items-center justify-center shadow-sm">
+                            <svg className="w-10 h-10 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m-8-4l8 4m8 4l-8 4m8-4l-8-4m8-4v12M4 7v12l8-4" />
+                            </svg>
                         </div>
-
-                        {/* Search Bar */}
-                        <div className="flex-1 w-full lg:max-w-md">
-                            <div className="flex items-center gap-3">
-                                <div className="flex-1 relative">
-                                    <input
-                                        type="text"
-                                        placeholder="Search by name or code..."
-                                        value={searchTerm}
-                                        onChange={handleSearchChange}
-                                        onKeyDown={handleKeyDown}
-                                        className="w-full h-12 pl-5 pr-12 text-base rounded-xl border-2 border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 outline-none shadow-sm"
-                                    />
-                                    <button
-                                        onClick={handleSearch}
-                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <circle cx="11" cy="11" r="8"></circle>
-                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
+                        <div className="min-w-0">
+                            <h1 className="text-3xl font-extrabold text-gray-900 truncate tracking-tight">Product Management</h1>
+                            <p className="mt-1 text-gray-500 truncate text-base">Manage and organize your product inventory</p>
                         </div>
-
-                        {/* Add Button */}
-                        <div className="flex-shrink-0">
-                            <AlertDialog.Root>
-                                <DialogAdd getMsproductData={() => getMsproduct()} />
-                            </AlertDialog.Root>
-                        </div>
+                    </div>
+                    {/* Search + Create Button */}
+                    <div className="flex w-full lg:w-auto gap-3 items-center mt-4 lg:mt-0">
+                        {/* Search Box with Button */}
+                        <form className="flex items-center w-full lg:w-72 bg-gray-100 border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+                            <svg className="w-4 h-4 text-green-500 ml-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            <input
+                                type="text"
+                                placeholder="Search by name or code..."
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                onKeyDown={handleKeyDown}
+                                className="outline-none flex-1 bg-transparent text-gray-700 placeholder-gray-400 px-2 py-2"
+                            />
+                            <button
+                                type="button"
+                                onClick={handleSearch}
+                                className="bg-green-500 hover:bg-green-600 text-white rounded-lg w-8 h-8 flex items-center justify-center mx-1 shadow-md focus:outline-none transition-colors"
+                            >
+                                <svg className="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </button>
+                        </form>
+                        {/* Create Button */}
+                        <AlertDialog.Root>
+                            <button
+                                type="button"
+                                onClick={() => setOpen(true)}
+                                className="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg px-6 py-2 shadow-md flex items-center transition-colors"
+                            >
+                                <Plus className="w-5 h-5 mr-2" />
+                                Create Product
+                            </button>
+                        </AlertDialog.Root>
                     </div>
                 </div>
             </div>
@@ -169,13 +165,19 @@ export default function MsproductFeature() {
                                                 </div>
                                             </Table.Cell>
                                             <Table.Cell className="px-6 py-4">
-                                                <div className="flex items-center gap-2">
-                                                    <DialogEdit {...product} getMsproductData={() => getMsproduct()} onEditSuccess={handleEditSuccess} />
+                                                <div className="flex items-center gap-2 justify-center">
+                                                    <DialogEdit
+                                                        {...product}
+                                                        getMsproductData={() => getMsproduct()}
+                                                        onEditSuccess={handleEditSuccess}
+                                                        buttonClassName="bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors"
+                                                    />
                                                     <AlertDialogDelete
                                                         getMsproductData={() => getMsproduct()}
                                                         master_product_id={product.master_product_id}
                                                         master_product_name={product.master_product_name}
                                                         onDeleteSuccess={handleDeleteSuccess}
+                                                        buttonClassName="bg-red-400 hover:bg-red-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors"
                                                     />
                                                 </div>
                                             </Table.Cell>

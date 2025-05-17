@@ -52,16 +52,11 @@ const DilogAddCalwarehouse = ({ getCalwarehouseData }: DialogCalwarehouseProps) 
 
             if (response.statusCode === 200) {
                 setDocumentWarehouseNo(getNextDocumentNumber());
-                navigate("/warehouseCalculation", { state: { documentWarehouseNo: document_warehouse_no } });
+                navigate("/calwarehouseTable");
                 setShowSuccessAlert(true);
-
                 setTimeout(() => {
                     setShowSuccessAlert(false);
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 500);
-                }, 800);
-
+                }, 2000);
                 getCalwarehouseData();
 
             } else {

@@ -84,13 +84,15 @@ const NavbarMain = () => {
           <TabNav.Link href="/dashboard" className="p-2">Monitor</TabNav.Link>
           <TabNav.Link href="/msproduct" className="p-2">Product Management</TabNav.Link>
           <TabNav.Link href="/Msbox" className="p-2">Box Management</TabNav.Link>
-          <TabNav.Link href="/user-management" className="p-2">User Management</TabNav.Link>
           {isAdminOrManager && (
             <TabNav.Link href="/mswarahouse" className="p-2">Warehouse Management</TabNav.Link>
           )}
           <TabNav.Link href="/calculationproductbox" className="p-2">Calculation</TabNav.Link>
           <TabNav.Link href="/export" className="p-2">Export</TabNav.Link>
-          <TabNav.Link onClick={handleLogout} className="p-2 cursor-pointer">Log Out</TabNav.Link>
+          {role === "admin" && (
+            <TabNav.Link href="/user-management" className="p-2">User Management</TabNav.Link>
+          )}
+          <TabNav.Link onClick={handleLogout} className="p-2 cursor-pointer text-red-600 hover:text-red-700">Log Out</TabNav.Link>
         </TabNav.Root>
       </div>
     </div>

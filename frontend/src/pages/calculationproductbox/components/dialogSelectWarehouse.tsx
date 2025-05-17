@@ -23,9 +23,14 @@ interface WarehouseUsage {
 interface DialogSelectWarehouseProps {
   triggerButtonText?: ReactNode;
   documentWarehouseNo?: string;
+  buttonClassName?: string;
 }
 
-const DialogSelectWarehouse = ({ triggerButtonText = "Calculation", documentWarehouseNo }: DialogSelectWarehouseProps) => {
+const DialogSelectWarehouse = ({ 
+  triggerButtonText = "Calculation", 
+  documentWarehouseNo,
+  buttonClassName = "inline-flex items-center gap-2 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-lg shadow-md transition-colors text-sm"
+}: DialogSelectWarehouseProps) => {
   const [warehouses, setWarehouses] = useState<WarehouseUsage[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -135,8 +140,7 @@ const DialogSelectWarehouse = ({ triggerButtonText = "Calculation", documentWare
     <Dialog.Root>
       <Dialog.Trigger>
         <Button
-          size="3"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200"
+          className={buttonClassName}
         >
           {triggerButtonText}
         </Button>

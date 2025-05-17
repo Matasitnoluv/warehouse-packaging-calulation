@@ -71,17 +71,12 @@ const DilogAddCalwarehouse = ({ getCalwarehouseData }: DialogCalwarehouseProps) 
 
     return (
         <Button
-            className={`
-                inline-flex items-center gap-2 px-4 py-2.5 
-                bg-blue-500 hover:bg-blue-600 
-                text-white font-semibold rounded-lg 
-                shadow-md transition-all duration-200
-                ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
-            `}
+            size="3"
+            className="bg-green-500 hover:bg-green-600 text-white font-bold px-5 rounded-lg shadow-md flex items-center transition-colors"
             onClick={handleCreateCalwarehouse}
             disabled={isLoading}
         >
-            <Plus size={18} />
+            <Plus className="w-5 h-5 mr-2" />
             {isLoading ? "Creating..." : "Create New"}
 
             {

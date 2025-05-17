@@ -180,7 +180,7 @@ model cal_warehouse {
     update_date         DateTime? @updatedAt
     sort_by             Int?
 
-    master_warehouse_id               String @db.Uuid
+    master_warehouse_id               String? @db.Uuid
 
     masterwarehouse     masterwarehouse? @relation(fields: [master_warehouse_id], references: [master_warehouse_id])
 }

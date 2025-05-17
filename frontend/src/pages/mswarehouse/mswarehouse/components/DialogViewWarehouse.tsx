@@ -29,7 +29,7 @@ export default function DialogViewWarehouse({
           size="2"
           variant="soft"
           color="blue"
-          className="w-20 px-4"
+          className="bg-blue-400 hover:bg-blue-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors"
         >
           View
         </Button>

@@ -35,7 +35,7 @@ const ZoneList = ({ warehouseId, warehouseName, warehouseVolume }: ZoneListProps
             if (response.success) {
                 const zoneData = response.responseObject || [];
                 setZones(zoneData);
-                
+
                 // Calculate used space
                 const totalUsedSpace = zoneData.reduce((total: number, zone: any) => total + (zone.cubic_centimeter_zone || 0), 0);
                 setUsedSpace(totalUsedSpace);
@@ -110,13 +110,13 @@ const ZoneList = ({ warehouseId, warehouseName, warehouseVolume }: ZoneListProps
                             Space Usage: {usedSpace.toLocaleString()} / {warehouseVolume.toLocaleString()} cm³
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2.5">
-                            <div 
-                                className="h-2.5 rounded-full transition-all duration-500" 
-                                style={{ 
+                            <div
+                                className="h-2.5 rounded-full transition-all duration-500"
+                                style={{
                                     width: `${Math.min(warehouseVolume > 0 ? (usedSpace / warehouseVolume) * 100 : 0, 100)}%`,
-                                    backgroundColor: warehouseVolume > 0 ? 
-                                        (usedSpace / warehouseVolume) * 100 < 40 ? '#22c55e' : 
-                                        (usedSpace / warehouseVolume) * 100 < 70 ? '#f97316' : '#ef4444'
+                                    backgroundColor: warehouseVolume > 0 ?
+                                        (usedSpace / warehouseVolume) * 100 < 40 ? '#22c55e' :
+                                            (usedSpace / warehouseVolume) * 100 < 70 ? '#f97316' : '#ef4444'
                                         : '#22c55e'
                                 }}
                             ></div>
@@ -126,23 +126,23 @@ const ZoneList = ({ warehouseId, warehouseName, warehouseVolume }: ZoneListProps
                         </div>
                     </div>
                 </div>
-                <DialogAddZone 
-                    warehouseId={warehouseId} 
+                <DialogAddZone
+                    warehouseId={warehouseId}
                     warehouseName={warehouseName}
                     warehouseVolume={warehouseVolume}
-                    onZoneAdded={fetchZones} 
+                    onZoneAdded={fetchZones}
                 />
             </div>
 
             {zones.length > 0 ? (
                 <div className="space-y-3">
                     {zones.map((zone) => (
-                        <div 
-                            key={zone.master_zone_id} 
+                        <div
+                            key={zone.master_zone_id}
                             className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
                         >
                             {/* Zone Header - Always visible */}
-                            <div 
+                            <div
                                 className="p-4 cursor-pointer flex justify-between items-center"
                                 onClick={() => toggleZoneExpand(zone.master_zone_id)}
                             >
@@ -174,9 +174,9 @@ const ZoneList = ({ warehouseId, warehouseName, warehouseVolume }: ZoneListProps
                                     {/* Space usage indicator */}
                                     <div className="hidden sm:flex items-center gap-2">
                                         <div className="w-24 bg-gray-200 rounded-full h-2">
-                                            <div 
-                                                className="h-2 rounded-full" 
-                                                style={{ 
+                                            <div
+                                                className="h-2 rounded-full"
+                                                style={{
                                                     width: `${Math.min(warehouseVolume > 0 ? (zone.cubic_centimeter_zone / warehouseVolume) * 100 : 0, 100)}%`,
                                                     backgroundColor: getUsageColor((zone.cubic_centimeter_zone / warehouseVolume) * 100)
                                                 }}
@@ -189,13 +189,13 @@ const ZoneList = ({ warehouseId, warehouseName, warehouseVolume }: ZoneListProps
 
                                     {/* Action buttons */}
                                     <div className="flex items-center gap-1">
-                                        <DialogEditZone 
-                                            zone={zone} 
-                                            onZoneUpdated={fetchZones} 
+                                        <DialogEditZone
+                                            zone={zone}
+                                            onZoneUpdated={fetchZones}
                                         />
-                                        <Button 
-                                            size="1" 
-                                            color="red" 
+                                        <Button
+                                            size="1"
+                                            color="red"
                                             variant="soft"
                                             onClick={(e) => {
                                                 e.stopPropagation();
@@ -207,7 +207,7 @@ const ZoneList = ({ warehouseId, warehouseName, warehouseVolume }: ZoneListProps
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {/* Expanded Zone Details - Only visible when expanded */}
                             {expandedZones.has(zone.master_zone_id) && (
                                 <div className="border-t border-gray-100 bg-gray-50 p-4">
@@ -217,14 +217,14 @@ const ZoneList = ({ warehouseId, warehouseName, warehouseVolume }: ZoneListProps
                                             <div className="font-medium text-gray-700 text-lg">{zone.width}×{zone.length}×{zone.height}</div>
                                             <div className="text-xs text-gray-400 mt-1">centimeters</div>
                                         </div>
-                                        
+
                                         <div className="text-center p-3 bg-white rounded-md border border-gray-100 shadow-sm">
                                             <div className="text-xs text-gray-500 mb-1">Volume</div>
                                             <div className="font-medium text-gray-700 text-lg">{zone.cubic_centimeter_zone.toLocaleString()}</div>
                                             <div className="text-xs text-gray-400 mt-1">cubic centimeters</div>
                                         </div>
                                     </div>
-                                    
+
                                     {/* Space Usage */}
                                     <div className="bg-white p-4 rounded-md border border-gray-100 shadow-sm mb-4">
                                         <div className="flex justify-between items-center mb-2">
@@ -234,9 +234,9 @@ const ZoneList = ({ warehouseId, warehouseName, warehouseVolume }: ZoneListProps
                                             </div>
                                         </div>
                                         <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-                                            <div 
-                                                className="h-2.5 rounded-full transition-all duration-500" 
-                                                style={{ 
+                                            <div
+                                                className="h-2.5 rounded-full transition-all duration-500"
+                                                style={{
                                                     width: `${Math.min(warehouseVolume > 0 ? (zone.cubic_centimeter_zone / warehouseVolume) * 100 : 0, 100)}%`,
                                                     backgroundColor: getUsageColor((zone.cubic_centimeter_zone / warehouseVolume) * 100)
                                                 }}
@@ -247,30 +247,13 @@ const ZoneList = ({ warehouseId, warehouseName, warehouseVolume }: ZoneListProps
                                             <span>of {warehouseVolume.toLocaleString()} cm³ warehouse capacity</span>
                                         </div>
                                     </div>
-                            
-                                    {/* Rack Header */}
-                                    <div className="py-3 px-4 bg-blue-50 border-y border-blue-100 flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-1 h-10 bg-blue-400 rounded-full"></div>
-                                            <div>
-                                                <div className="text-xs text-blue-600 font-medium uppercase tracking-wider">Racks in {zone.master_zone_name}</div>
-                                                <div className="text-sm text-blue-800 font-semibold">Manage storage spaces</div>
-                                            </div>
-                                        </div>
-                                        <DialogAddRack 
-                                            zoneId={zone.master_zone_id} 
-                                            zoneName={zone.master_zone_name}
-                                            zoneVolume={zone.cubic_centimeter_zone}
-                                            onRackAdded={() => {}}
-                                        />
-                                    </div>
-                                    
+
                                     {/* Rack list */}
                                     <div className="p-4">
-                                        <RackList 
-                                            zoneId={zone.master_zone_id} 
-                                            zoneName={zone.master_zone_name} 
-                                            zoneVolume={zone.cubic_centimeter_zone} 
+                                        <RackList
+                                            zoneId={zone.master_zone_id}
+                                            zoneName={zone.master_zone_name}
+                                            zoneVolume={zone.cubic_centimeter_zone}
                                         />
                                     </div>
                                 </div>

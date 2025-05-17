@@ -137,16 +137,8 @@ const DialogAdd = ({ getMsboxData }: DialogMsboxProps) => {
     return (
         <Dialog.Root>
             <Dialog.Trigger>
-                <Button className={`
-                        inline-flex items-center gap-2 px-4 py-2.5 
-                        bg-green-500 hover:bg-green-600 
-                        text-white font-semibold rounded-lg 
-                        shadow-md transition-all duration-200
-                        ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
-                    `}
-                >
-                    <Plus size={18} />
-                    
+                <Button size="3" className="bg-green-500 hover:bg-green-600 text-white font-bold px-5 rounded-lg shadow-md flex items-center">
+                    <Plus className="w-5 h-5 mr-2" />
                     Create Box
                 </Button>
             </Dialog.Trigger>

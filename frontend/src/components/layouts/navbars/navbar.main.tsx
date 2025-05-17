@@ -93,7 +93,6 @@ const NavbarMain = () => {
           {role === "admin" && (
             <TabNav.Link href="/user-management" className="p-2">User Management</TabNav.Link>
           )}
-          <TabNav.Link onClick={handleLogout} className="p-2 cursor-pointer text-red-600 hover:text-red-700">Log Out</TabNav.Link>
           <TabNav.Link onClick={() => setShowLogoutDialog(true)} className="p-2 cursor-pointer">Log Out</TabNav.Link>
         </TabNav.Root>
       </div>

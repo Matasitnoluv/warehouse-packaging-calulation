@@ -49,6 +49,11 @@ export const GET_RACK_BOX_STORAGE_DETAIL = "/v1/rack_box_storage/detail";
 export const STORE_BOX_IN_RACK = "/v1/rack_box_storage/store";
 export const UPDATE_STORED_BOX = "/v1/rack_box_storage/update";
 export const DELETE_STORED_BOX = "/v1/rack_box_storage/delete";
+//calwarehouse
+export const GET_CAL_WAREHOUSE = "/v1/cal_warehouse/get";
+export const CREATE_CAL_WAREHOUSE = "/v1/cal_warehouse/create";
+export const UPDATE_CAL_WAREHOUSE = "/v1/cal_warehouse/update";
+export const DELETE_CAL_WAREHOUSE = "/v1/cal_warehouse/delete";
 
 // export box
 export const EXPORT_BOX = "/v1/export-box";

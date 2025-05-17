@@ -2,7 +2,7 @@ import { Button } from "@radix-ui/themes";
 import { useState, useEffect } from "react";
 import { postCalMsproduct } from "@/services/calmsproduct.services";
 import { useNavigate } from "react-router-dom"; // เพิ่ม useNavigate
-import { Plus , AlertCircle } from "lucide-react";
+import { Plus } from "lucide-react";
 
 type DialogCalmsproductProps = {
     getCalmsproductData: () => void;
@@ -22,7 +22,7 @@ const getNextDocumentNumber = (calculationType: "single" | "mixed") => { //ใ�
     const prefix = calculationType === "single" ? "S" : "M"; // เพิ่มตัวอักษรนำหน้าตามประเภท
     const lastNumberKey = `last_doc_number_${calculationType}`; // แยก key ตามประเภท
     const lastDateKey = `last_doc_number_date_${calculationType}`; // แยก key วันที่ตามประเภท
-    
+
     //ตรวจสอบว่าเลขล่าสุดที่ถูกเก็บใน localStorage อยู่ในวันเดียวกันหรือไม่
     //ถ้าเป็นวันเดิม → นำเลขล่าสุดมา +1
     //ถ้าเป็นวันใหม่ → เริ่มใหม่ที่ 1
@@ -59,7 +59,7 @@ const DialogAdd = ({ getCalmsproductData, calculationType = "mixed" }: DialogCal
 
             if (response.statusCode === 200) {
                 setDocument_product_no(getNextDocumentNumber(calculationType));
-                
+
                 navigate("/selectProductandBoxPage", { state: { documentProductNo: document_product_no, calculationType: calculationType } }); // ส่งค่าไปหน้าใหม่พร้อมประเภทการคำนวณ
                 setShowSuccessAlert(true);
 
@@ -108,9 +108,9 @@ const DialogAdd = ({ getCalmsproductData, calculationType = "mixed" }: DialogCal
                 )
             }
         </Button>
-        
+
     );
-    
+
 };
 
 export default DialogAdd;

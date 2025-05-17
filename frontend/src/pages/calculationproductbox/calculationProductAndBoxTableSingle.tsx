@@ -97,8 +97,8 @@ const CalculationProductAndBoxTableSingle = () => {
                                                 </Table.Cell>
                                                 <Table.Cell className="px-6 py-4">
                                                     <div className="flex justify-center">
-                                                        <DialogEditCalmsproduct 
-                                                            documentProductNo={cal_msproduct.document_product_no} 
+                                                        <DialogEditCalmsproduct
+                                                            documentProductNo={cal_msproduct.document_product_no}
                                                             calculationType="single"
                                                         />
                                                     </div>
@@ -129,7 +129,7 @@ const CalculationProductAndBoxTableSingle = () => {
                         </Table.Root>
                     </div>
                 </Card>
-                
+
             </div>
         </div>
     );

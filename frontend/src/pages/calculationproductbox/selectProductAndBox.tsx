@@ -56,6 +56,13 @@ const AlertDialog = ({ isOpen, title, message, type, onClose }: AlertDialogProps
     );
 };
 
+interface BoxItem {
+    productId: any;
+    productName: any;
+    productCode: any;
+    quantity: number;
+}
+
 const CalculationProductAndBox = () => {
     const location = useLocation();
     const [searchParams] = useSearchParams();
@@ -226,7 +233,16 @@ const CalculationProductAndBox = () => {
             if (maxItemsInCurrentBox > 0) {
                 // สร้างกล่องใหม่
                 boxInstanceCounter++;
-                const currentBoxInstance = {
+                const currentBoxInstance: {
+                    boxTypeId: any;
+                    boxTypeName: any;
+                    boxCode: any;
+                    boxVolume: any;
+                    no: number;
+                    items: BoxItem[];
+                    usedVolume: number;
+                    remainingVolume: number;
+                } = {
                     boxTypeId: currentBox.id,
                     boxTypeName: currentBox.name,
                     boxCode: currentBox.code,
@@ -360,18 +376,7 @@ const CalculationProductAndBox = () => {
             // ส่ง API request เฉพาะ `sort_by` และ `master_product_id`
             await Promise.all(
                 updatedProducts.map(product =>
-                    patchMsproduct({
-                        master_product_id: product.master_product_id,
-                        master_product_name: product.master_product_name,
-                        height: product.height,
-                        length: product.length,
-                        width: product.width,
-                        cubic_centimeter_product: product.cubic_centimeter_product,
-                        image: product.image,
-                        sort_by: product.sort_by,
-                        description: product.description,
-                        code_product: product.code_product
-                    })
+                    patchMsproduct(product as any)
                 )
             );
         } catch (error) {
@@ -623,13 +628,13 @@ const CalculationProductAndBox = () => {
                                 {calculationResults.length > 0 ? (
                                     (() => {
                                         // จัดกลุ่มผลลัพธ์ตามหมายเลขกล่อง
-                                        const groupedResults = calculationResults.reduce((acc, result) => {
+                                        const groupedResults = calculationResults.reduce((acc: Record<number, any[]>, result) => {
                                             if (!acc[result.no]) {
                                                 acc[result.no] = [];
                                             }
                                             acc[result.no].push(result);
                                             return acc;
-                                        }, {} as Record<number, typeof calculationResults>);
+                                        }, {} as Record<number, any[]>);
 
                                         // สลับสีพื้นหลังกล่อง: เขียวอ่อน และ เทาอ่อน
                                         const boxColors = [

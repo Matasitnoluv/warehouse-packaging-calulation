@@ -112,10 +112,6 @@ const DialogSelectWarehouse = ({ triggerButtonText = "Calculation", documentWare
     }
   };
 
-  // const handleEditCalmsbox = () => {
-  //   navigate("/calculationproductbox/select-warehouse", { state: { documentWarehouseNo } });
-  // };
-
   // Format large numbers with commas
   const formatNumber = (num: number) => {
     return num.toLocaleString();
@@ -131,15 +127,19 @@ const DialogSelectWarehouse = ({ triggerButtonText = "Calculation", documentWare
   return (
     <Dialog.Root>
       <Dialog.Trigger>
-        <Button
-          size="3"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200"
-        >
-          {triggerButtonText}
-        </Button>
+        {typeof triggerButtonText === 'string' ? (
+          <Button
+            size="3"
+            className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg"
+          >
+            {triggerButtonText}
+          </Button>
+        ) : (
+          triggerButtonText
+        )}
       </Dialog.Trigger>
 
-      <Dialog.Content className="bg-white rounded-xl shadow-xl p-6 max-w-5xl overflow-y-auto" style={{ maxHeight: '80vh' }}>
+      <Dialog.Content className="bg-white rounded-xl shadow-xl p-6 max-w-5xl">
         <Dialog.Title className="text-2xl font-bold mb-2">Select Warehouse</Dialog.Title>
         <Dialog.Description className="text-gray-600 mb-6">
           Choose a warehouse to calculate box placement in racks. View detailed information about each warehouse below.

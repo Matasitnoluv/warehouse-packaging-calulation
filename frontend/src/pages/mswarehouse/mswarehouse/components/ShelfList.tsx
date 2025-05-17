@@ -24,7 +24,7 @@ const ShelfList = ({ rackId, rackName, rackVolume }: ShelfListProps) => {
             if (response.success) {
                 const shelfData = response.responseObject || [];
                 setShelves(shelfData);
-                
+
                 // Calculate used space
                 const totalUsedSpace = shelfData.reduce((total: number, shelf: any) => total + (shelf.cubic_centimeter_shelf || 0), 0);
                 setUsedSpace(totalUsedSpace);
@@ -88,25 +88,25 @@ const ShelfList = ({ rackId, rackName, rackVolume }: ShelfListProps) => {
                             Space Usage: {usedSpace.toLocaleString()} / {rackVolume.toLocaleString()} cm³
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
-                            <div 
-                                className="h-2 rounded-full transition-all duration-500" 
-                                style={{ 
+                            <div
+                                className="h-2 rounded-full transition-all duration-500"
+                                style={{
                                     width: `${Math.min(rackVolume > 0 ? (usedSpace / rackVolume) * 100 : 0, 100)}%`,
-                                    backgroundColor: rackVolume > 0 ? 
-                                        (usedSpace / rackVolume) * 100 < 40 ? '#10b981' : 
-                                        (usedSpace / rackVolume) * 100 < 70 ? '#f97316' : '#ef4444'
+                                    backgroundColor: rackVolume > 0 ?
+                                        (usedSpace / rackVolume) * 100 < 40 ? '#10b981' :
+                                            (usedSpace / rackVolume) * 100 < 70 ? '#f97316' : '#ef4444'
                                         : '#10b981'
                                 }}
                             ></div>
                         </div>
                     </div>
                 </div>
-                
-                <DialogAddShelf 
-                    rackId={rackId} 
-                    rackName={rackName} 
-                    rackVolume={rackVolume} 
-                    onShelfAdded={fetchShelves} 
+
+                <DialogAddShelf
+                    rackId={rackId}
+                    rackName={rackName}
+                    rackVolume={rackVolume}
+                    onShelfAdded={fetchShelves}
                 />
             </div>
 
@@ -126,14 +126,14 @@ const ShelfList = ({ rackId, rackName, rackVolume }: ShelfListProps) => {
                                     </div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <DialogEditShelf 
-                                        shelf={shelf} 
+                                    <DialogEditShelf
+                                        shelf={shelf}
                                         rackVolume={rackVolume}
-                                        onShelfUpdated={fetchShelves} 
+                                        onShelfUpdated={fetchShelves}
                                     />
-                                    <Button 
-                                        color="red" 
-                                        variant="soft" 
+                                    <Button
+                                        color="red"
+                                        variant="soft"
                                         size="1"
                                         onClick={() => handleDeleteShelf(shelf.master_shelf_id)}
                                     >
@@ -141,7 +141,7 @@ const ShelfList = ({ rackId, rackName, rackVolume }: ShelfListProps) => {
                                     </Button>
                                 </div>
                             </div>
-                            
+
                             <div className="p-4">
                                 <div className="flex flex-col gap-3">
                                     <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
@@ -166,7 +166,7 @@ const ShelfList = ({ rackId, rackName, rackVolume }: ShelfListProps) => {
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="bg-blue-50 p-3 rounded-lg border border-blue-100">
                                         <div className="flex justify-between items-center">
                                             <div>
@@ -182,7 +182,7 @@ const ShelfList = ({ rackId, rackName, rackVolume }: ShelfListProps) => {
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     {shelf.description && (
                                         <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
                                             <div className="text-sm font-medium text-gray-700 mb-1">Description</div>
@@ -206,7 +206,7 @@ const ShelfList = ({ rackId, rackName, rackVolume }: ShelfListProps) => {
                         </div>
                         <h3 className="text-lg font-semibold text-gray-800 mb-2">No Shelves Available</h3>
                         <p className="text-gray-600 mb-6 max-w-md mx-auto">This rack doesn't have any shelves yet. Add shelves to organize your storage space and start storing boxes on different levels.</p>
-                        
+
                         <div className="flex justify-center">
                             <div className="flex items-center justify-center gap-2 bg-green-50 text-green-700 px-4 py-3 rounded-lg border border-green-100">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -218,7 +218,7 @@ const ShelfList = ({ rackId, rackName, rackVolume }: ShelfListProps) => {
                             </div>
                         </div>
                     </div>
-                    
+
                     <div className="bg-green-50 px-8 py-4 border-t border-green-100">
                         <h4 className="font-medium text-green-800 mb-2">Why add shelves?</h4>
                         <ul className="text-sm text-green-700 space-y-1">

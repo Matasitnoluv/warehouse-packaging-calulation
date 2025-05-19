@@ -5,16 +5,16 @@ import mainApi from "@/apis/main.api";
 
 export const getMswarehouse = async () => {
     try {
-        const { data: response } = await mainApi.get(
-            GET_MSWAREHOUSE
-        );
-        return response;
+        console.log("Fetching warehouse data..."); // Debug log
+        const response = await mainApi.get(GET_MSWAREHOUSE);
+        console.log("Warehouse API raw response:", response); // Debug log
+        return response.data;
     } catch (error) {
         console.error('Error in getMswarehouse:', error);
         return {
             status: 'Failed',
             message: 'Failed to fetch warehouse data',
-            data: []
+            responseObject: []
         };
     }
 };

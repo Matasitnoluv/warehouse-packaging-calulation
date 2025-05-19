@@ -1130,20 +1130,22 @@ const WarehouseCalculation = () => {
             {/* Show selected warehouse name if available */}
             {warehouseName && (
               <div className="mb-6">
-                <label className="block text-lg font-semibold text-gray-700 mb-1">
+                <label className="block text-xl font-bold text-gray-800 mb-2">
                   Selected Warehouse
                 </label>
-                <div className="bg-gray-100 text-gray-800 rounded-lg px-4 py-2 text-base font-mono border border-gray-200">
+                <div className="bg-gray-50 text-blue-900 rounded-xl px-5 py-3 text-lg font-mono border border-blue-200 shadow-sm">
                   {warehouseName}
                 </div>
               </div>
             )}
+            {/* Divider */}
+            <hr className="my-4 border-gray-200" />
             {/* Selected Document Warehouse No */}
             <div className="mb-6">
-              <label className="block text-lg font-semibold text-gray-700 mb-1">
+              <label className="block text-xl font-bold text-gray-800 mb-2">
                 Selected Document Warehouse No
               </label>
-              <div className="bg-gray-100 text-gray-800 rounded-lg px-4 py-2 text-base font-mono border border-gray-200">
+              <div className="bg-gray-50 text-blue-900 rounded-xl px-5 py-3 text-lg font-mono border border-blue-200 shadow-sm">
                 {documentWarehouseNo || <span className="text-gray-400">No document selected</span>}
               </div>
             </div>
@@ -1210,7 +1212,7 @@ const WarehouseCalculation = () => {
                   <span className="ml-4"><strong>Zone:</strong> {selectedZoneName}</span>
                 </div>
                 <div>
-                  <strong>Document Product No:</strong> {calculateSummary?.document}
+                  <strong>Document Box No:</strong> {calculateSummary?.document}
                 </div>
               </div>
 

@@ -271,6 +271,12 @@ model shelf_box_storage {
   cal_box_id         String @db.Uuid
   stored_date        DateTime @default(now())
   stored_by          String?
+  status             String @default("stored")
+  position             Int?
+document_product_no  String?
+cubic_centimeter_box Float?
+count                Int?
+total_volume         Float          
 
   // Relations
   mastershelf        mastershelf @relation(fields: [master_shelf_id], references: [master_shelf_id])

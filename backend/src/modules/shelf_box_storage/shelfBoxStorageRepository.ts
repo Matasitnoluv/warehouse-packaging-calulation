@@ -92,9 +92,11 @@ export const shelfBoxStorageRepository = {
     },
 
     findByDocumentNoAsync: async (document_product_no: string) => {
+        // Ensure document number has parentheses
+        const formattedDocNo = document_product_no.startsWith("(") ? document_product_no : `(${document_product_no})`;
         return prisma.shelf_box_storage.findMany({
             where: {
-                document_product_no,
+                document_product_no: formattedDocNo,
             },
             select: {
                 storage_id: true,
@@ -187,10 +189,13 @@ export const shelfBoxStorageRepository = {
                 status: "stored", // Only count boxes that are still stored
             },
             _sum: {
-                total_volume: true,
+                cubic_centimeter_box: true,
+                count: true
             },
         });
 
-        return result._sum.total_volume || 0;
+        // Calculate total volume using cubic_centimeter_box and count
+        const totalVolume = (result._sum.cubic_centimeter_box || 0) * (result._sum.count || 0);
+        return totalVolume;
     },
 };

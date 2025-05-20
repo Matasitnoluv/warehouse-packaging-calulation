@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { BoxSelect, Layers } from "lucide-react";
+import CalculationSummary from "./components/CalculationSummary";
 
 interface ZoneType {
     master_zone_id: string;
@@ -30,6 +31,16 @@ const ZoneDocumentSelector: React.FC<ZoneDocumentSelectorProps> = ({
     setSelectedDocument,
     onCalculate,
 }) => {
+    const [showCalculation, setShowCalculation] = useState(false);
+
+    const handleCalculate = () => {
+        if (!selectedZone || !selectedDocument) {
+            return;
+        }
+        setShowCalculation(true);
+        onCalculate();
+    };
+
     return (
         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-10 mt-8 border border-gray-100">
             {/* Select Zone */}
@@ -77,12 +88,21 @@ const ZoneDocumentSelector: React.FC<ZoneDocumentSelectorProps> = ({
                 <div className="flex justify-end mt-8">
                     <button
                         className="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg px-8 py-3 shadow-lg flex items-center gap-2 text-lg transition-all duration-200 focus:ring-2 focus:ring-green-400 focus:outline-none"
-                        onClick={onCalculate}
+                        onClick={handleCalculate}
                     >
                         <BoxSelect className="w-5 h-5 mr-1" />
                         Calculate
                     </button>
                 </div>
+            )}
+
+            {/* Calculation Summary */}
+            {showCalculation && selectedZone && selectedDocument && (
+                <CalculationSummary
+                    selectedZone={selectedZone}
+                    selectedDocument={selectedDocument}
+                    onCalculate={onCalculate}
+                />
             )}
         </div>
     );

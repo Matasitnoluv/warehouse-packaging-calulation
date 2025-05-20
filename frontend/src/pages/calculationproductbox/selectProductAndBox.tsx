@@ -396,12 +396,14 @@ const CalculationProductAndBox = () => {
 
     useEffect(() => {
         if (!documentProductNo) return;
+        // Ensure document number has parentheses
+        const formattedDocNo = documentProductNo.startsWith("(") ? documentProductNo : `(${documentProductNo})`;
         // ดึงข้อมูลจากฐานข้อมูล cal_box
-        getCalBox(documentProductNo).then((res) => {
+        getCalBox(formattedDocNo).then((res) => {
             if (res && res.success && Array.isArray(res.responseObject)) {
                 // กรองข้อมูลเฉพาะที่ตรงกับ documentProductNo ปัจจุบัน
                 const filteredData = res.responseObject.filter(
-                    (item: any) => item.document_product_no === documentProductNo
+                    (item: any) => item.document_product_no === formattedDocNo
                 );
 
                 // map ข้อมูลให้ตรงกับ calculationResults

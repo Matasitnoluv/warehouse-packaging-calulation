@@ -3,7 +3,7 @@ import mainApi from "@/apis/main.api";
 import { PayloadCreateCalBox, PayloadDeteleCalBox, PayloadUpdateCalBox } from "@/types/requests/request.cal_box";
 import { CalBoxResponse } from "@/types/response/reponse.cal_box";
 
-export const getCalBox = async () => {
+export const getCalBox = async (documentProductNo: any) => {
     const { data: response } = await mainApi.get(
         GET_CAL_BOX,
     );

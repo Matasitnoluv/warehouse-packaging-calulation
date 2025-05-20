@@ -69,7 +69,7 @@ export const shelfBoxStorageServices = {
             // Check if there's enough space in the shelf
             const currentUsedVolume = await shelfBoxStorageRepository.getTotalVolumeByShelfIdAsync(payload.master_shelf_id);
             const totalVolumeToAdd = payload.cubic_centimeter_box * payload.count;
-            
+
             // Set the total volume in the payload
             payload.total_volume = totalVolumeToAdd;
 
@@ -147,10 +147,10 @@ export const shelfBoxStorageServices = {
             for (const item of payload) {
                 // Check if the shelf exists
                 const shelf = await msshelfRepository.findByIdAsync(item.master_shelf_id);
-                if (!shelf) {
+                if (!shelf || !shelf.cubic_centimeter_shelf) {
                     errors.push({
                         cal_box_id: item.cal_box_id,
-                        message: "Shelf not found",
+                        message: "Shelf not found or invalid shelf volume",
                     });
                     continue;
                 }
@@ -158,9 +158,6 @@ export const shelfBoxStorageServices = {
                 // Check if there's enough space in the shelf
                 const currentUsedVolume = await shelfBoxStorageRepository.getTotalVolumeByShelfIdAsync(item.master_shelf_id);
                 const totalVolumeToAdd = item.cubic_centimeter_box * item.count;
-                
-                // Set the total volume in the payload
-                item.total_volume = totalVolumeToAdd;
 
                 if (currentUsedVolume + totalVolumeToAdd > shelf.cubic_centimeter_shelf) {
                     errors.push({
@@ -175,6 +172,7 @@ export const shelfBoxStorageServices = {
                 const newPayload = {
                     ...item,
                     storage_id,
+                    total_volume: totalVolumeToAdd // Keep total_volume for backward compatibility
                 };
 
                 // Create the storage record
@@ -190,12 +188,9 @@ export const shelfBoxStorageServices = {
                 },
                 message: `Stored ${results.length} boxes successfully. ${errors.length} boxes failed.`,
             };
-        } catch (error: any) {
-            return {
-                success: false,
-                responseObject: null,
-                message: error.message,
-            };
+        } catch (error) {
+            console.error("Error storing multiple boxes:", error);
+            throw error;
         }
     },
 };

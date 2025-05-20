@@ -1,5 +1,7 @@
 import axios from "axios";
 import { API_URL } from "../config";
+import { API_ENDPOINTS } from "@/apis/endpoint.api";
+import { RackBoxStorage } from "./rackBoxStorage.services";
 
 // Define the payload type for storing a box in a shelf
 export interface StoreBoxPayload {
@@ -50,7 +52,7 @@ export const getStoredBoxesByRackId = async (master_rack_id: string) => {
   try {
     // First get all shelves in the rack
     const shelvesResponse = await axios.get(`${API_URL}/v1/msshelf?master_rack_id=${master_rack_id}`);
-    
+
     if (!shelvesResponse.data.success) {
       return {
         success: false,
@@ -58,9 +60,9 @@ export const getStoredBoxesByRackId = async (master_rack_id: string) => {
         message: "Failed to fetch shelves for the rack",
       };
     }
-    
+
     const shelves = shelvesResponse.data.responseObject || [];
-    
+
     // If no shelves, return empty array
     if (!Array.isArray(shelves) || shelves.length === 0) {
       return {
@@ -69,14 +71,14 @@ export const getStoredBoxesByRackId = async (master_rack_id: string) => {
         message: "No shelves found in this rack",
       };
     }
-    
+
     // Get stored boxes for each shelf
-    const storedBoxesPromises = shelves.map((shelf: any) => 
+    const storedBoxesPromises = shelves.map((shelf: any) =>
       getStoredBoxesByShelfId(shelf.master_shelf_id)
     );
-    
+
     const storedBoxesResponses = await Promise.all(storedBoxesPromises);
-    
+
     // Combine all stored boxes
     const allStoredBoxes = storedBoxesResponses.reduce((acc: any[], response: any) => {
       if (response.success && Array.isArray(response.responseObject)) {
@@ -84,7 +86,7 @@ export const getStoredBoxesByRackId = async (master_rack_id: string) => {
       }
       return acc;
     }, []);
-    
+
     return {
       success: true,
       responseObject: allStoredBoxes,
@@ -103,8 +105,10 @@ export const getStoredBoxesByRackId = async (master_rack_id: string) => {
 // Get stored boxes by document number
 export const getStoredBoxesByDocumentNo = async (document_product_no: string) => {
   try {
+    // Ensure document number has parentheses
+    const formattedDocNo = document_product_no.startsWith("(") ? document_product_no : `(${document_product_no})`;
     const response = await axios.get(
-      `${API_URL}/v1/shelf_box_storage/document/${document_product_no}`
+      `${API_URL}/v1/shelf_box_storage/document/${formattedDocNo}`
     );
     return response.data;
   } catch (error) {
@@ -185,6 +189,26 @@ export const deleteStoredBox = async (storage_id: string) => {
   }
 };
 
+export const saveCalculateDialog = async (storage_id: string, calculateSummary: RackBoxStorage) => {
+  try {
+    const response = await axios.post(`${API_URL}/v1/shelf_box_storage/save-calculate-dialog`, {
+      storage_id,
+      calculateSummary
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error saving calculate dialog:", error);
+    return {
+      success: false,
+      responseObject: null,
+      message: "Failed to save calculate dialog",
+    };
+  }
+};
+
+
+
+
 // Export all functions as a service object
 export const shelfBoxStorageService = {
   getAllStoredBoxes,
@@ -195,4 +219,34 @@ export const shelfBoxStorageService = {
   storeMultipleBoxesInShelf,
   updateStoredBox,
   deleteStoredBox,
+};
+
+export const getShelfBoxStorage = async (document_product_no: string) => {
+  try {
+    const response = await axios.get(`${API_ENDPOINTS.SHELF_BOX_STORAGE.GET_BY_DOCUMENT}/${document_product_no}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching shelf box storage:", error);
+    throw error;
+  }
+};
+
+export const createShelfBoxStorage = async (payload: any) => {
+  try {
+    const response = await axios.post(API_ENDPOINTS.SHELF_BOX_STORAGE.STORE, payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating shelf box storage:", error);
+    throw error;
+  }
+};
+
+export const storeMultipleBoxes = async (payloads: any[]) => {
+  try {
+    const response = await axios.post(API_ENDPOINTS.SHELF_BOX_STORAGE.STORE_MULTIPLE, payloads);
+    return response.data;
+  } catch (error) {
+    console.error("Error storing multiple boxes:", error);
+    throw error;
+  }
 };

@@ -56,11 +56,11 @@ const ShelfUsage: React.FC<ShelfUsageProps> = ({ shelfData, boxData, loading }) 
     .slice(0, 5)
     .map(shelf => {
       const shelfVolume = shelf.cubic_centimeter_shelf || 0;
-      
+
       // Find boxes stored in this shelf
       const boxesInShelf = boxData.filter(box => box.master_shelf_id === shelf.master_shelf_id);
       const usedVolume = boxesInShelf.reduce((total, box) => total + (box.total_volume || 0), 0);
-      
+
       return {
         name: shelf.master_shelf_name || `Shelf ${shelf.master_shelf_id.substring(0, 5)}...`,
         volume: shelfVolume,
@@ -97,8 +97,8 @@ const ShelfUsage: React.FC<ShelfUsageProps> = ({ shelfData, boxData, loading }) 
               <span>{stats.usagePercentage.toFixed(2)}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-              <div 
-                className="bg-purple-500 h-2.5 rounded-full" 
+              <div
+                className="bg-purple-500 h-2.5 rounded-full"
                 style={{ width: `${Math.min(stats.usagePercentage, 100)}%` }}
               ></div>
             </div>

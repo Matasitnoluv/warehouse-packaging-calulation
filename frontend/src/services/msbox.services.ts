@@ -1,6 +1,6 @@
 import { CREATE_MSBOX, GET_MSBOX, UPDATE_MSBOX, DELETE_MSBOX } from "@/apis/endpoint.api";
 import mainApi from "@/apis/main.api";
-import {PayloadDeteleMsbox } from "@/types/requests/request.msbox";
+import { PayloadDeteleMsbox } from "@/types/requests/request.msbox";
 import { MsboxResponse } from '@/types/response/reponse.msbox';
 
 export const getMsbox = async () => {
@@ -42,4 +42,6 @@ export const deleteBox = async (params: PayloadDeteleMsbox) => {
     );
     return response;
 }
+
+export const getBoxes = () => mainApi.get("/v1/msbox");
 

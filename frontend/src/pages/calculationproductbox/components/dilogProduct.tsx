@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Dialog, Button, Table } from "@radix-ui/themes";
 import { TypeMsproductAll } from "@/types/response/reponse.msproduct";
-import { patchMsproduct } from "@/services/msproduct.services";
-import { getMsbox } from "@/services/msbox.services";
+import { patchMsproduct, getProducts } from "@/services/msproduct.services";
+import { getMsbox, getBoxes } from "@/services/msbox.services";
 
 // นำเข้า icon จาก lucide-react หรือใช้ SVG inline
 // ถ้าคุณมี lucide-react ให้ import แบบนี้:

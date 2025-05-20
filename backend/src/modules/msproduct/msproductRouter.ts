@@ -6,6 +6,8 @@ import { authenticateJWT } from "@common/middleware/AuthToken";
 import multer from "multer";
 import path from "path";
 import checkAllowedRoles from "@common/middleware/checkAllowedRoles";
+import { Router } from "express";
+import { PrismaClient } from "@prisma/client";
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -30,6 +32,10 @@ const upload = multer({
         cb(new Error('Only image files are allowed!'));
     }
 });
+
+
+const prisma = new PrismaClient();
+
 
 export const msproductRouter = (() => {
     const router = express.Router();
@@ -70,5 +76,37 @@ export const msproductRouter = (() => {
         }
     );
 
+
+
+
+    // Get all products
+    router.get("/", async (req, res) => {
+        const products = await prisma.masterproduct.findMany();
+        res.json({ responseObject: products });
+    });
+
+    // Add new product
+    router.post("/", async (req, res) => {
+        const { master_product_name, code_product, scale_product, height, length, width, cubic_centimeter_product, count, description, image_path } = req.body;
+        const product = await prisma.masterproduct.create({
+            data: {
+                master_product_name,
+                code_product,
+                scale_product,
+                height,
+                length,
+                width,
+                cubic_centimeter_product,
+                description,
+                image_path,
+                sort_by: 1, // หรือ logic อื่น
+            },
+        });
+        res.json({ responseObject: product });
+    });
+
     return router;
+
+
+
 })();

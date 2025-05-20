@@ -6,7 +6,7 @@ import DialogProduct from "./components/dilogProduct";
 import DialogBox from "./components/dilogBox";
 import { getMsbox } from "@/services/msbox.services";
 import { ArrowUp, ArrowDown, AlertCircle, CheckCircle2 } from "lucide-react";
-import { postCalBox } from "@/services/calbox.servicers";
+import { postCalBox, getCalBox } from "@/services/calbox.servicers";
 
 // เพิ่ม interface สำหรับ Alert Dialog
 interface AlertDialogProps {
@@ -394,6 +394,32 @@ const CalculationProductAndBox = () => {
         setSelectedBoxs(prev => prev.filter(item => item.master_box_id !== boxId));
     };
 
+    useEffect(() => {
+        if (!documentProductNo) return;
+        // ดึงข้อมูลจากฐานข้อมูล cal_box
+        getCalBox(documentProductNo).then((res) => {
+            if (res && res.success && Array.isArray(res.responseObject)) {
+                // กรองข้อมูลเฉพาะที่ตรงกับ documentProductNo ปัจจุบัน
+                const filteredData = res.responseObject.filter(
+                    (item: any) => item.document_product_no === documentProductNo
+                );
+
+                // map ข้อมูลให้ตรงกับ calculationResults
+                const formatted = filteredData.map((item: any, idx: number) => ({
+                    no: item.box_no,
+                    boxCode: item.code_box,
+                    boxName: item.master_box_name,
+                    productName: item.master_product_name,
+                    productCode: item.code_product,
+                    productCountPerBox: item.count,
+                    documentProductNo: item.document_product_no,
+                }));
+
+                setCalculationResults(formatted);
+            }
+        });
+    }, [documentProductNo]);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
             <div className="max-w-8xl mx-auto">
@@ -511,14 +537,13 @@ const CalculationProductAndBox = () => {
                                 </Table.Header>
                                 <Table.Body>
                                     {selectedBoxs.length > 0 ? (
-                                        selectedBoxs.map((box, index) => (
+                                        selectedBoxs.map((box, idx) => (
                                             <Table.Row key={box.master_box_id} className="hover:bg-gray-50">
-                                                <Table.RowHeaderCell>{box.sort_by}</Table.RowHeaderCell>
+                                                <Table.RowHeaderCell>{idx + 1}</Table.RowHeaderCell>
                                                 <Table.Cell>{box.code_box}</Table.Cell>
                                                 <Table.Cell>{box.master_box_name}</Table.Cell>
                                                 <Table.Cell className="text-right">{box.width} × {box.height} × {box.length}</Table.Cell>
                                                 <Table.Cell className="text-right">{(box.cubic_centimeter_box).toLocaleString("th-TH", { minimumFractionDigits: 2 })}</Table.Cell>
-
                                                 <Table.Cell>
                                                     <Button
                                                         onClick={() => handleRemoveBox(box.master_box_id)}

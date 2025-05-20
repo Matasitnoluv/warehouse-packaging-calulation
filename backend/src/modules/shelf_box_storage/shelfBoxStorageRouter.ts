@@ -45,8 +45,8 @@ router.get("/document/:docNo", async (req: Request, res: Response) => {
         const result = await shelfBoxStorageServices.getByDocumentNoAsync(docNo);
         res.json({
             success: true,
-            responseObject: result,
-            message: "Successfully retrieved shelf box storage records by document number",
+            responseObject: result.responseObject,
+            message: result.message,
         });
     } catch (error: any) {
         res.status(500).json({
@@ -78,19 +78,19 @@ router.post("/", async (req: Request, res: Response) => {
 router.post("/store-multiple", async (req: Request, res: Response) => {
     try {
         const payloads = req.body;
-        
+
         if (!Array.isArray(payloads) || payloads.length === 0) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid payload. Expected an array of box storage data.",
             });
         }
-        
+
         // Process each box storage request
         const results = [];
         let successCount = 0;
         let failedCount = 0;
-        
+
         for (const payload of payloads) {
             try {
                 const result = await shelfBoxStorageServices.createAsync(payload);
@@ -118,7 +118,7 @@ router.post("/store-multiple", async (req: Request, res: Response) => {
                 failedCount++;
             }
         }
-        
+
         return res.status(200).json({
             success: true,
             message: `Successfully stored ${successCount} boxes, failed to store ${failedCount} boxes`,

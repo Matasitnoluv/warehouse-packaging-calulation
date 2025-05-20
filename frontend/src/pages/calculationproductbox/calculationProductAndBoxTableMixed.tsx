@@ -15,7 +15,7 @@ const CalculationProductAndBoxTableMixed = () => {
 
     const getCalMsproductData = () => {
         getCalMsproductByType("mixed").then((res) => {
-            console.log(res);
+            console.log("Mixed Calculation Records:", res);
             setCalculations(res.responseObject);
         });
     };
@@ -97,8 +97,8 @@ const CalculationProductAndBoxTableMixed = () => {
                                                 </Table.Cell>
                                                 <Table.Cell className="px-6 py-4">
                                                     <div className="flex justify-center">
-                                                        <DialogEditCalmsproduct 
-                                                            documentProductNo={cal_msproduct.document_product_no} 
+                                                        <DialogEditCalmsproduct
+                                                            documentProductNo={cal_msproduct.document_product_no}
                                                             calculationType="mixed"
                                                         />
                                                     </div>
@@ -129,7 +129,7 @@ const CalculationProductAndBoxTableMixed = () => {
                         </Table.Root>
                     </div>
                 </Card>
-                
+
             </div>
         </div>
     );

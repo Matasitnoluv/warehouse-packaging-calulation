@@ -1206,31 +1206,111 @@ const WarehouseCalculation = () => {
               onClick={async () => {
                 // Log the save button click
                 console.log('Save button clicked');
-                if (!calculateSummary || !calculateSummary.boxPlacements) {
+                if (!calculateSummary || !calculateSummary.boxPlacements || !calculateSummary.shelves) {
                   console.error('No calculation summary or box placements to save');
                   return;
                 }
-                // Prepare payload for saving to shelf_box_storage
-                const payload = calculateSummary.boxPlacements
-                  .filter(bp => bp.canFit && bp.suggestedShelf)
-                  .map(bp => ({
-                    master_shelf_id: bp.suggestedShelf?.master_shelf_id,
-                    cal_box_id: bp.box.cal_box_id,
-                    cubic_centimeter_box: bp.box.cubic_centimeter_box,
-                    count: bp.box.count,
-                    document_product_no: bp.box.document_product_no,
-                    status: 'stored',
-                  }));
-                // Log the payload
-                console.log('Saving to shelf_box_storage:', payload);
-                // Call the service to save
-                try {
-                  const response = await shelfBoxStorageService.storeMultipleBoxesInShelf(payload);
-                  console.log('Save response:', response);
-                  if (response.success) {
-                    setShowCalculateDialog(false);
+                // ดึง document_warehouse_no จาก state
+                const documentWarehouseNo = location.state?.documentWarehouseNo || "";
+                console.log('Using document_warehouse_no:', documentWarehouseNo);
+
+                // Prepare shelves sorted by level
+                const shelvesSorted = calculateSummary.shelves.slice().sort((a, b) => a.shelf_level - b.shelf_level);
+                let savePayload = [];
+                let remainingBoxes = [...calculateSummary.boxPlacements.filter(bp => bp.canFit)];
+                let totalStored = 0;
+                let totalFailed = 0;
+
+                // Try to place all boxes
+                while (remainingBoxes.length > 0 && shelvesSorted.length > 0) {
+                  const bp = remainingBoxes[0];
+                  let remainingCount = bp.box.count;
+                  let shelfIndex = 0;
+                  let shelfUsedVolume = 0;
+                  
+                  // Try each shelf
+                  while (remainingCount > 0 && shelfIndex < shelvesSorted.length) {
+                    const shelf = shelvesSorted[shelfIndex];
+                    const availableVolume = shelf.cubic_centimeter_shelf - shelfUsedVolume;
+                    const maxFit = Math.floor(availableVolume / bp.box.cubic_centimeter_box);
+
+                    if (maxFit > 0) {
+                      const putCount = Math.min(remainingCount, maxFit);
+                      savePayload.push({
+                        master_shelf_id: shelf.master_shelf_id,
+                        cal_box_id: bp.box.cal_box_id,
+                        cubic_centimeter_box: bp.box.cubic_centimeter_box,
+                        count: 1, // Always store 1 box per entry
+                        document_product_no: bp.box.document_product_no,
+                        status: 'stored',
+                        document_warehouse_no: documentWarehouseNo,
+                        position: 1
+                      });
+                      shelfUsedVolume += bp.box.cubic_centimeter_box;
+                      remainingCount -= putCount;
+                      
+                      console.log(
+                        `Shelf: ${shelf.master_shelf_name} | Put ${putCount} boxes (box_id: ${bp.box.cal_box_id}) | Used: ${shelfUsedVolume} | Remaining: ${remainingCount} | document_warehouse_no: ${documentWarehouseNo}`
+                      );
+                      
+                      // Move to next shelf if current one is full
+                      if (shelfUsedVolume >= shelf.cubic_centimeter_shelf) {
+                        shelfIndex++;
+                        shelfUsedVolume = 0;
+                      }
+                    } else {
+                      shelfIndex++;
+                      shelfUsedVolume = 0;
+                    }
+                  }
+                  
+                  // If we couldn't place any boxes of this type, remove it from remaining
+                  if (remainingCount === bp.box.count) {
+                    remainingBoxes.shift();
+                    totalFailed += remainingCount;
                   } else {
-                    setError('Failed to save calculation');
+                    if (remainingCount === 0) {
+                      remainingBoxes.shift();
+                      totalStored += 1; // Always count 1 box per entry
+                    } else {
+                      bp.box.count = remainingCount;
+                      totalStored += 1; // Always count 1 box per entry
+                    }
+                  }
+                }
+                
+                // Log the final payload
+                console.log('Final save payload:', savePayload);
+                console.log(`Total boxes to store: ${calculateSummary.boxPlacements.length}`);
+                console.log(`Successfully placed boxes: ${totalStored}`);
+                console.log(`Failed to place boxes: ${totalFailed}`);
+
+                // Save boxes one by one
+                try {
+                  let successCount = 0;
+                  let failedCount = 0;
+                  let failedBoxIds = [];
+                  
+                  for (const payload of savePayload) {
+                    try {
+                      const response = await shelfBoxStorageService.storeMultipleBoxesInShelf([payload]);
+                      if (response.success) {
+                        successCount++;
+                      } else {
+                        failedCount++;
+                        failedBoxIds.push(payload.cal_box_id);
+                      }
+                    } catch (error) {
+                      failedCount++;
+                      failedBoxIds.push(payload.cal_box_id);
+                    }
+                  }
+
+                  if (failedCount === 0) {
+                    setShowCalculateDialog(false);
+                    setError('');
+                  } else {
+                    setError(`Failed to store ${failedCount} boxes: ${failedBoxIds.join(', ')}`);
                   }
                 } catch (error) {
                   console.error('Error saving calculation:', error);

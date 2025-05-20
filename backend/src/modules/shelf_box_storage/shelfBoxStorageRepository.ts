@@ -12,6 +12,7 @@ const SHELF_BOX_STORAGE_SELECT_FIELDS = [
     "count",
     "total_volume",
     "document_product_no",
+    "document_warehouse_no",
 ];
 
 export const shelfBoxStorageRepository = {
@@ -29,6 +30,7 @@ export const shelfBoxStorageRepository = {
                 count: true,
                 total_volume: true,
                 document_product_no: true,
+                document_warehouse_no: true,
                 cal_box: {
                     select: {
                         cal_box_id: true,
@@ -74,6 +76,7 @@ export const shelfBoxStorageRepository = {
                 count: true,
                 total_volume: true,
                 document_product_no: true,
+                document_warehouse_no: true,
                 cal_box: {
                     select: {
                         cal_box_id: true,
@@ -110,6 +113,7 @@ export const shelfBoxStorageRepository = {
                 count: true,
                 total_volume: true,
                 document_product_no: true,
+                document_warehouse_no: true,
                 cal_box: {
                     select: {
                         cal_box_id: true,
@@ -150,6 +154,7 @@ export const shelfBoxStorageRepository = {
                 count: payload.count,
                 total_volume: payload.total_volume,
                 document_product_no: payload.document_product_no,
+                document_warehouse_no: payload.document_warehouse_no,
             },
         });
     },
@@ -169,6 +174,7 @@ export const shelfBoxStorageRepository = {
                 count: payload.count,
                 total_volume: payload.total_volume,
                 document_product_no: payload.document_product_no,
+                document_warehouse_no: payload.document_warehouse_no,
             },
         });
     },
@@ -183,19 +189,19 @@ export const shelfBoxStorageRepository = {
 
     // Get the total volume of boxes stored in a shelf
     getTotalVolumeByShelfIdAsync: async (master_shelf_id: string) => {
-        const result = await prisma.shelf_box_storage.aggregate({
+        const result = await prisma.shelf_box_storage.findMany({
             where: {
                 master_shelf_id,
                 status: "stored", // Only count boxes that are still stored
             },
-            _sum: {
+            select: {
                 cubic_centimeter_box: true,
                 count: true
-            },
+            }
         });
 
-        // Calculate total volume using cubic_centimeter_box and count
-        const totalVolume = (result._sum.cubic_centimeter_box || 0) * (result._sum.count || 0);
+        // Calculate total volume by summing up individual box volumes
+        const totalVolume = result.reduce((sum, item) => sum + (item.cubic_centimeter_box * item.count), 0);
         return totalVolume;
     },
 };

@@ -312,6 +312,9 @@ const WarehouseCalculation = () => {
   const [showErrorDialog, setShowErrorDialog] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Add new state for boxes in document
+  const [boxesInDocument, setBoxesInDocument] = useState([]);
+
   // Fetch warehouse records
   useEffect(() => {
     const fetchWarehouseRecords = async () => {
@@ -788,7 +791,8 @@ const WarehouseCalculation = () => {
     if (!documentId) return;
 
     try {
-      const response = await getCalBox(documentId);
+      const cleanDocNo = documentId.replace(/[()]/g, "");
+      const response = await getCalBox(cleanDocNo);
       if (response.success) {
         setBoxes(response.responseObject || []);
         // ไม่ต้องเรียก calculateBoxFitResults
@@ -1072,6 +1076,46 @@ const WarehouseCalculation = () => {
     return found ? found.master_zone_name : calculateSummary.zone;
   }, [calculateSummary?.zone, zones]);
 
+  // เพิ่ม useEffect สำหรับ log เฉพาะตอนเลือก zone ใหม่
+  useEffect(() => {
+    if (!calculateSummary?.boxPlacements || !shelves.length) return;
+    // log เฉพาะ shelves ที่มี box จริง
+    const shelfBoxCount: Record<string, number> = {};
+    for (const placement of calculateSummary.boxPlacements) {
+      if (placement.canFit && placement.suggestedShelf) {
+        const shelfName = placement.suggestedShelf.master_shelf_name;
+        shelfBoxCount[shelfName] = (shelfBoxCount[shelfName] || 0) + 1;
+      }
+    }
+    Object.entries(shelfBoxCount).forEach(([shelf, count]) => {
+      console.log(`Shelf: ${shelf} has ${count} boxes`);
+    });
+  }, [selectedZone, calculateSummary?.boxPlacements, shelves.length]);
+
+  useEffect(() => {
+    if (!selectedDocument) return;
+    const cleanDocNo = selectedDocument.replace(/[()]/g, "");
+    fetch(`/v1/shelf_box_storage/document/${cleanDocNo}`)
+      .then(res => {
+        if (!res.ok) throw new Error("Network response was not ok");
+        return res.json();
+      })
+      .then(data => {
+        if (data.success && Array.isArray(data.responseObject)) {
+          setBoxesInDocument(data.responseObject);
+          console.log("Boxes in Document:", data.responseObject);
+        } else {
+          setBoxesInDocument([]);
+          console.log("No boxes found in document:", selectedDocument);
+        }
+      })
+      .catch(err => {
+        setBoxesInDocument([]);
+        console.error("Error fetching boxes in document:", err);
+      });
+  }, [selectedDocument]);
+
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -1236,8 +1280,9 @@ const WarehouseCalculation = () => {
                           const sortedPlacements = [...placementsInShelf]
                             .sort((a, b) => (a.box.box_no ?? 0) - (b.box.box_no ?? 0));
 
-                          // Log shelf name and number of boxes
-                          console.log(`Shelf: ${shelf.master_shelf_name} has ${sortedPlacements.length} boxes`);
+                          if (sortedPlacements.length > 0) {
+                            console.log(`Shelf: ${shelf.master_shelf_name} has ${sortedPlacements.length} boxes`);
+                          }
 
                           return (
                             <div key={shelf.master_shelf_id} className="mb-4">

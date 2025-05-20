@@ -16,18 +16,18 @@ export type CalBoxPayload = {
 // Get boxes for a specific document
 export const getCalBox = async (document_product_no: string) => {
   console.log(`[calbox.services] Getting boxes for document: ${document_product_no}`);
-  
+
   try {
     const { data: response } = await mainApi.get(
       GET_CAL_BOX,
       { params: { document_product_no } }
     );
-    
+
     console.log(`[calbox.services] Response for document ${document_product_no}:`, response);
-    
+
     if (response.success) {
       console.log(`[calbox.services] Found ${response.responseObject?.length || 0} boxes`);
-      
+
       if (response.responseObject) {
         // Log each box for debugging
         response.responseObject.forEach((box: any, index: number) => {
@@ -43,7 +43,7 @@ export const getCalBox = async (document_product_no: string) => {
     } else {
       console.error(`[calbox.services] Error getting boxes:`, response.message);
     }
-    
+
     return response;
   } catch (error) {
     console.error(`[calbox.services] Exception getting boxes:`, error);

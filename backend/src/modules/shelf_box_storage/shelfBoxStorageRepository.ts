@@ -29,7 +29,7 @@ export const shelfBoxStorageRepository = {
                 count: true,
                 total_volume: true,
                 document_product_no: true,
-                box: {
+                cal_box: {
                     select: {
                         cal_box_id: true,
                         box_no: true,
@@ -42,7 +42,7 @@ export const shelfBoxStorageRepository = {
                         document_product_no: true,
                     },
                 },
-                shelf: {
+                mastershelf: {
                     select: {
                         master_shelf_id: true,
                         master_shelf_name: true,
@@ -74,7 +74,7 @@ export const shelfBoxStorageRepository = {
                 count: true,
                 total_volume: true,
                 document_product_no: true,
-                box: {
+                cal_box: {
                     select: {
                         cal_box_id: true,
                         box_no: true,
@@ -108,7 +108,7 @@ export const shelfBoxStorageRepository = {
                 count: true,
                 total_volume: true,
                 document_product_no: true,
-                box: {
+                cal_box: {
                     select: {
                         cal_box_id: true,
                         box_no: true,
@@ -121,7 +121,7 @@ export const shelfBoxStorageRepository = {
                         document_product_no: true,
                     },
                 },
-                shelf: {
+                mastershelf: {
                     select: {
                         master_shelf_id: true,
                         master_shelf_name: true,

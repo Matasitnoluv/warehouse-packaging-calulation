@@ -3,7 +3,6 @@ import { TypePayloadmasterproduct } from "@modules/msproduct/msproductModel";
 import { StatusCodes } from "http-status-codes";
 import { masterproduct } from "@prisma/client";
 import { msproductRepository } from "@modules/msproduct/msproductRepository";
-
 export const msproductService = {
     findAll: async () => {
         const masterproduct = await msproductRepository.findAllAsync();

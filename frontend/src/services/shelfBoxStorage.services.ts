@@ -206,9 +206,6 @@ export const saveCalculateDialog = async (storage_id: string, calculateSummary: 
   }
 };
 
-
-
-
 // Export all functions as a service object
 export const shelfBoxStorageService = {
   getAllStoredBoxes,

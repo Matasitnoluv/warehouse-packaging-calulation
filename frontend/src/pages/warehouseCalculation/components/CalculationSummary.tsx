@@ -98,15 +98,18 @@ const CalculationSummary: React.FC<CalculationSummaryProps> = ({
             // If there are successful placements, save them
             const successfulPlacements = placements.filter(p => p.status === 'success');
             if (successfulPlacements.length > 0) {
-                const storagePayloads = successfulPlacements.map(p => ({
-                    master_shelf_id: p.shelf_id,
-                    cal_box_id: p.box_id,
-                    cubic_centimeter_box: p.cubic_centimeter,
-                    count: p.count,
-                    document_product_no: selectedDocument
-                }));
-
-                await storeMultipleBoxes(storagePayloads);
+                const groupedPayload: { [key: string]: any } = {};
+                for (const item of successfulPlacements) {
+                    const key = `${item.shelf_id}_${item.box_id}`;
+                    if (!groupedPayload[key]) {
+                        groupedPayload[key] = { ...item };
+                    } else {
+                        groupedPayload[key].count += item.count;
+                    }
+                }
+                const finalPayload = Object.values(groupedPayload);
+                console.log('Final payload to DB:', finalPayload);
+                const response = await storeMultipleBoxes(finalPayload);
                 setAlertMessage('Boxes have been successfully stored in shelves');
                 setShowAlert(true);
             }

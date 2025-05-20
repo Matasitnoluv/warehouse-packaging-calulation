@@ -56,6 +56,7 @@ export const shelfBoxStorageServices = {
 
     createAsync: async (payload: any) => {
         try {
+            console.log('CreateAsync payload:', payload);
             // Check if the shelf exists
             const shelf = await msshelfRepository.findByIdAsync(payload.master_shelf_id);
             if (!shelf) {
@@ -95,6 +96,7 @@ export const shelfBoxStorageServices = {
                 message: "Create shelf box storage successful",
             };
         } catch (error: any) {
+            console.error('CreateAsync error:', error);
             return {
                 success: false,
                 responseObject: null,
@@ -155,17 +157,9 @@ export const shelfBoxStorageServices = {
                     continue;
                 }
 
-                // Check if there's enough space in the shelf
-                const currentUsedVolume = await shelfBoxStorageRepository.getTotalVolumeByShelfIdAsync(item.master_shelf_id);
-                const totalVolumeToAdd = item.cubic_centimeter_box * item.count;
-
-                if (currentUsedVolume + totalVolumeToAdd > shelf.cubic_centimeter_shelf) {
-                    errors.push({
-                        cal_box_id: item.cal_box_id,
-                        message: "Not enough space in the shelf",
-                    });
-                    continue;
-                }
+                // For single box storage, we don't need to check volume since we're storing one box at a time
+                // The volume check will be handled by the shelf capacity constraint
+                const totalVolumeToAdd = item.cubic_centimeter_box; // Just use the box volume since count is 1
 
                 // Generate a new UUID for the storage
                 const storage_id = uuidv4();

@@ -183,6 +183,8 @@ model cal_warehouse {
     master_warehouse_id               String? @db.Uuid
 
     masterwarehouse     masterwarehouse? @relation(fields: [master_warehouse_id], references: [master_warehouse_id])
+
+    shelf_box_storage shelf_box_storage[]
 }
 
 model cal_msproduct {
@@ -273,12 +275,18 @@ model shelf_box_storage {
   stored_by          String?
   status             String @default("stored")
   position             Int?
-document_product_no  String?
-cubic_centimeter_box Float?
-count                Int?
-total_volume         Float          
+  document_product_no  String?
+  cubic_centimeter_box Float?
+  count                Int?
+  total_volume         Float     
+
+  document_warehouse_no  String?
 
   // Relations
   mastershelf        mastershelf @relation(fields: [master_shelf_id], references: [master_shelf_id])
   cal_box            cal_box @relation(fields: [cal_box_id], references: [cal_box_id])
+  cal_warehouse          cal_warehouse? @relation(fields: [document_warehouse_no], references: [document_warehouse_no])
+
+  
+  @@index([document_warehouse_no])
 }

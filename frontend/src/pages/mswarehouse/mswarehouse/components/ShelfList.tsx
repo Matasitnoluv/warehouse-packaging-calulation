@@ -12,7 +12,7 @@ interface ShelfListProps {
 }
 
 const ShelfList = ({ rackId, rackName, rackVolume }: ShelfListProps) => {
-    const [shelves, setShelves] = useState<TypeMsshelfAll[]>([]);
+    const [shelf, setShelves] = useState<TypeMsshelfAll[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [usedSpace, setUsedSpace] = useState<number>(0);
@@ -111,9 +111,9 @@ const ShelfList = ({ rackId, rackName, rackVolume }: ShelfListProps) => {
             </div>
 
             {/* Shelves list */}
-            {shelves.length > 0 ? (
+            {shelf.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-4">
-                    {shelves.map((shelf) => (
+                    {shelf.map((shelf) => (
                         <div key={shelf.master_shelf_id} className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                             <div className="flex items-center gap-2 p-3 border-b border-gray-200 bg-gray-50">
                                 <div className="w-2 h-10 bg-green-500 rounded-full"></div>

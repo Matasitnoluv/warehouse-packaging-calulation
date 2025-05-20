@@ -212,7 +212,7 @@ const DialogEdit = ({
               className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
             >
-              {isSubmitting ? 'Updating...' : 'Update Product'}
+              {isSubmitting ? 'Updating...' : 'Update Warehouse'}
             </Button>
           </Dialog.Close>
         </div>

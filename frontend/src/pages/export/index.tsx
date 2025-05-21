@@ -3,6 +3,8 @@ import { getMswarehouse } from "@/services/mswarehouse.services";
 import { getMszone } from "@/services/mszone.services";
 import { exportBox, getExportLogs, getStoredBoxesForExport } from "@/services/exportBox.services";
 import { getMsrack } from "@/services/msrack.services";
+import { getMsshelf } from "@/services/msshelf.services";
+import { shelfBoxStorageService } from "@/services/shelfBoxStorage.services";
 import toast from "react-hot-toast";
 
 // Define types
@@ -78,13 +80,15 @@ const ExportPage: React.FC = () => {
   const [storedBoxes, setStoredBoxes] = useState<StoredBox[]>([]);
   const [documentGroups, setDocumentGroups] = useState<DocumentGroup[]>([]);
   const [exportLogs, setExportLogs] = useState<ExportLog[]>([]);
-  
+  const [shelvesByRack, setShelvesByRack] = useState<Record<string, any[]>>({});
+  const [boxesByShelf, setBoxesByShelf] = useState<Record<string, any[]>>({});
+
   // State for selections
   const [selectedWarehouse, setSelectedWarehouse] = useState("");
   const [selectedZone, setSelectedZone] = useState("");
   const [selectedRack, setSelectedRack] = useState("");
   const [selectedDocument, setSelectedDocument] = useState<DocumentGroup | null>(null);
-  
+
   // UI state
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [isDocumentDetailsOpen, setIsDocumentDetailsOpen] = useState(false);
@@ -172,7 +176,7 @@ const ExportPage: React.FC = () => {
   // Group boxes by document number
   const groupBoxesByDocument = (boxes: StoredBox[]): DocumentGroup[] => {
     const groups: Record<string, StoredBox[]> = {};
-    
+
     boxes.forEach(box => {
       const docNo = box.document_product_no || 'Unknown';
       if (!groups[docNo]) {
@@ -180,7 +184,7 @@ const ExportPage: React.FC = () => {
       }
       groups[docNo].push(box);
     });
-    
+
     // Convert to array of DocumentGroup
     return Object.entries(groups).map(([docNo, boxes]) => {
       // Use the first box for common information
@@ -220,12 +224,52 @@ const ExportPage: React.FC = () => {
         (rack) => rack.master_zone_id === selectedZone
       );
       setFilteredRacks(filtered);
-      setSelectedRack(""); // Reset rack selection when zone changes
     } else {
       setFilteredRacks([]);
-      setSelectedRack("");
     }
   }, [selectedZone, racks]);
+
+  // Fetch shelves for all racks in the selected zone
+  useEffect(() => {
+    const fetchShelvesAndBoxes = async () => {
+      if (!selectedWarehouse || !selectedZone) {
+        setShelvesByRack({});
+        setBoxesByShelf({});
+        return;
+      }
+      // Get all racks in this zone
+      const racksInZone = racks.filter(r => r.master_zone_id === selectedZone);
+      const shelvesByRackTemp: Record<string, any[]> = {};
+      const boxesByShelfTemp: Record<string, any[]> = {};
+      for (const rack of racksInZone) {
+        // Fetch shelves for this rack
+        const shelfRes = await getMsshelf(rack.master_rack_id);
+        if (shelfRes.success && Array.isArray(shelfRes.responseObject)) {
+          shelvesByRackTemp[rack.master_rack_id] = shelfRes.responseObject;
+          // For each shelf, fetch boxes
+          for (const shelf of shelfRes.responseObject) {
+            const boxRes = await shelfBoxStorageService.getStoredBoxesByShelfId(shelf.master_shelf_id);
+            console.log('API response for shelf', shelf.master_shelf_id, boxRes);
+            let boxes = [];
+            if (boxRes.success) {
+              if (Array.isArray(boxRes.responseObject)) {
+                boxes = boxRes.responseObject;
+              } else if (boxRes.responseObject && Array.isArray(boxRes.responseObject.responseObject)) {
+                boxes = boxRes.responseObject.responseObject;
+              }
+            }
+            boxesByShelfTemp[shelf.master_shelf_id] = boxes;
+            console.log(`Boxes in shelf ${shelf.master_shelf_id}:`, boxes);
+          }
+        } else {
+          shelvesByRackTemp[rack.master_rack_id] = [];
+        }
+      }
+      setShelvesByRack(shelvesByRackTemp);
+      setBoxesByShelf(boxesByShelfTemp);
+    };
+    fetchShelvesAndBoxes();
+  }, [selectedWarehouse, selectedZone, racks]);
 
   // Fetch stored boxes when warehouse, zone, or rack is selected
   useEffect(() => {
@@ -239,7 +283,7 @@ const ExportPage: React.FC = () => {
           zone_id: selectedZone || undefined,
           rack_id: selectedRack || undefined
         });
-        
+
         // Pass rack ID as a parameter if selected
         const response = await getStoredBoxesForExport(
           selectedWarehouse,
@@ -247,16 +291,16 @@ const ExportPage: React.FC = () => {
           selectedRack || undefined
         );
         console.log('Stored boxes response:', response);
-        
+
         // Check for success using the actual API response format
         if (response.success === true && response.responseObject) {
           const boxes = response.responseObject;
           setStoredBoxes(boxes);
-          
+
           // Group boxes by document number
           const groups = groupBoxesByDocument(boxes);
           setDocumentGroups(groups);
-          
+
           console.log('Document groups created:', groups);
         } else {
           console.error('Failed to fetch stored boxes:', response);
@@ -359,7 +403,7 @@ const ExportPage: React.FC = () => {
       // Export all boxes in the document
       const boxIds = selectedDocument.boxes.map(box => box.storage_id);
       const successfulExports: string[] = [];
-      
+
       // Process each box in the document
       for (const boxId of boxIds) {
         const payload = {
@@ -373,22 +417,22 @@ const ExportPage: React.FC = () => {
           successfulExports.push(boxId);
         }
       }
-      
+
       if (successfulExports.length > 0) {
         toast.success(`${successfulExports.length} boxes exported successfully`);
-        
+
         // Reset form and close dialog
         setCustomerName("");
         setExportNote("");
         setSelectedDocument(null);
         setIsExportDialogOpen(false);
-        
+
         // Refresh the stored boxes list
         const updatedBoxes = storedBoxes.filter(
           (box) => !successfulExports.includes(box.storage_id)
         );
         setStoredBoxes(updatedBoxes);
-        
+
         // Update document groups
         const updatedGroups = groupBoxesByDocument(updatedBoxes);
         setDocumentGroups(updatedGroups);
@@ -426,7 +470,7 @@ const ExportPage: React.FC = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Export Management</h1>
           <p className="text-gray-600 mb-6">จัดการการส่งออกกล่องสินค้าในคลัง</p>
           <div className="flex gap-4 mb-6 flex-col md:flex-row">
-            <div className="w-full md:w-1/3">
+            <div className="w-full md:w-1/2">
               <label htmlFor="warehouse" className="block mb-1 font-medium text-gray-700">Warehouse</label>
               <select
                 id="warehouse"
@@ -445,7 +489,7 @@ const ExportPage: React.FC = () => {
                 ))}
               </select>
             </div>
-            <div className="w-full md:w-1/3">
+            <div className="w-full md:w-1/2">
               <label htmlFor="zone" className="block mb-1 font-medium text-gray-700">Zone</label>
               <select
                 id="zone"
@@ -461,26 +505,6 @@ const ExportPage: React.FC = () => {
                     value={zone.master_zone_id}
                   >
                     {zone.master_zone_name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="w-full md:w-1/3">
-              <label htmlFor="rack" className="block mb-1 font-medium text-gray-700">Rack</label>
-              <select
-                id="rack"
-                className="w-full h-10 p-2 border border-gray-200 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all duration-200 outline-none"
-                value={selectedRack}
-                onChange={(e) => handleRackChange(e.target.value)}
-                disabled={!selectedZone}
-              >
-                <option value="">เลือกรหัสชั้นวาง</option>
-                {filteredRacks.map((rack) => (
-                  <option
-                    key={rack.master_rack_id}
-                    value={rack.master_rack_id}
-                  >
-                    {rack.master_rack_name}
                   </option>
                 ))}
               </select>
@@ -505,57 +529,41 @@ const ExportPage: React.FC = () => {
               ประวัติการส่งออก
             </button>
           </div>
-          {activeTab === 'export' && (
+          {activeTab === 'export' && selectedWarehouse && selectedZone && (
             <div className="mb-4">
-              <h2 className="text-xl font-semibold mb-1">กล่องที่พร้อมส่งออก</h2>
-              <p className="text-gray-600 mb-4">เลือกเอกสารเพื่อดูรายละเอียดหรือส่งออกกล่องทั้งหมดในเอกสาร</p>
-              {isLoading ? (
-                <div className="flex justify-center p-4">กำลังโหลด...</div>
-              ) : documentGroups.length > 0 ? (
-                <div className="overflow-x-auto rounded-xl border border-gray-100 shadow-sm">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="bg-gray-50">
-                        <th className="p-3 text-left font-semibold text-gray-900">เลขที่เอกสาร</th>
-                        <th className="p-3 text-left font-semibold text-gray-900">จำนวนกล่อง</th>
-                        <th className="p-3 text-left font-semibold text-gray-900">คลัง</th>
-                        <th className="p-3 text-left font-semibold text-gray-900">โซน</th>
-                        <th className="p-3 text-left font-semibold text-gray-900">ชั้นวาง</th>
-                        <th className="p-3 text-left font-semibold text-gray-900">วันที่จัดเก็บ</th>
-                        <th className="p-3 text-left font-semibold text-gray-900">การจัดการ</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {documentGroups.map((doc) => (
-                        <tr key={doc.document_product_no} className="border-t hover:bg-gray-50 transition-colors duration-150">
-                          <td className="p-3">{doc.document_product_no}</td>
-                          <td className="p-3">{doc.boxCount}</td>
-                          <td className="p-3">{doc.warehouse}</td>
-                          <td className="p-3">{doc.zone}</td>
-                          <td className="p-3">{doc.rack}</td>
-                          <td className="p-3">{formatDate(doc.stored_date)}</td>
-                          <td className="p-3 flex gap-2">
-                            <button
-                              className="px-3 py-1 text-sm border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-150"
-                              onClick={() => handleDocumentSelect(doc)}
-                            >
-                              รายละเอียด
-                            </button>
-                            <button
-                              className="px-3 py-1 text-sm rounded-lg bg-green-500 text-white hover:bg-green-600 transition-colors duration-150"
-                              onClick={() => handleDocumentExport(doc)}
-                            >
-                              ส่งออก
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+              <h2 className="text-xl font-semibold mb-1">Racks & Shelves in Zone</h2>
+              <p className="text-gray-600 mb-4">แสดง rack, shelf และกล่องทั้งหมดในโซนที่เลือก</p>
+              {filteredRacks.length === 0 ? (
+                <div className="text-center p-4 text-gray-500">ไม่พบ rack ในโซนนี้</div>
               ) : (
-                <div className="text-center p-4 text-gray-500">
-                  ไม่มีกล่องที่พร้อมส่งออก
+                <div className="space-y-6">
+                  {filteredRacks.map(rack => (
+                    <div key={rack.master_rack_id} className="border rounded-lg p-4 bg-gray-50">
+                      <div className="font-bold text-blue-700 mb-2">RACK: {rack.master_rack_name}</div>
+                      {shelvesByRack[rack.master_rack_id] && shelvesByRack[rack.master_rack_id].length > 0 ? (
+                        <div className="space-y-2 ml-4">
+                          {shelvesByRack[rack.master_rack_id].map(shelf => (
+                            <div key={shelf.master_shelf_id} className="border-l-4 border-green-400 pl-3 bg-green-50 rounded mb-2">
+                              <div className="font-semibold text-green-700">Shelf: {shelf.master_shelf_name}</div>
+                              {boxesByShelf[shelf.master_shelf_id] && boxesByShelf[shelf.master_shelf_id].length > 0 ? (
+                                <ul className="ml-4 text-sm text-blue-900 list-disc">
+                                  {boxesByShelf[shelf.master_shelf_id].map((box, idx) => (
+                                    <li key={box.cal_box_id || idx}>
+                                      Box: {box.master_box_name} | ปริมาตร: {box.cubic_centimeter_box} | จำนวน: {box.count}
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <div className="ml-4 text-xs text-gray-400">No boxes in this shelf</div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="ml-4 text-xs text-gray-400">No shelves in this rack</div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -606,7 +614,7 @@ const ExportPage: React.FC = () => {
           )}
         </div>
       </div>
-      
+
       {/* Document Details Modal */}
       {isDocumentDetailsOpen && selectedDocument && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -664,7 +672,7 @@ const ExportPage: React.FC = () => {
           </div>
         </div>
       )}
-      
+
       {/* Export Dialog */}
       {isExportDialogOpen && selectedDocument && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

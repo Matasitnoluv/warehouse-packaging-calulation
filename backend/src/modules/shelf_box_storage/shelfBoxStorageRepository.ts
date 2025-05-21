@@ -29,7 +29,7 @@ export const shelfBoxStorageRepository = {
                 count: true,
                 total_volume: true,
                 document_product_no: true,
-                box: {
+                cal_box: {
                     select: {
                         cal_box_id: true,
                         box_no: true,
@@ -42,7 +42,7 @@ export const shelfBoxStorageRepository = {
                         document_product_no: true,
                     },
                 },
-                shelf: {
+                mastershelf: {
                     select: {
                         master_shelf_id: true,
                         master_shelf_name: true,
@@ -74,7 +74,7 @@ export const shelfBoxStorageRepository = {
                 count: true,
                 total_volume: true,
                 document_product_no: true,
-                box: {
+                cal_box: {
                     select: {
                         cal_box_id: true,
                         box_no: true,
@@ -108,7 +108,7 @@ export const shelfBoxStorageRepository = {
                 count: true,
                 total_volume: true,
                 document_product_no: true,
-                box: {
+                cal_box: {
                     select: {
                         cal_box_id: true,
                         box_no: true,
@@ -121,7 +121,7 @@ export const shelfBoxStorageRepository = {
                         document_product_no: true,
                     },
                 },
-                shelf: {
+                mastershelf: {
                     select: {
                         master_shelf_id: true,
                         master_shelf_name: true,
@@ -172,11 +172,46 @@ export const shelfBoxStorageRepository = {
     },
 
     deleteAsync: async (storage_id: string) => {
-        return prisma.shelf_box_storage.delete({
-            where: {
+        try {
+            // Validate UUID format
+            if (!storage_id || typeof storage_id !== 'string') {
+                throw new Error('Storage ID is required and must be a string');
+            }
+
+            // Check if the record exists before deleting
+            const existingRecord = await prisma.shelf_box_storage.findUnique({
+                where: {
+                    storage_id,
+                },
+            });
+
+            if (!existingRecord) {
+                throw new Error(`Storage record not found for ID: ${storage_id}`);
+            }
+
+            const result = await prisma.shelf_box_storage.delete({
+                where: {
+                    storage_id,
+                },
+            });
+
+            return {
+                success: true,
+                responseObject: result,
+                message: 'Successfully deleted shelf box storage record',
+            };
+        } catch (error: any) {
+            console.error('Error deleting shelf box storage:', {
                 storage_id,
-            },
-        });
+                error: error.message,
+                stack: error.stack,
+            });
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message || 'Failed to delete shelf box storage record',
+            };
+        }
     },
 
     // Get the total volume of boxes stored in a shelf

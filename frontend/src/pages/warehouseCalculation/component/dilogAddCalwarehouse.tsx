@@ -1,6 +1,6 @@
 import { Button } from "@radix-ui/themes";
 import { useState, useEffect } from "react";
-import { postCalWarehouse } from "@/services/calwarehouse.service";
+import { postCalWarehouse } from "@/services/calwarehouse.services";
 import { useNavigate } from "react-router-dom"; // เพิ่ม useNavigate
 import { Plus } from "lucide-react";
 

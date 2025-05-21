@@ -24,6 +24,7 @@ import { exportBoxRouter } from "@modules/export_box/exportBoxRouter";
 import path from "path";
 import { cal_warehouseRouter } from "@modules/cal_warehouse/cal_warehouseRouter";
 
+
 const prisma = new PrismaClient();
 const logger = pino({ name: "server start" });
 const app = express();
@@ -63,6 +64,7 @@ app.use("/v1/rack_box_storage", rack_box_storageRouter);
 app.use("/v1/shelf_box_storage", shelfBoxStorageRouter);
 app.use("/v1/export-box", exportBoxRouter);
 app.use("/v1/cal_warehouse", cal_warehouseRouter);
+app.use("/v1/shelf-box-storage", shelfBoxStorageRouter);
 
 // Error handlers
 app.use(errorHandler());

@@ -1,5 +1,5 @@
 import { Dialog, Button, Flex, Text, Strong } from "@radix-ui/themes";
-import { deleteCalWarehouse } from "@/services/calwarehouse.service";
+import { deleteCalWarehouse } from "@/services/calwarehouse.services";
 import { Trash2, AlertTriangle } from "lucide-react";
 
 type DialogDeleteWarehouseProps = {

@@ -120,24 +120,24 @@ const DialogProduct = ({
         });
 
         // ถ้ามีกล่องที่เลือก ให้ตรวจสอบความเข้ากันได้
-        if (selectedBoxes.length > 0) {
-            const fitCheck = checkProductFitsInBox(product, selectedBoxes[0]);
-            if (!fitCheck.fits) {
-                if (!confirm(`${fitCheck.message}\nDo you want to continue adding the product anyway?`)) {
-                    return;
-                }
-            }
+        // if (selectedBoxes.length > 0) {
+        //     const fitCheck = checkProductFitsInBox(product, selectedBoxes[0]);
+        //     if (!fitCheck.fits) {
+        //         if (!confirm(`${fitCheck.message}\nDo you want to continue adding the product anyway?`)) {
+        //             return;
+        //         }
+        //     }
 
-            const box = selectedBoxes[0];
-            const productsPerBox = Math.floor(box.cubic_centimeter_box / product.cubic_centimeter_product);
+        //     const box = selectedBoxes[0];
+        //     const productsPerBox = Math.floor(box.cubic_centimeter_box / product.cubic_centimeter_product);
 
-            if (count > productsPerBox) {
-                const boxesNeeded = Math.ceil(count / productsPerBox);
-                if (!confirm(`This product requires ${boxesNeeded} boxes for ${count} items. Each box can fit ${productsPerBox} items. Do you want to continue?`)) {
-                    return;
-                }
-            }
-        }
+        //     if (count > productsPerBox) {
+        //         const boxesNeeded = Math.ceil(count / productsPerBox);
+        //         if (!confirm(`This product requires ${boxesNeeded} boxes for ${count} items. Each box can fit ${productsPerBox} items. Do you want to continue?`)) {
+        //             return;
+        //         }
+        //     }
+        // }
 
         try {
             await Promise.all(

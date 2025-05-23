@@ -69,10 +69,18 @@ export const shelfBoxStorageServices = {
 
             // Check if there's enough space in the shelf
             const currentUsedVolume = await shelfBoxStorageRepository.getTotalVolumeByShelfIdAsync(payload.master_shelf_id);
-            const totalVolumeToAdd = payload.cubic_centimeter_box * payload.count;
+            const totalVolumeToAdd = payload.cubic_centimeter_box;
 
             // Set the total volume in the payload
             payload.total_volume = totalVolumeToAdd;
+
+            if (!shelf.cubic_centimeter_shelf) {
+                return {
+                    success: false,
+                    responseObject: null,
+                    message: "Shelf capacity is not available",
+                };
+            }
 
             if (currentUsedVolume + totalVolumeToAdd > shelf.cubic_centimeter_shelf) {
                 return {

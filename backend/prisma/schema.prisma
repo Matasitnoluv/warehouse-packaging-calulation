@@ -231,13 +231,22 @@ model cal_box {
   // 🔹 Relations
   masterbox         masterbox? @relation(fields: [master_box_id], references: [master_box_id])
   masterproduct     masterproduct? @relation(fields: [master_product_id], references: [master_product_id])
-  cal_msproduct     cal_msproduct? @relation(fields: [document_product_no], references: [document_product_no])
+  cal_msproduct     cal_msproduct? @relation(fields: [document_product_no], references: [document_product_no], onDelete: Cascade)
   
   // Relation to rack storage
   rack_storage      rack_box_storage[]
   
   // Relation to shelf storage
   shelf_storage     shelf_box_storage[]
+  group_box         group_box[]
+}
+
+model group_box{
+  group_box_id          String @id @default(uuid()) @db.Uuid
+  document_product_no   String? 
+  box_no                Int?
+
+  cal_box cal_box[]
 }
 
 // Model to track boxes stored in racks

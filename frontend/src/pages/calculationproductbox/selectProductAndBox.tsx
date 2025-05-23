@@ -149,6 +149,11 @@ const CalculationProductAndBox = () => {
     };
 
     const handleCalculation = () => {
+        console.log('=== Starting Calculation ===');
+        console.log('Selected Products:', selectedProducts);
+        console.log('Selected Boxes:', selectedBoxs);
+        console.log('Calculation Type:', calculationType);
+
         if (selectedProducts.length === 0) {
             showAlert(
                 'Missing Information',
@@ -164,6 +169,7 @@ const CalculationProductAndBox = () => {
             const totalProductVolume = selectedProducts.reduce((total, product) => {
                 return total + (product.cubic_centimeter_product * product.count);
             }, 0);
+            console.log('Total Product Volume:', totalProductVolume);
 
             const selectedBox = selectedBoxs[0];
             if (!selectedBox) {
@@ -174,6 +180,7 @@ const CalculationProductAndBox = () => {
                 );
                 return;
             }
+            console.log('Selected Box Volume:', selectedBox.cubic_centimeter_box);
         }
 
         // เตรียมข้อมูลสินค้าและกล่อง
@@ -190,6 +197,7 @@ const CalculationProductAndBox = () => {
             code: product.code_product,
             originalOrder: index // เก็บลำดับเดิมไว้
         }));
+        console.log('Processed Products:', products);
 
         // ถ้าไม่มีกล่องที่เลือก ให้แสดงเฉพาะรายการสินค้า
         if (selectedBoxs.length === 0) {
@@ -201,6 +209,7 @@ const CalculationProductAndBox = () => {
                 count: product.totalCount,
                 boxRequired: 'Not assigned'
             }));
+            console.log('No Boxes Selected - Products Only:', result);
             setCalculationResults(result);
             return;
         }
@@ -215,6 +224,7 @@ const CalculationProductAndBox = () => {
             volume: box.cubic_centimeter_box,
             code: box.code_box
         }));
+        console.log('Processed Boxes:', boxes);
 
         const packedBoxesResult: any[] = [];
         let boxInstanceCounter = 0;
@@ -229,6 +239,8 @@ const CalculationProductAndBox = () => {
 
             const currentBox = boxes[currentBoxIndex];
             const maxItemsInCurrentBox = Math.floor(currentBox.volume / productToPack.volume);
+            console.log(`Processing Product: ${productToPack.name}`);
+            console.log(`Current Box: ${currentBox.name}, Max Items: ${maxItemsInCurrentBox}`);
 
             if (maxItemsInCurrentBox > 0) {
                 // สร้างกล่องใหม่
@@ -268,6 +280,13 @@ const CalculationProductAndBox = () => {
                 productToPack.remainingCount -= qtyToAdd;
                 totalItemsPackedOverall += qtyToAdd;
 
+                console.log(`Added to Box ${boxInstanceCounter}:`, {
+                    product: productToPack.name,
+                    quantity: qtyToAdd,
+                    volumeAdded,
+                    remainingVolume: currentBoxInstance.remainingVolume
+                });
+
                 // ในโหมด single ไม่ต้องพยายามเติมสินค้าอื่น
                 if (calculationType !== "single") {
                     // พยายามเติมพื้นที่ที่เหลือด้วยสินค้าถัดไปตามลำดับ
@@ -293,6 +312,13 @@ const CalculationProductAndBox = () => {
                                     currentBoxInstance.remainingVolume -= additionalVolume;
                                     nextProduct.remainingCount -= qtyToAddNext;
                                     totalItemsPackedOverall += qtyToAddNext;
+
+                                    console.log(`Added Additional Product to Box ${boxInstanceCounter}:`, {
+                                        product: nextProduct.name,
+                                        quantity: qtyToAddNext,
+                                        volumeAdded: additionalVolume,
+                                        remainingVolume: currentBoxInstance.remainingVolume
+                                    });
                                 }
                             }
                         }
@@ -316,6 +342,8 @@ const CalculationProductAndBox = () => {
             }
         }
 
+        console.log('Final Packed Boxes Result:', packedBoxesResult);
+
         // แปลงผลลัพธ์ให้เข้ากับรูปแบบที่ต้องการแสดงผล
         const calculationResultsFormatted = [];
         for (const box of packedBoxesResult) {
@@ -332,6 +360,7 @@ const CalculationProductAndBox = () => {
             }
         }
 
+        console.log('Final Formatted Results:', calculationResultsFormatted);
         setCalculationResults(calculationResultsFormatted);
 
         // แสดงผลสรุป
@@ -339,12 +368,14 @@ const CalculationProductAndBox = () => {
             const unpackedProducts = products
                 .filter(p => p.remainingCount > 0)
                 .map(p => `${p.name} (${p.remainingCount} remaining)`);
+            console.log('Unpacked Products:', unpackedProducts);
             showAlert(
                 'Incomplete Packing',
                 `Some products could not be packed: ${unpackedProducts.join(', ')}`,
                 'info'
             );
         } else {
+            console.log('All products packed successfully');
             showAlert(
                 'Calculation Complete',
                 `Successfully packed all products into ${boxInstanceCounter} boxes.`,

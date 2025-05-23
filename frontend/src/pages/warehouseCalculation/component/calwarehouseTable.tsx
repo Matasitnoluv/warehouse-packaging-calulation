@@ -1,6 +1,6 @@
 import { Table, Card, AlertDialog, Button } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
-import { getCalWarehouse } from "@/services/calwarehouse.service";
+import { getCalWarehouse } from "@/services/calwarehouse.services";
 import { TypeCalWarehouseAll } from "@/types/response/reponse.cal_warehouse";
 import { useNavigate } from "react-router-dom";
 import DilogAddCalwarehouse from "./dilogAddCalwarehouse";

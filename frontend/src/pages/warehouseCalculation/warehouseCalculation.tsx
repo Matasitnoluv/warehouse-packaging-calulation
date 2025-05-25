@@ -1131,7 +1131,13 @@ const WarehouseCalculation = () => {
 
           if (used + boxVolume <= shelf.cubic_centimeter_shelf) {
             placements.push({
-              box,
+              box: {
+                ...box,
+                cal_box_id: box.cal_box_id,
+                document_product_no: box.document_product_no,
+                cubic_centimeter_box: box.cubic_centimeter_box,
+                count: box.count
+              },
               suggestedShelf: shelf,
               suggestedRack: rack,
               volume: boxVolume,
@@ -1152,7 +1158,13 @@ const WarehouseCalculation = () => {
 
       if (!placed) {
         placements.push({
-          box,
+          box: {
+            ...box,
+            cal_box_id: box.cal_box_id,
+            document_product_no: box.document_product_no,
+            cubic_centimeter_box: box.cubic_centimeter_box,
+            count: box.count
+          },
           canFit: false,
           volume: box.cubic_centimeter_box * box.count,
         });
@@ -1288,17 +1300,9 @@ const WarehouseCalculation = () => {
                                 bp.suggestedShelf?.master_shelf_id === shelf.master_shelf_id
                             )
                             .map((bp) => {
-                              // Get the box data from the original boxes array
-                              const originalBox = boxes.find(b =>
-
-                                b.document_product_no === bp.box.document_product_no &&
-                                b.box_no === bp.box.box_no
-                              );
-
-                              console.log("originalBox:", originalBox);
-
+                              // ดึง cal_box_id จาก bp.box โดยตรง
                               return {
-                                cal_box_id: originalBox?.cal_box_id || "",
+                                cal_box_id: bp.box.cal_box_id,
                                 document_product_no: bp.box.document_product_no,
                                 box_no: bp.box.box_no,
                                 cubic_centimeter_box: bp.box.cubic_centimeter_box,

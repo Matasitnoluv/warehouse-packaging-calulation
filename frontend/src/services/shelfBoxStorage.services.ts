@@ -247,3 +247,21 @@ export const storeMultipleBoxes = async (payloads: any[]) => {
     throw error;
   }
 };
+
+const fetchAllShelfStoredBoxes = async (shelves: ShelfType[]) => {
+  const all = await Promise.all(
+    shelves.map(async (shelf) => {
+      const res = await shelfBoxStorageService.getStoredBoxesByShelfId(shelf.master_shelf_id);
+      if (res.success && Array.isArray(res.responseObject)) {
+        return res.responseObject.map(box => ({
+          ...box,
+          master_shelf_id: shelf.master_shelf_id,
+          shelf_name: shelf.master_shelf_name,
+        }));
+      }
+      return [];
+    })
+  );
+  // flatten
+  return all.flat();
+};

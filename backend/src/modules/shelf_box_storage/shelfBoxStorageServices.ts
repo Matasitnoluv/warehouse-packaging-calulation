@@ -1,6 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
 import { shelfBoxStorageRepository } from "./shelfBoxStorageRepository";
 import { msshelfRepository } from "../msshelf/msshelfRepository";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export const shelfBoxStorageServices = {
     getAllAsync: async () => {
@@ -193,6 +196,32 @@ export const shelfBoxStorageServices = {
         } catch (error) {
             console.error("Error storing multiple boxes:", error);
             throw error;
+        }
+    },
+
+    getStoredBoxesByShelfIdAsync: async (master_shelf_id: string) => {
+        try {
+            const storedBoxes = await prisma.shelf_box_storage.findMany({
+                where: {
+                    master_shelf_id: { in: [master_shelf_id] }
+                },
+                include: {
+                    cal_box: true,
+                    mastershelf: true,
+                }
+            });
+
+            return {
+                success: true,
+                responseObject: storedBoxes,
+                message: "Get stored boxes by shelf ID successful",
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message,
+            };
         }
     },
 };

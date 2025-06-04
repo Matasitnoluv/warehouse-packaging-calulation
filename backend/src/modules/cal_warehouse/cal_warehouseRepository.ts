@@ -17,6 +17,7 @@ export const cal_warehouseRepository = {
                 document_warehouse_no: true,
                 status: true,
                 sort_by: true,
+                master_warehouse_id: true,
             },
         });
     },

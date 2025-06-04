@@ -108,7 +108,7 @@ const CalculationSummary: React.FC<CalculationSummaryProps> = ({
                     }
                 }
                 const finalPayload = Object.values(groupedPayload);
-                console.log('Final payload to DB:', finalPayload);
+                //console.log('Final payload to DB:', finalPayload);
                 const response = await storeMultipleBoxes(finalPayload);
                 setAlertMessage('Boxes have been successfully stored in shelves');
                 setShowAlert(true);

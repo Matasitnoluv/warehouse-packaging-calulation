@@ -24,7 +24,7 @@ async function main() {
         },
     });
 
-    console.log('Seeded rootAdmin:', rootAdmin);
+    //console.log('Seeded rootAdmin:', rootAdmin);
 }
 
 main()

@@ -12,7 +12,7 @@ const DialogEditCalmsproduct = ({ documentProductNo, calculationType = "mixed" }
 
     const handleEditCalmsbox = () => {
         navigate("/selectProductandBoxPage", { state: { documentProductNo, calculationType } });
-        console.log(documentProductNo);
+        //console.log(documentProductNo);
     };
 
     return (

@@ -3,6 +3,7 @@ export type TypeCalWarehouseAll = {
     document_warehouse_no: string;
     status: boolean;
     sort_by: number;
+    master_warehouse_id: string;
 };
 
 export type TypeCalWarehouse = {

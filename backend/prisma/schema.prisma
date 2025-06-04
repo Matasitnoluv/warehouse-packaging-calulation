@@ -294,7 +294,7 @@ model shelf_box_storage {
   // Relations
   mastershelf        mastershelf @relation(fields: [master_shelf_id], references: [master_shelf_id])
   cal_box            cal_box @relation(fields: [cal_box_id], references: [cal_box_id])
-  cal_warehouse          cal_warehouse? @relation(fields: [document_warehouse_no], references: [document_warehouse_no])
+  cal_warehouse          cal_warehouse? @relation(fields: [document_warehouse_no], references: [document_warehouse_no] , onDelete: Cascade)
 
   
   @@index([document_warehouse_no])

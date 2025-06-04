@@ -3,7 +3,7 @@ import { PayloadCreateCalMasterproduct, PayloadUpdateCalMsproduct, PayloadDetele
 import { CalMsproductResponse } from "@/types/response/reponse.cal_msproduct";
 import mainApi from "@/apis/main.api";
 
-export const getCalMsproduct = async () => {
+export const getCalMsproduct = async (): Promise<CalMsproductResponse> => {
     const { data: response } = await mainApi.get(
         GET_CAL_MSPRODUCT,
     );

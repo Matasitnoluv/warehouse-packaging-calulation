@@ -13,23 +13,22 @@ import { getMswarehouse } from "@/services/mswarehouse.services";
 import { getMszone } from "@/services/mszone.services";
 import { getMsrack } from "@/services/msrack.services";
 import { getMsshelf } from "@/services/msshelf.services";
+import { TypeMswarehouse } from "@/types/response/reponse.mswarehouse";
+import EditButton from "./EditButton";
 
 const CalWarehouseTable = () => {
     const navigate = useNavigate();
     const [calculations, setCalculations] = useState<TypeCalWarehouseAll[]>([]);
-    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-    const [showWarehouseDialog, setShowWarehouseDialog] = useState(false);
-    const [selectedDocumentNo, setSelectedDocumentNo] = useState<string | null>(null);
     const [openRemainingSpace, setOpenRemainingSpace] = useState(false);
     const [remainingSpaceData, setRemainingSpaceData] = useState<any>(null);
-    const [warehouses, setWarehouses] = useState<any[]>([]);
+    const [warehouses, setWarehouses] = useState<TypeMswarehouse[]>([]);
     const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>("");
     const [isLoading, setIsLoading] = useState(false);
     const [showDetails, setShowDetails] = useState(false);
 
     const getCalWarehouseData = () => {
         getCalWarehouse().then((res) => {
-            console.log(res);
+            //console.log(res);
             setCalculations(res.responseObject);
         });
     };
@@ -42,7 +41,7 @@ const CalWarehouseTable = () => {
         async function fetchWarehouses() {
             try {
                 const res = await getMswarehouse();
-                console.log("Warehouse API Response:", res);
+                //console.log("Warehouse API Response:", res);
                 if (res && res.responseObject) {
                     const warehouseData = Array.isArray(res.responseObject) ? res.responseObject : [res.responseObject];
                     setWarehouses(warehouseData);
@@ -61,24 +60,9 @@ const CalWarehouseTable = () => {
         fetchWarehouses();
     }, []);
 
-    const handleRemainingSpace = async (warehouseId: string) => {
-        try {
-            const data = await fetchRemainingSpaceData(warehouseId);
-            console.log("Remaining Space Data:", data);
-            if (!data) {
-                alert("ไม่พบข้อมูล warehouse นี้ หรือข้อมูลไม่สมบูรณ์");
-                return;
-            }
-            setRemainingSpaceData(data);
-            setOpenRemainingSpace(true);
-        } catch (e) {
-            console.error("Error in handleRemainingSpace:", e);
-            alert("เกิดข้อผิดพลาดในการดึงข้อมูล Remaining space");
-        }
-    };
 
     const handleConfirm = async () => {
-        console.log('handleConfirm called', selectedWarehouseId);
+        //console.log('handleConfirm called', selectedWarehouseId);
         if (!selectedWarehouseId) {
             alert("Please select a warehouse");
             return;
@@ -86,7 +70,7 @@ const CalWarehouseTable = () => {
         setIsLoading(true);
         try {
             const data = await fetchRemainingSpaceData(selectedWarehouseId);
-            console.log('fetchRemainingSpaceData result', data);
+            //console.log('fetchRemainingSpaceData result', data);
             if (!data) {
                 alert("No data found for this warehouse or data is incomplete");
                 return;
@@ -103,11 +87,11 @@ const CalWarehouseTable = () => {
 
     async function fetchRemainingSpaceData(warehouseId: string) {
         try {
-            console.log('fetchRemainingSpaceData called', warehouseId);
+            //console.log('fetchRemainingSpaceData called', warehouseId);
             // Fetch warehouse (ใช้ responseObject เหมือนหน้า Warehouse Management Details)
             const msWarehouseRes = await getMswarehouse();
             const msWarehouseList = msWarehouseRes.responseObject || [];
-            const msWarehouse = msWarehouseList.find((w: any) => w.master_warehouse_id === warehouseId);
+            const msWarehouse = msWarehouseList.find((w) => w.master_warehouse_id === warehouseId);
             if (!msWarehouse) return null;
 
             // Fetch zones
@@ -243,11 +227,13 @@ const CalWarehouseTable = () => {
                                             </Table.RowHeaderCell>
                                             <Table.Cell className="px-6 py-4">
                                                 <div className="flex justify-center gap-2">
-                                                    <DialogSelectWarehouse
+                                                    {cal_warehouse.master_warehouse_id ? <EditButton calWarehouse={cal_warehouse} /> : <DialogSelectWarehouse
                                                         documentWarehouseNo={cal_warehouse.document_warehouse_no}
                                                         triggerButtonText="Calculation"
                                                         buttonClassName="inline-flex items-center gap-2 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-md shadow-md transition-colors text-sm"
-                                                    />
+                                                    />}
+
+
                                                 </div>
                                             </Table.Cell>
                                             <Table.Cell className="px-6 py-4">
@@ -277,13 +263,6 @@ const CalWarehouseTable = () => {
                     </div>
                 </Card>
 
-                {/* DialogSelectWarehouse Popup */}
-                {showWarehouseDialog && (
-                    <DialogSelectWarehouse
-                        triggerButtonText={null}
-                        documentWarehouseNo={selectedDocumentNo ?? undefined}
-                    />
-                )}
 
                 {openRemainingSpace && (
                     <RemainingSpaceDialog.Root open={openRemainingSpace} onOpenChange={setOpenRemainingSpace}>

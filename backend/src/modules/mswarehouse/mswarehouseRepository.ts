@@ -27,6 +27,12 @@ export const mswarehouseRepository = {
         });
     },
 
+    findById: async (master_warehouse_id: string) => {
+        return prisma.masterwarehouse.findUnique({
+            where: { master_warehouse_id },
+        });
+    },
+
     findByName: async <Key extends keyof masterwarehouse>(
         master_warehouse_name: string,
         keys = Keys as Key[]

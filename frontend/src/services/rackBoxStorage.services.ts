@@ -76,13 +76,13 @@ export const rackBoxStorageService = {
       const { data: response } = await mainApi.get(
         API_ENDPOINTS.RACK_BOX_STORAGE.GET_BY_RACK_ID.replace(":master_rack_id", master_rack_id)
       );
-      
+
       // Log the raw response for debugging
-      console.log("Raw response from backend:", response);
-      
+      //console.log("Raw response from backend:", response);
+
       // Check if the response is an object with a responseObject property (API wrapper)
       let responseArray: RackBoxStorage[] = [];
-      
+
       if (response && typeof response === 'object') {
         if (Array.isArray(response)) {
           // Direct array response
@@ -92,9 +92,9 @@ export const rackBoxStorageService = {
           responseArray = response.responseObject;
         }
       }
-      
-      console.log("Processed response array:", responseArray);
-      
+
+      //console.log("Processed response array:", responseArray);
+
       return {
         success: true,
         message: `Successfully fetched stored boxes for rack ${master_rack_id}`,
@@ -229,7 +229,7 @@ export const rackBoxStorageService = {
         `${API_ENDPOINTS.CAL_BOX.GET}/${cal_box_id}`
       );
       const box = boxResponse.data;
-      
+
       if (!box || !box.cubic_centimeter_box || !box.count) {
         return {
           success: false,
@@ -238,13 +238,13 @@ export const rackBoxStorageService = {
           statusCode: 404
         };
       }
-      
+
       // Get all racks in the warehouse
       const { data: racksResponse } = await mainApi.get(
         `${API_ENDPOINTS.MSRACK.GET}?warehouse_id=${warehouse_id}`
       );
       const racks = racksResponse.data;
-      
+
       if (!racks || racks.length === 0) {
         return {
           success: true,
@@ -253,19 +253,19 @@ export const rackBoxStorageService = {
           statusCode: 200
         };
       }
-      
+
       const boxVolume = box.cubic_centimeter_box * box.count;
       const availableRacks = [];
-      
+
       // Check each rack for available space
       for (const rack of racks) {
         if (!rack.cubic_centimeter_rack) continue;
-        
+
         try {
           // Get stored boxes for this rack
           const storedBoxesResponse = await rackBoxStorageService.getStoredBoxesByRackId(rack.master_rack_id);
           const storedBoxes = storedBoxesResponse.responseObject || [];
-          
+
           // Calculate used volume
           let usedVolume = 0;
           for (const storedBox of storedBoxes) {
@@ -273,7 +273,7 @@ export const rackBoxStorageService = {
               usedVolume += storedBox.box.cubic_centimeter_box * storedBox.box.count;
             }
           }
-          
+
           // Check if the rack has enough space
           const availableVolume = rack.cubic_centimeter_rack - usedVolume;
           if (availableVolume >= boxVolume) {
@@ -288,7 +288,7 @@ export const rackBoxStorageService = {
           // Continue to next rack
         }
       }
-      
+
       // Sort racks by available space (most space first)
       const sortedRacks = availableRacks.sort((a, b) => b.available_volume - a.available_volume);
       return {

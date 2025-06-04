@@ -21,7 +21,7 @@ const Login: React.FC = () => {
 					navigate('/msproduct');
 				}
 			} catch (error) {
-				console.log('Token verification failed:', error);
+				//console.log('Token verification failed:', error);
 			}
 		};
 		verifyToken();

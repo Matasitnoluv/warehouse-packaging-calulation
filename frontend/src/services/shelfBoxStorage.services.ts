@@ -121,6 +121,24 @@ export const getStoredBoxesByDocumentNo = async (document_product_no: string) =>
   }
 };
 
+export const getStoredWareHouseDocumentNo = async (document_product_no: string) => {
+  try {
+    // Ensure document number has parentheses
+
+    const response = await axios.get(
+      `${API_URL}/v1/shelf_box_storage/document-warehouse/${document_product_no}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching stored boxes by document number:", error);
+    return {
+      success: false,
+      responseObject: null,
+      message: "Failed to fetch stored boxes for the document",
+    };
+  }
+};
+
 // Store a box in a shelf
 export const storeBoxInShelf = async (payload: StoreBoxPayload) => {
   try {
@@ -216,6 +234,7 @@ export const shelfBoxStorageService = {
   storeMultipleBoxesInShelf,
   updateStoredBox,
   deleteStoredBox,
+  getStoredWareHouseDocumentNo
 };
 
 export const getShelfBoxStorage = async (document_product_no: string) => {
@@ -248,20 +267,3 @@ export const storeMultipleBoxes = async (payloads: any[]) => {
   }
 };
 
-const fetchAllShelfStoredBoxes = async (shelves: ShelfType[]) => {
-  const all = await Promise.all(
-    shelves.map(async (shelf) => {
-      const res = await shelfBoxStorageService.getStoredBoxesByShelfId(shelf.master_shelf_id);
-      if (res.success && Array.isArray(res.responseObject)) {
-        return res.responseObject.map(box => ({
-          ...box,
-          master_shelf_id: shelf.master_shelf_id,
-          shelf_name: shelf.master_shelf_name,
-        }));
-      }
-      return [];
-    })
-  );
-  // flatten
-  return all.flat();
-};

@@ -21,7 +21,7 @@ const CalculationProductAndBoxTable = () => {
 
     const getCalMsproductData = () => {
         getCalMsproduct().then((res) => {
-            console.log(res);
+            //console.log(res);
             setCalculations(res.responseObject);
         });
     };

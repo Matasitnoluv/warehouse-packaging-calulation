@@ -3,6 +3,7 @@ import { z } from "zod";
 export type TypePayloadcal_warehouse = {
     document_warehouse_id: string;
     document_warehouse_no: string;
+    master_warehouse_id?: string;
     status: boolean;
     sort_by: number;
 };

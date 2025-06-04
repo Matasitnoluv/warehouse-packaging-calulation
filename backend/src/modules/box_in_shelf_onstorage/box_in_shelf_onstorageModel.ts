@@ -3,6 +3,7 @@ import { z } from "zod";
 export type BoxInShelfType = {
     master_shelf_id: string;
     document_warehouse_no: string;
+    master_warehouse_id: string;
     fitBoxes: Array<{
         cal_box_id: string;
         document_product_no: string;
@@ -16,6 +17,7 @@ export const CreateBoxInShelfSchema = z.object({
     body: z.object({
         master_shelf_id: z.string(),
         document_warehouse_no: z.string(),
+        master_warehouse_id: z.string(),
         fitBoxes: z.array(z.object({
             cal_box_id: z.string(),
             document_product_no: z.string(),

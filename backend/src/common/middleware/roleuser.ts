@@ -6,7 +6,7 @@ function roleUser(req: Request, res: Response, next: NextFunction): void {
 
     const status_role = req.user?.status_role; // ดึงข้อมูล Role จาก req.user.role ถ้ามีค่าให้เก็บไว้ที่ตัวแปร role
     // ตรวจสอบเงื่อนไข Role
-    // console.log(status_role);
+    // //console.log(status_role);
     if (status_role != 'User' && status_role != 'user') { // ถ้า role ไม่ใช่ 'RootAdmin' หรือ 'Admin'
         const response = new ServiceResponse( // สร้างตัวแปร response และกำหนดค่าด้วย new ServiceResponse
             ResponseStatus.Failed, // กำหนดค่า ResponseStatus.Failed ให้กับ response.status

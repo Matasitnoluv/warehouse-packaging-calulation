@@ -28,23 +28,23 @@ export const exportBox = async (payload: ExportBoxPayload) => {
 export const getExportLogs = async (filters?: ExportLogFilters) => {
   try {
     const queryParams = new URLSearchParams();
-    
+
     if (filters?.warehouse_id) {
       queryParams.append("warehouse_id", filters.warehouse_id);
     }
-    
+
     if (filters?.zone_id) {
       queryParams.append("zone_id", filters.zone_id);
     }
-    
+
     if (filters?.start_date) {
       queryParams.append("start_date", filters.start_date);
     }
-    
+
     if (filters?.end_date) {
       queryParams.append("end_date", filters.end_date);
     }
-    
+
     const { data: response } = await mainApi.get(`${GET_EXPORT_LOGS}?${queryParams.toString()}`);
     return response;
   } catch (error) {
@@ -56,20 +56,20 @@ export const getExportLogs = async (filters?: ExportLogFilters) => {
 export const getStoredBoxesForExport = async (warehouse_id?: string, zone_id?: string, rack_id?: string) => {
   try {
     const queryParams = new URLSearchParams();
-    
+
     if (warehouse_id) {
       queryParams.append("warehouse_id", warehouse_id);
     }
-    
+
     if (zone_id) {
       queryParams.append("zone_id", zone_id);
     }
-    
+
     if (rack_id) {
       queryParams.append("rack_id", rack_id);
     }
-    
-    console.log('Calling API with params:', queryParams.toString());
+
+    //console.log('Calling API with params:', queryParams.toString());
     const { data: response } = await mainApi.get(`${GET_STORED_BOXES_FOR_EXPORT}?${queryParams.toString()}`);
     return response;
   } catch (error) {

@@ -26,6 +26,6 @@ export type TypeMsbox = {
 export type MsboxResponse = {
     success: boolean;
     message: string;
-    responseObject: TypeMsbox;
+    responseObject: TypeMsbox[];
     statusCode: number;
 };

@@ -15,7 +15,7 @@ const CalculationProductAndBoxTableMixed = () => {
 
     const getCalMsproductData = () => {
         getCalMsproductByType("mixed").then((res) => {
-            console.log("Mixed Calculation Records:", res);
+            //console.log("Mixed Calculation Records:", res);
             setCalculations(res.responseObject);
         });
     };

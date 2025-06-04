@@ -21,6 +21,6 @@ export type TypeMswarehouse = {
 export type MswarehouseResponse = {
     success: boolean;
     message: string;
-    responseObject: TypeMswarehouse;
+    responseObject: TypeMswarehouse | TypeMswarehouse[] | [];
     statusCode: number;
 };

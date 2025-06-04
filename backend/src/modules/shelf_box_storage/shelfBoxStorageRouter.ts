@@ -56,6 +56,24 @@ router.get("/document/:docNo", async (req: Request, res: Response) => {
     }
 });
 
+// Get shelf box storage records by document number
+router.get("/document-warehouse/:docNo", async (req: Request, res: Response) => {
+    try {
+        const docNo = req.params.docNo;
+        const result = await shelfBoxStorageServices.getByDocumentWareHouse(docNo);
+        res.json({
+            success: true,
+            responseObject: result.responseObject,
+            message: result.message,
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Failed to retrieve shelf box storage records by document number",
+        });
+    }
+});
+
 // Create a new shelf box storage record
 router.post("/", async (req: Request, res: Response) => {
     try {

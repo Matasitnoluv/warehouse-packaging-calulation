@@ -33,7 +33,7 @@ const DialogBox = ({
     const handleSelectBox = async (box: TypeMsboxAll) => {
         if (!box) return;
 
-        console.log("[DialogBox] Box selected:", box);
+        //console.log("[DialogBox] Box selected:", box);
 
         setSelectedBoxes((prev) => [...prev, box]);
 
@@ -42,7 +42,7 @@ const DialogBox = ({
 
         // 2. Refresh box list
         const result = await getMsboxData();
-        console.log("[DialogBox] getMsboxData result:", result);
+        //console.log("[DialogBox] getMsboxData result:", result);
     };
 
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {

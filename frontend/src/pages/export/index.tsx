@@ -78,13 +78,13 @@ const ExportPage: React.FC = () => {
   const [storedBoxes, setStoredBoxes] = useState<StoredBox[]>([]);
   const [documentGroups, setDocumentGroups] = useState<DocumentGroup[]>([]);
   const [exportLogs, setExportLogs] = useState<ExportLog[]>([]);
-  
+
   // State for selections
   const [selectedWarehouse, setSelectedWarehouse] = useState("");
   const [selectedZone, setSelectedZone] = useState("");
   const [selectedRack, setSelectedRack] = useState("");
   const [selectedDocument, setSelectedDocument] = useState<DocumentGroup | null>(null);
-  
+
   // UI state
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [isDocumentDetailsOpen, setIsDocumentDetailsOpen] = useState(false);
@@ -172,7 +172,7 @@ const ExportPage: React.FC = () => {
   // Group boxes by document number
   const groupBoxesByDocument = (boxes: StoredBox[]): DocumentGroup[] => {
     const groups: Record<string, StoredBox[]> = {};
-    
+
     boxes.forEach(box => {
       const docNo = box.document_product_no || 'Unknown';
       if (!groups[docNo]) {
@@ -180,7 +180,7 @@ const ExportPage: React.FC = () => {
       }
       groups[docNo].push(box);
     });
-    
+
     // Convert to array of DocumentGroup
     return Object.entries(groups).map(([docNo, boxes]) => {
       // Use the first box for common information
@@ -239,7 +239,7 @@ const ExportPage: React.FC = () => {
           zone_id: selectedZone || undefined,
           rack_id: selectedRack || undefined
         });
-        
+
         // Pass rack ID as a parameter if selected
         const response = await getStoredBoxesForExport(
           selectedWarehouse,
@@ -247,16 +247,16 @@ const ExportPage: React.FC = () => {
           selectedRack || undefined
         );
         console.log('Stored boxes response:', response);
-        
+
         // Check for success using the actual API response format
         if (response.success === true && response.responseObject) {
           const boxes = response.responseObject;
           setStoredBoxes(boxes);
-          
+
           // Group boxes by document number
           const groups = groupBoxesByDocument(boxes);
           setDocumentGroups(groups);
-          
+
           console.log('Document groups created:', groups);
         } else {
           console.error('Failed to fetch stored boxes:', response);
@@ -359,7 +359,7 @@ const ExportPage: React.FC = () => {
       // Export all boxes in the document
       const boxIds = selectedDocument.boxes.map(box => box.storage_id);
       const successfulExports: string[] = [];
-      
+
       // Process each box in the document
       for (const boxId of boxIds) {
         const payload = {
@@ -373,22 +373,22 @@ const ExportPage: React.FC = () => {
           successfulExports.push(boxId);
         }
       }
-      
+
       if (successfulExports.length > 0) {
         toast.success(`${successfulExports.length} boxes exported successfully`);
-        
+
         // Reset form and close dialog
         setCustomerName("");
         setExportNote("");
         setSelectedDocument(null);
         setIsExportDialogOpen(false);
-        
+
         // Refresh the stored boxes list
         const updatedBoxes = storedBoxes.filter(
           (box) => !successfulExports.includes(box.storage_id)
         );
         setStoredBoxes(updatedBoxes);
-        
+
         // Update document groups
         const updatedGroups = groupBoxesByDocument(updatedBoxes);
         setDocumentGroups(updatedGroups);
@@ -606,7 +606,7 @@ const ExportPage: React.FC = () => {
           )}
         </div>
       </div>
-      
+
       {/* Document Details Modal */}
       {isDocumentDetailsOpen && selectedDocument && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -664,7 +664,7 @@ const ExportPage: React.FC = () => {
           </div>
         </div>
       )}
-      
+
       {/* Export Dialog */}
       {isExportDialogOpen && selectedDocument && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">

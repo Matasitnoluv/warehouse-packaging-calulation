@@ -25,7 +25,7 @@ export type UpdateZonePayload = {
 };
 
 // Get zones, optionally filtered by warehouse ID
-export const getMszone = async (master_warehouse_id?: string) => {
+export const getMszone = async (master_warehouse_id?: string): Promise<MszoneResponse> => {
     const params = master_warehouse_id ? { master_warehouse_id } : {};
     const { data: response } = await mainApi.get(
         GET_MSZONE,

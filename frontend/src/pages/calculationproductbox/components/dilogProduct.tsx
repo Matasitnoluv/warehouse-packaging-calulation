@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Dialog, Button, Table } from "@radix-ui/themes";
 import { TypeMsproductAll } from "@/types/response/reponse.msproduct";
-import { patchMsproduct, getProducts } from "@/services/msproduct.services";
+import { patchMsproduct } from "@/services/msproduct.services";
 import { getMsbox, getBoxes } from "@/services/msbox.services";
 
 // นำเข้า icon จาก lucide-react หรือใช้ SVG inline
@@ -15,8 +15,8 @@ const DialogProduct = ({
     selectedBoxes
 }: {
     selectedProducts: TypeMsproductAll[];
-    setSelectedProducts: () => void;
-    getMsproductData: () => void;
+    setSelectedProducts: React.Dispatch<React.SetStateAction<any[]>>;
+    getMsproductData: () => any;
     selectedBoxes: any[];
 }) => {
     const [msproduct, setMsproduct] = useState<TypeMsproductAll[]>([]);
@@ -141,19 +141,8 @@ const DialogProduct = ({
 
         try {
             await Promise.all(
-                [product, ...selectedProducts].map((product) =>
-                    patchMsproduct({
-                        master_product_id: product.master_product_id,
-                        master_product_name: product.master_product_name,
-                        height: product.height,
-                        length: product.length,
-                        width: product.width,
-                        cubic_centimeter_product: product.cubic_centimeter_product,
-                        image: product.image,
-                        sort_by: product.sort_by,
-                        description: product.description,
-                        code_product: product.code_product
-                    })
+                [product, ...selectedProducts].map((product: TypeMsproductAll) =>
+                    patchMsproduct(product)
                 )
             );
             console.log("Product updated successfully");
@@ -161,7 +150,6 @@ const DialogProduct = ({
             console.error("Failed to update product order:", error);
         }
     };
-
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };

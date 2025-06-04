@@ -16,25 +16,34 @@ export class BoxInShelfRepository {
                             count: box.count,
                             total_volume: box.total_volume,
                             document_warehouse_no: payload.document_warehouse_no,
-                            status: "stored"
-                        }
+                            status: "stored",
+                        },
                     });
                 })
             );
 
+            // Update warehouse status
+            await prisma.cal_warehouse.update({
+                where: { document_warehouse_no: payload.document_warehouse_no },
+                data: {
+                    master_warehouse_id: payload.master_warehouse_id,
+                },
+            });
+
             return {
                 success: true,
                 data: {
-                    boxStorageRecords
-                }
+                    boxStorageRecords,
+                },
             };
         } catch (error) {
             return {
                 success: false,
-                error: error instanceof Error ? error.message : "Failed to create box in shelf"
+                error: error instanceof Error ? error.message : "Failed to create box in shelf",
             };
         }
     }
+
 
     async findAll() {
         try {

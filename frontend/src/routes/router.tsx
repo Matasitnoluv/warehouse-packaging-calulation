@@ -13,9 +13,10 @@ import MsWarehousePage from "@/pages/mswarehouse/mswarehouse";
 import WarehouseCalculation from "@/pages/warehouseCalculation/warehouseCalculation";
 import ExportPage from "@/pages/export";
 import Dashboard from "@/pages/home/dashboard";
-import CalWarehouseTable from "@/pages/warehouseCalculation/component/calwarehouseTable";
+
 import SelectWarehousePage from "@/pages/calculationproductbox/SelectWarehousePage";
 import UserManagement from "@/pages/user-management";
+import CalWarehouseTable from "@/pages/warehouseCalculation/components/calwarehouseTable";
 
 const router = createBrowserRouter([
     {

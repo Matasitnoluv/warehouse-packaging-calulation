@@ -29,6 +29,6 @@ export type TypeMsproduct = {
 export type MsproductResponse = {
     success: boolean;
     message: string;
-    responseObject: TypeMsproduct;
+    responseObject: TypeMsproduct[];
     statusCode: number;
 };

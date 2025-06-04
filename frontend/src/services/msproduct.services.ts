@@ -1,9 +1,9 @@
 import { CREATE_MSPRODUCT, GET_MSPRODUCT, UPDARE_MSPRODUCT, DELETE_MSPRODUCT } from "@/apis/endpoint.api";
 import { PayloadDeteleMsproduct } from "@/types/requests/request.msproduct";
-import { MsproductResponse } from "@/types/response/reponse.msproduct";
+import { MsproductResponse, TypeMsproductAll } from "@/types/response/reponse.msproduct";
 import mainApi from "@/apis/main.api";
 
-export const getMsproduct = async () => {
+export const getMsproduct = async (): Promise<MsproductResponse> => {
     const { data: response } = await mainApi.get(
         GET_MSPRODUCT
     );
@@ -23,7 +23,7 @@ export const postMsproduct = async (formData: FormData) => {
     return response;
 };
 
-export const patchMsproduct = async (formData: FormData) => {
+export const patchMsproduct = async (formData: TypeMsproductAll) => {
     const { data: response } = await mainApi.patch<MsproductResponse>(
         UPDARE_MSPRODUCT,
         formData,

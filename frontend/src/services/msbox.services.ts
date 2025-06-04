@@ -3,7 +3,7 @@ import mainApi from "@/apis/main.api";
 import { PayloadDeteleMsbox } from "@/types/requests/request.msbox";
 import { MsboxResponse } from '@/types/response/reponse.msbox';
 
-export const getMsbox = async () => {
+export const getMsbox = async (): Promise<MsboxResponse> => {
     const { data: response } = await mainApi.get(
         GET_MSBOX
     );

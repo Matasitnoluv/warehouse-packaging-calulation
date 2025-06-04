@@ -43,6 +43,7 @@ export const shelfBoxStorageServices = {
     getByDocumentNoAsync: async (document_product_no: string) => {
         try {
             const data = await shelfBoxStorageRepository.findByDocumentNoAsync(document_product_no);
+
             return {
                 success: true,
                 responseObject: data,
@@ -57,9 +58,26 @@ export const shelfBoxStorageServices = {
         }
     },
 
+    getByDocumentWareHouse: async (document_warehouse_no: string) => {
+        try {
+            const data = await shelfBoxStorageRepository.findByDocumentWareHouse(document_warehouse_no);
+            console.log('GetByDocumentWareHouse data:', data);
+            return {
+                success: true,
+                responseObject: data,
+                message: "Get shelf box storage by document number successful",
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message,
+            };
+        }
+    },
     createAsync: async (payload: any) => {
         try {
-            console.log('CreateAsync payload:', payload);
+            //console.log('CreateAsync payload:', payload);
             // Check if the shelf exists
             const shelf = await msshelfRepository.findByIdAsync(payload.master_shelf_id);
             if (!shelf) {
@@ -215,6 +233,27 @@ export const shelfBoxStorageServices = {
                 success: true,
                 responseObject: storedBoxes,
                 message: "Get stored boxes by shelf ID successful",
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message,
+            };
+        }
+    },
+
+    getStoredBoxesByDocument: async (documentProductNo: string) => {
+        try {
+            const storedBoxes = await prisma.shelf_box_storage.findMany({
+                where: { document_product_no: documentProductNo },
+                include: { mastershelf: true, cal_box: true }
+            });
+
+            return {
+                success: true,
+                responseObject: storedBoxes,
+                message: "Get stored boxes by document number successful",
             };
         } catch (error: any) {
             return {

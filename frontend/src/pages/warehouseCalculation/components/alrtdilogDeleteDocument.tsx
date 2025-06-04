@@ -11,7 +11,7 @@ type DialogDeleteWarehouseProps = {
 const AlrtdilogDeleteDocument = ({ getCalWarehouseData, document_warehouse_id }: DialogDeleteWarehouseProps) => {
     const handleDeleteCalWarehouse = async () => {
         try {
-            console.log("Deleting document with ID:", document_warehouse_id);
+            //console.log("Deleting document with ID:", document_warehouse_id);
             const response = await deleteCalWarehouse({
                 document_warehouse_id: document_warehouse_id,
             });

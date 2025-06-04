@@ -142,6 +142,53 @@ export const shelfBoxStorageRepository = {
         });
     },
 
+    findByDocumentWareHouse: async (document_warehouse_no: string) => {
+        // Ensure document number has parentheses
+        return prisma.shelf_box_storage.findMany({
+            where: {
+                document_warehouse_no: document_warehouse_no,
+            },
+            select: {
+                storage_id: true,
+                master_shelf_id: true,
+                cal_box_id: true,
+                stored_date: true,
+                stored_by: true,
+                position: true,
+                status: true,
+                cubic_centimeter_box: true,
+                count: true,
+                total_volume: true,
+                document_product_no: true,
+                document_warehouse_no: true,
+                cal_box: {
+                    select: {
+                        cal_box_id: true,
+                        box_no: true,
+                        master_box_name: true,
+                        code_box: true,
+                        master_product_name: true,
+                        code_product: true,
+                        cubic_centimeter_box: true,
+                        count: true,
+                        document_product_no: true,
+                    },
+                },
+                mastershelf: {
+                    select: {
+                        master_shelf_id: true,
+                        master_shelf_name: true,
+                        shelf_level: true,
+                        height: true,
+                        width: true,
+                        length: true,
+                        cubic_centimeter_shelf: true,
+                    },
+                },
+            },
+        });
+    },
+
     createAsync: async (payload: any) => {
         return prisma.shelf_box_storage.create({
             data: {
@@ -201,7 +248,7 @@ export const shelfBoxStorageRepository = {
         });
 
         // Calculate total volume by summing up individual box volumes
-        const totalVolume = result.reduce((sum, item) => sum + (item.cubic_centimeter_box * item.count), 0);
+        const totalVolume = result.reduce((sum, item) => sum + (item?.cubic_centimeter_box! * item?.count!), 0);
         return totalVolume;
     },
 };

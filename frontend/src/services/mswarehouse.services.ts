@@ -3,16 +3,17 @@ import { PayloadCreateMasterwarehouse, PayloadUpdateMswarehouse, PayloadDeteleMs
 import { MswarehouseResponse } from "@/types/response/reponse.mswarehouse";
 import mainApi from "@/apis/main.api";
 
-export const getMswarehouse = async () => {
+export const getMswarehouse = async (): Promise<MswarehouseResponse> => {
     try {
-        console.log("Fetching warehouse data..."); // Debug log
+        //console.log("Fetching warehouse data..."); // Debug log
         const response = await mainApi.get(GET_MSWAREHOUSE);
-        console.log("Warehouse API raw response:", response); // Debug log
+        //console.log("Warehouse API raw response:", response); // Debug log
         return response.data;
     } catch (error) {
         console.error('Error in getMswarehouse:', error);
         return {
-            status: 'Failed',
+            success: false,
+            statusCode: 500,
             message: 'Failed to fetch warehouse data',
             responseObject: []
         };
@@ -58,4 +59,11 @@ export const getMswarehouseUsage = async () => {
             statusCode: 500
         };
     }
+};
+
+export const getMswarehouseById = async (master_warehouse_id: string): Promise<MswarehouseResponse> => {
+    const { data: response } = await mainApi.get(
+        GET_MSWAREHOUSE + "/" + master_warehouse_id
+    );
+    return response;
 };

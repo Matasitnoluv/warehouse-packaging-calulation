@@ -38,6 +38,9 @@ router.get("/shelf/:id", async (req: Request, res: Response) => {
     }
 });
 
+
+
+
 // Get shelf box storage records by document number
 router.get("/document/:docNo", async (req: Request, res: Response) => {
     try {
@@ -60,7 +63,7 @@ router.get("/document/:docNo", async (req: Request, res: Response) => {
 router.get("/document-warehouse/:docNo", async (req: Request, res: Response) => {
     try {
         const docNo = req.params.docNo;
-        const result = await shelfBoxStorageServices.getByDocumentWareHouse(docNo);
+        const result = await shelfBoxStorageServices.getByDocumentWarehouseNoAsync(docNo);
         res.json({
             success: true,
             responseObject: result.responseObject,
@@ -93,66 +96,68 @@ router.post("/", async (req: Request, res: Response) => {
 });
 
 // Route for storing multiple boxes in a shelf
-router.post("/store-multiple", async (req: Request, res: Response) => {
-    try {
-        const payloads = req.body;
+// router.post("/store-multiple", async (req: Request, res: Response) => {
+//     try {
+//         const payloads = req.body;
 
-        if (!Array.isArray(payloads) || payloads.length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: "Invalid payload. Expected an array of box storage data.",
-            });
-        }
+//         if (!Array.isArray(payloads) || payloads.length === 0) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Invalid payload. Expected an array of box storage data.",
+//             });
+//         }
 
-        // Process each box storage request
-        const results = [];
-        let successCount = 0;
-        let failedCount = 0;
+//         // Process each box storage request
+//         const results = [];
+//         let successCount = 0;
+//         let failedCount = 0;
 
-        for (const payload of payloads) {
-            try {
-                const result = await shelfBoxStorageServices.createAsync(payload);
-                if (result.success && result.responseObject) {
-                    results.push({
-                        success: true,
-                        cal_box_id: payload.cal_box_id,
-                        storage_id: result.responseObject.storage_id,
-                    });
-                    successCount++;
-                } else {
-                    results.push({
-                        success: false,
-                        cal_box_id: payload.cal_box_id,
-                        error: result.message || "Failed to store box",
-                    });
-                    failedCount++;
-                }
-            } catch (error: any) {
-                results.push({
-                    success: false,
-                    cal_box_id: payload.cal_box_id,
-                    error: error.message || "Failed to store box",
-                });
-                failedCount++;
-            }
-        }
+//         for (const payload of payloads) {
+//             try {
+//                 const result = await shelfBoxStorageServices.createAsync(payload);
+//                 if (result.success && result.responseObject) {
+//                     results.push({
+//                         success: true,
+//                         cal_box_id: payload.cal_box_id,
+//                         storage_id: result.responseObject.storage_id,
+//                     });
+//                     successCount++;
+//                 } else {
+//                     results.push({
+//                         success: false,
+//                         cal_box_id: payload.cal_box_id,
+//                         error: result.message || "Failed to store box",
+//                     });
+//                     failedCount++;
+//                 }
+//             } catch (error: any) {
+//                 results.push({
+//                     success: false,
+//                     cal_box_id: payload.cal_box_id,
+//                     error: error.message || "Failed to store box",
+//                 });
+//                 failedCount++;
+//             }
+//         }
 
-        return res.status(200).json({
-            success: true,
-            message: `Successfully stored ${successCount} boxes, failed to store ${failedCount} boxes`,
-            responseObject: {
-                successCount,
-                failedCount,
-                results,
-            },
-        });
-    } catch (error: any) {
-        return res.status(500).json({
-            success: false,
-            message: error.message || "Failed to store boxes",
-        });
-    }
-});
+//         return res.status(200).json({
+//             success: true,
+//             message: `Successfully stored ${successCount} boxes, failed to store ${failedCount} boxes`,
+//             responseObject: {
+//                 successCount,
+//                 failedCount,
+//                 results,
+//             },
+//         });
+//     } catch (error: any) {
+//         return res.status(500).json({
+//             success: false,
+//             message: error.message || "Failed to store boxes",
+
+//             responseObject: null,
+//         });
+//     }
+// });
 
 // Update a shelf box storage record
 router.put("/:id", async (req: Request, res: Response) => {

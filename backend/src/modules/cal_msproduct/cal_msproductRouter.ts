@@ -13,6 +13,12 @@ export const cal_msproductRouter = (() => {
         handleServiceResponse(ServiceResponse, res);
     });
 
+    router.get("/get/:document_product_no", async (req: Request, res: Response) => {
+        const { document_product_no } = req.params;
+        const ServiceResponse = await cal_msproductService.findByNo(document_product_no);
+        handleServiceResponse(ServiceResponse, res);
+    });
+
     router.post("/create", validateRequest(CreateCal_msproductSchema),
         async (req: Request, res: Response) => {
             const payload = req.body;

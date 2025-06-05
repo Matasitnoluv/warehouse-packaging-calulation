@@ -1,5 +1,7 @@
 import axios from "axios";
 import { API_URL } from "../config";
+import { ApiResponse } from "@/pages/warehouseCalculation/type";
+import { TypeMsshelfAll } from "@/types/response/reponse.msshelf";
 
 // Type for shelf creation/update payload
 export interface MsshelfPayload {
@@ -15,7 +17,7 @@ export interface MsshelfPayload {
 }
 
 // Get all shelves by rack ID
-export const getMsshelf = async (master_rack_id?: string) => {
+export const getMsshelf = async (master_rack_id?: string): Promise<ApiResponse<TypeMsshelfAll[] | null>> => {
     try {
         const url = master_rack_id
             ? `${API_URL}/v1/msshelf?master_rack_id=${master_rack_id}`

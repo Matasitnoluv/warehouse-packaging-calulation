@@ -8,7 +8,7 @@ export const cal_boxRouter = (() => {
 
     router.get("/get", async (req: Request, res: Response) => {
         const { document_product_no } = req.query;
-        
+
         // If document_product_no is provided, filter boxes by document
         if (document_product_no) {
             const serviceResponse = await cal_boxService.findByDocumentProductNo(document_product_no as string);
@@ -20,6 +20,11 @@ export const cal_boxRouter = (() => {
         }
     });
 
+    router.get("/get/:document_product_no", async (req: Request, res: Response) => {
+        const { document_product_no } = req.params;
+        const ServiceResponse = await cal_boxService.findByNo(document_product_no);
+        handleServiceResponse(ServiceResponse, res);
+    });
 
     router.post("/create", validateRequest(CreateCal_boxSchema),
         async (req: Request, res: Response) => {

@@ -14,6 +14,16 @@ export const cal_msproductService = {
             StatusCodes.OK
         );
     },
+    findByNo: async (document_product_no: string) => {
+        const cal_msproduct = await cal_msproductRepository.findByNo(document_product_no);
+        return new ServiceResponse(
+            ResponseStatus.Success,
+            "Get All success",
+            cal_msproduct,
+            StatusCodes.OK
+        );
+    },
+
     create: async (payload: TypePayloadcal_msproduct) => {
         try {
             const checkCal_msproduct = await cal_msproductRepository.findByName(payload.document_product_no);

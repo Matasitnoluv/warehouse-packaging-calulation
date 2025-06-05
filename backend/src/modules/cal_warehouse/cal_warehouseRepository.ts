@@ -39,6 +39,13 @@ export const cal_warehouseRepository = {
         return result as Pick<cal_warehouse, Key> | null;
     },
 
+
+    findByDocumentWarehouseNo: async (document_warehouse_no: string) => {
+        return prisma.cal_warehouse.findMany({
+            where: { document_warehouse_no: document_warehouse_no },
+        });
+    },
+
     create: async (payload: TypePayloadcal_warehouse) => {
         const document_warehouse_no = payload.document_warehouse_no.trim();
         const setPayload: any = {

@@ -6,13 +6,16 @@ import _ from "lodash";
 import { useNavigate } from "react-router-dom";
 
 
-const EditButton = ({ calWarehouse }: { calWarehouse: TypeCalWarehouseAll }) => {
+const CalEditButton = ({ calWarehouse }: { calWarehouse: TypeCalWarehouseAll }) => {
     const navigate = useNavigate();
-    if (!calWarehouse?.master_warehouse_id) return null
+
     return (
-        <Button onClick={() => navigate(`/warehouse-calculation/${calWarehouse.master_warehouse_id}`)}>
-            Edit
+        <Button onClick={() => navigate(`/warehouse-calculation/${calWarehouse.document_warehouse_no}`)}>
+
+
+            {calWarehouse?.master_warehouse_id ? "Edit" : "Calculation"}
+
         </Button>
     )
 }
-export default EditButton;
+export default CalEditButton;

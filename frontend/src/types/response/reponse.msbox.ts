@@ -12,6 +12,9 @@ export type TypeMsboxAll = {
 }
 
 export type TypeMsbox = {
+    cal_box_id: string;
+    document_product_no: string;
+    count: number;
     master_box_id: string;
     master_box_name: string;
     code_box: string;

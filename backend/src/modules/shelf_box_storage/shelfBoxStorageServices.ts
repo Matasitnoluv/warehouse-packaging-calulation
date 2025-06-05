@@ -23,6 +23,23 @@ export const shelfBoxStorageServices = {
         }
     },
 
+    getByDocumentWarehouseNoAsync: async (document_warehouse_no: string) => {
+        try {
+            const data = await shelfBoxStorageRepository.findByDocumentWareHouse(document_warehouse_no);
+            return {
+                success: true,
+                responseObject: data,
+                message: "Get shelf box storage by document warehouse number successful",
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message,
+            };
+        }
+    },
+
     getByShelfIdAsync: async (master_shelf_id: string) => {
         try {
             const data = await shelfBoxStorageRepository.findByShelfIdAsync(master_shelf_id);

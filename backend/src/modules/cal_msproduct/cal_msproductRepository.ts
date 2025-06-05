@@ -21,6 +21,15 @@ export const cal_msproductRepository = {
         });
     },
 
+    findByNo: async (document_product_no: string) => {
+        return prisma.cal_msproduct.findMany({
+            where: {
+                document_product_no: document_product_no
+            },
+
+        });
+    },
+
     findByName: async <Key extends keyof cal_msproduct>(
         document_product_no: string,
         keys = Keys as Key[]

@@ -10,6 +10,14 @@ export const getCalMsproduct = async (): Promise<CalMsproductResponse> => {
     return response;
 };
 
+
+export const getCalMsproductByNo = async (document_product_no: string): Promise<CalMsproductResponse> => {
+    const { data: response } = await mainApi.get(
+        GET_CAL_MSPRODUCT,
+    );
+    return response;
+};
+
 export const getCalMsproductByType = async (type: "single" | "mixed") => {
     const { data: response } = await mainApi.get(
         GET_CAL_MSPRODUCT,

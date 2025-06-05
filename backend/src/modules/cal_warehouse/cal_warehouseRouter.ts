@@ -11,6 +11,12 @@ export const cal_warehouseRouter = (() => {
         handleServiceResponse(ServiceResponse, res);
     });
 
+    router.get("/get/:document_warehouse_no", async (req: Request, res: Response) => {
+        const { document_warehouse_no } = req.params;
+        const ServiceResponse = await cal_warehouseService.findByDocumentWarehouseNo(document_warehouse_no);
+        handleServiceResponse(ServiceResponse, res);
+    });
+
     router.post("/create", validateRequest(CreateCal_warehouseSchema),
         async (req: Request, res: Response) => {
             const payload = req.body;

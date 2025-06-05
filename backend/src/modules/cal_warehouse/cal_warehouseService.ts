@@ -14,6 +14,16 @@ export const cal_warehouseService = {
             StatusCodes.OK
         );
     },
+
+    findByDocumentWarehouseNo: async (document_warehouse_no: string) => {
+        const cal_warehouse = await cal_warehouseRepository.findByDocumentWarehouseNo(document_warehouse_no);
+        return new ServiceResponse(
+            ResponseStatus.Success,
+            "Get All success",
+            cal_warehouse,
+            StatusCodes.OK
+        );
+    },
     create: async (payload: TypePayloadcal_warehouse) => {
         try {
             const checkCal_warehouse = await cal_warehouseRepository.findByName(payload.document_warehouse_no);

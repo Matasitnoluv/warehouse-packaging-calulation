@@ -1,4 +1,5 @@
 export default function BoxShow({ label, input }: { label: string, input: string | JSX.Element }) {
+    if (!input) return null;
     return (
         <div className="mb-6">
             <label className="block text-xl font-bold text-gray-800 mb-2">

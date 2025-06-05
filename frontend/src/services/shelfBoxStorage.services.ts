@@ -2,6 +2,9 @@ import axios from "axios";
 import { API_URL } from "../config";
 import { API_ENDPOINTS } from "@/apis/endpoint.api";
 import { RackBoxStorage } from "./rackBoxStorage.services";
+import { TypeShelfBoxStorage } from "@/types/response/reponse.msproduct copy";
+import mainApi from "@/apis/main.api";
+import { ApiResponse } from "@/pages/warehouseCalculation/type";
 
 // Define the payload type for storing a box in a shelf
 export interface StoreBoxPayload {
@@ -245,6 +248,14 @@ export const getShelfBoxStorage = async (document_product_no: string) => {
     console.error("Error fetching shelf box storage:", error);
     throw error;
   }
+};
+
+
+export const getShelfBoxStorageByDocumentWarehouseNo = async (master_warehouse_id: string): Promise<ApiResponse<TypeShelfBoxStorage[]>> => {
+  const { data: response } = await mainApi.get(
+    API_ENDPOINTS.SHELF_BOX_STORAGE.GET_BY_DOCUMENT_WAREHOUSE + "/" + master_warehouse_id
+  );
+  return response;
 };
 
 export const createShelfBoxStorage = async (payload: any) => {

@@ -14,7 +14,8 @@ import { getMszone } from "@/services/mszone.services";
 import { getMsrack } from "@/services/msrack.services";
 import { getMsshelf } from "@/services/msshelf.services";
 import { TypeMswarehouse } from "@/types/response/reponse.mswarehouse";
-import EditButton from "./EditButton";
+import EditButton from "./CalEditButton";
+import CalEditButton from "./CalEditButton";
 
 const CalWarehouseTable = () => {
     const navigate = useNavigate();
@@ -91,7 +92,7 @@ const CalWarehouseTable = () => {
             // Fetch warehouse (ใช้ responseObject เหมือนหน้า Warehouse Management Details)
             const msWarehouseRes = await getMswarehouse();
             const msWarehouseList = msWarehouseRes.responseObject || [];
-            const msWarehouse = msWarehouseList.find((w) => w.master_warehouse_id === warehouseId);
+            const msWarehouse = (msWarehouseList as TypeMswarehouse[]).find((w) => w.master_warehouse_id === warehouseId);
             if (!msWarehouse) return null;
 
             // Fetch zones
@@ -227,11 +228,7 @@ const CalWarehouseTable = () => {
                                             </Table.RowHeaderCell>
                                             <Table.Cell className="px-6 py-4">
                                                 <div className="flex justify-center gap-2">
-                                                    {cal_warehouse.master_warehouse_id ? <EditButton calWarehouse={cal_warehouse} /> : <DialogSelectWarehouse
-                                                        documentWarehouseNo={cal_warehouse.document_warehouse_no}
-                                                        triggerButtonText="Calculation"
-                                                        buttonClassName="inline-flex items-center gap-2 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-md shadow-md transition-colors text-sm"
-                                                    />}
+                                                    {<CalEditButton calWarehouse={cal_warehouse} />}
 
 
                                                 </div>

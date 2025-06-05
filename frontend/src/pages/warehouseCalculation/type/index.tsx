@@ -1,3 +1,6 @@
+import { TypeMsrack } from "@/types/response/reponse.msrack";
+import { TypeMsshelfAll } from "@/types/response/reponse.msshelf";
+
 // Define types
 export interface WarehouseType {
     master_warehouse_id: string;
@@ -9,39 +12,7 @@ export interface WarehouseType {
     description: string;
 }
 
-export interface ZoneType {
-    master_zone_id: string;
-    master_zone_name: string;
-    height: number;
-    length: number;
-    width: number;
-    cubic_centimeter_zone: number;
-    description: string;
-    master_warehouse_id: string;
-}
 
-export interface RackType {
-    master_rack_id: string;
-    master_rack_name: string;
-    height: number;
-    length: number;
-    width: number;
-    cubic_centimeter_rack: number;
-    description: string;
-    master_zone_id: string;
-}
-
-export interface ShelfType {
-    master_shelf_id: string;
-    master_shelf_name: string;
-    shelf_level: number;
-    height: number;
-    length: number;
-    width: number;
-    cubic_centimeter_shelf: number;
-    description: string;
-    master_rack_id: string;
-}
 
 export interface DocumentTypeCalculate {
     document_product_id: string;
@@ -195,8 +166,8 @@ export interface ApiResponse<T> {
 // Add new export interface for box placement
 export interface BoxPlacement {
     box: BoxType;
-    suggestedShelf?: ShelfType;
-    suggestedRack?: RackType;
+    suggestedShelf?: TypeMsshelfAll;
+    suggestedRack?: TypeMsrack;
     volume: number;
     canFit: boolean;
 }
@@ -219,9 +190,9 @@ export type ShelfWithFitBoxes = {
 export type CalculateSummary = {
     zone: string;
     document: string;
-    racks: RackType[];
+    racks: TypeMsrack[];
     boxPlacements?: BoxPlacement[];
-    shelves: ShelfType[];
+    shelves: TypeMsshelfAll[];
 };
 
 

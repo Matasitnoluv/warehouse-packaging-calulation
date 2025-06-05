@@ -1,18 +1,102 @@
 import { postBoxInShelfOnStorage } from "@/services/box_in_shelf_onstorage.services";
 import { Dialog, Button } from "@radix-ui/themes";
-import { ShelfWithFitBoxes, CalculateSummary, ZoneType } from "../type";
-import { useRef } from "react";
-import { patchCalWarehouse } from "@/services/calwarehouse.services";
-import { useParams } from "react-router-dom";
+import { ShelfWithFitBoxes, CalculateSummary, BoxPlacement, BoxType } from "../type";
+import { useMemo, useRef } from "react";
+import { useLocation, useParams } from "react-router-dom";
+import { useCalculateContext } from "../context/useCalculateCotext";
+import { useQueries } from "@tanstack/react-query";
+import { getRackBoxStorageByRack } from "@/services/rackBoxStorage.services";
+import { TypeMsshelfAll, TypeMsshelfResponse } from "@/types/response/reponse.msshelf";
+import { TypeMsrack } from "@/types/response/reponse.msrack";
+import { TypeMsbox } from "@/types/response/reponse.msbox";
+import { Partial } from "lodash";
+import { TypeCalMsproduct } from "@/types/response/reponse.cal_msproduct";
+import { TypeCalBox } from "@/types/response/reponse.cal_box";
+import { TypeMswarehouse } from "@/types/response/reponse.mswarehouse";
+const calculateBoxPlacement = (
+    boxes: TypeCalBox[],
+    racks: TypeMsrack[],
+    shelves: TypeMsshelfAll[]
+): BoxPlacement[] => {
+    const placements: BoxPlacement[] = [];
 
-const DialogCaulate = ({ documentWarehouseNo, showCalculateDialog, setShowCalculateDialog, calculateSummary, zones }:
-    { documentWarehouseNo: string, showCalculateDialog: boolean, setShowCalculateDialog: (value: boolean) => void, calculateSummary: CalculateSummary | null, zones: ZoneType[] }) => {
+    let rackIndex = 0;
+    let shelfIndex = 0;
+    let usedShelfVolume: { [shelfId: string]: number } = {};
+
+    // Sort shelves by level
+    const sortedRacks = [...racks];
+    const sortedShelves = shelves
+        .slice()
+
+    for (const box of boxes) {
+        let placed = false;
+
+        while (rackIndex < sortedRacks.length && !placed) {
+            const rack = sortedRacks[rackIndex];
+            const shelvesInRack = sortedShelves.filter((s: TypeMsshelfAll) => s.master_rack_id === rack.master_rack_id);
+
+            while (shelfIndex < shelvesInRack.length && !placed) {
+                const shelf = shelvesInRack[shelfIndex];
+                const used = usedShelfVolume[shelf.master_shelf_id] || 0;
+                const boxVolume = box.cubic_centimeter_box;
+
+                if (used + boxVolume <= shelf.cubic_centimeter_shelf) {
+                    placements.push({
+                        box: {
+                            ...box,
+                            cal_box_id: box.cal_box_id,
+                            document_product_no: box.document_product_no,
+                            cubic_centimeter_box: box.cubic_centimeter_box,
+                            count: box.count,
+                            box_no: 0,
+                            master_product_name: "",
+                            code_product: ""
+                        },
+                        suggestedShelf: shelf,
+                        suggestedRack: rack,
+                        volume: boxVolume,
+                        canFit: true,
+                    });
+                    usedShelfVolume[shelf.master_shelf_id] = used + boxVolume;
+                    placed = true;
+                } else {
+                    shelfIndex++;
+                }
+            }
+
+            if (!placed) {
+                rackIndex++;
+                shelfIndex = 0;
+            }
+        }
+
+        if (!placed) {
+            placements.push({
+                box: {
+                    ...box,
+                    cal_box_id: box.cal_box_id,
+                    document_product_no: box.document_product_no,
+                    cubic_centimeter_box: box.cubic_centimeter_box,
+                    count: box.count,
+                    box_no: 0,
+                    master_product_name: "",
+                    code_product: ""
+                },
+                canFit: false,
+                volume: box.cubic_centimeter_box * box.count,
+            });
+        }
+    }
+    return placements;
+}
+const DialogCaulate = () => {
     const tempShelfDataRef = useRef<ShelfWithFitBoxes[]>([]);
-    const { warehouseId: master_warehouse_id } = useParams<{ warehouseId: string }>();
 
+    const { showCalculateDialog, setShowCalculateDialog, rack, shelf, boxs, zone, document, warehouseNo, warehouse } = useCalculateContext();
     const savePayload = async () => {
         try {
-            if (!documentWarehouseNo) {
+            if (!document) {
                 alert("Please select a warehouse document first!");
                 return;
             }
@@ -28,8 +112,8 @@ const DialogCaulate = ({ documentWarehouseNo, showCalculateDialog, setShowCalcul
 
                 const shelfPayload = {
                     master_shelf_id: shelf.shelf_id,
-                    document_warehouse_no: documentWarehouseNo,
-                    master_warehouse_id: master_warehouse_id,
+                    document_warehouse_no: warehouseNo,
+                    master_warehouse_id: warehouse,
                     fitBoxes: validBoxes.map(box => ({
                         cal_box_id: box.cal_box_id,
                         document_product_no: box.document_product_no,
@@ -42,7 +126,6 @@ const DialogCaulate = ({ documentWarehouseNo, showCalculateDialog, setShowCalcul
                 // console.log(`Shelf ${shelf.shelf_id} payload:`, shelfPayload);
                 return shelfPayload;
             }).filter(Boolean); // Remove null entries
-
             // console.log("Final payload:", payload);
             if (payload.length === 0) {
                 alert("No valid boxes to save! Please check if boxes have valid cal_box_id.");
@@ -61,6 +144,7 @@ const DialogCaulate = ({ documentWarehouseNo, showCalculateDialog, setShowCalcul
                     }
                 })
             );
+            console.log(results)
 
             // Check if all requests were successful
             const allSuccessful = results.every(result => result && result.success);
@@ -81,10 +165,23 @@ const DialogCaulate = ({ documentWarehouseNo, showCalculateDialog, setShowCalcul
     };
 
 
-
-
+    const calculateSummary: CalculateSummary | undefined = useMemo(() => {
+        if (boxs && rack && shelf && zone && document) {
+            return {
+                boxPlacements: calculateBoxPlacement(boxs, rack, shelf),
+                racks: rack,
+                shelves: shelf,
+                zone,
+                document
+            };
+        }
+        return undefined;
+    }, [boxs, rack, shelf, zone, document]);
     return <Dialog.Root open={showCalculateDialog} onOpenChange={setShowCalculateDialog}>
         <Dialog.Content className="max-w-4xl max-h-[80vh] flex flex-col">
+
+
+            {warehouseNo}
 
             <div className="flex-none">
                 <Dialog.Title className="text-xl font-bold mb-4">
@@ -92,7 +189,7 @@ const DialogCaulate = ({ documentWarehouseNo, showCalculateDialog, setShowCalcul
                 </Dialog.Title>
                 {calculateSummary && (
                     <div className="mb-4">
-                        <strong>Zone:</strong> {zones.find(z => z.master_zone_id === calculateSummary.zone)?.master_zone_name || calculateSummary.zone}
+                        <strong>Zone:</strong> {zone}
                         <br />
                         <strong>Document:</strong> {calculateSummary.document}
                     </div>
@@ -127,7 +224,6 @@ const DialogCaulate = ({ documentWarehouseNo, showCalculateDialog, setShowCalcul
                                                         count: bp.box.count || 1
                                                     };
                                                 })
-                                            // .sort((a, b) => Number(a.box_no) - Number(b.box_no));
 
                                             if (fitBoxes.length > 0) {
                                                 const existingShelfIndex = tempShelfDataRef.current.findIndex(

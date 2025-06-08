@@ -59,6 +59,7 @@ export const shelfBoxStorageRepository = {
         });
     },
 
+
     findByShelfIdAsync: async (master_shelf_id: string) => {
         return prisma.shelf_box_storage.findMany({
             where: {
@@ -191,18 +192,7 @@ export const shelfBoxStorageRepository = {
 
     createAsync: async (payload: any) => {
         return prisma.shelf_box_storage.create({
-            data: {
-                master_shelf_id: payload.master_shelf_id,
-                cal_box_id: payload.cal_box_id,
-                stored_by: payload.stored_by,
-                position: payload.position,
-                status: payload.status || "stored",
-                cubic_centimeter_box: payload.cubic_centimeter_box,
-                count: payload.count,
-                total_volume: payload.total_volume,
-                document_product_no: payload.document_product_no,
-                document_warehouse_no: payload.document_warehouse_no,
-            },
+            data: payload,
         });
     },
 
@@ -212,16 +202,7 @@ export const shelfBoxStorageRepository = {
                 storage_id,
             },
             data: {
-                master_shelf_id: payload.master_shelf_id,
-                cal_box_id: payload.cal_box_id,
-                stored_by: payload.stored_by,
-                position: payload.position,
-                status: payload.status,
-                cubic_centimeter_box: payload.cubic_centimeter_box,
-                count: payload.count,
-                total_volume: payload.total_volume,
-                document_product_no: payload.document_product_no,
-                document_warehouse_no: payload.document_warehouse_no,
+                ...payload
             },
         });
     },

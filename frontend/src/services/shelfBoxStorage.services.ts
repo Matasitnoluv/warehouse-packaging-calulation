@@ -2,7 +2,7 @@ import axios from "axios";
 import { API_URL } from "../config";
 import { API_ENDPOINTS } from "@/apis/endpoint.api";
 import { RackBoxStorage } from "./rackBoxStorage.services";
-import { TypeShelfBoxStorage } from "@/types/response/reponse.msproduct copy";
+import { TypeShelfBoxStorage, TypeShelfExport } from "@/types/response/reponse.msproduct copy";
 import mainApi from "@/apis/main.api";
 import { ApiResponse } from "@/pages/warehouseCalculation/type";
 
@@ -16,6 +16,8 @@ export interface StoreBoxPayload {
   cubic_centimeter_box: number;
   count: number;
   document_product_no: string;
+  export?: boolean;
+  export_date?: string;
 }
 
 // Get all stored boxes
@@ -105,6 +107,20 @@ export const getStoredBoxesByRackId = async (master_rack_id: string) => {
   }
 };
 
+export const getShelfExport = async (master_warehouse_id: string, master_zone_id: string): Promise<ApiResponse<TypeShelfExport>> => {
+  try {
+    const res = await mainApi.get(`${API_ENDPOINTS.SHELF_BOX_STORAGE.GET_SHELF_EXPORT}/${master_warehouse_id}/${master_zone_id}`, {
+    })
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching stored boxes by rack ID:", error);
+    return {
+      success: false,
+      message: "Failed to fetch stored boxes for the rack",
+      responseObject: null,
+    };
+  }
+};
 // Get stored boxes by document number
 export const getStoredBoxesByDocumentNo = async (document_product_no: string) => {
   try {

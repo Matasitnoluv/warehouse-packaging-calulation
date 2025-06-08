@@ -12,21 +12,7 @@ import { getShelfBoxStorage, getShelfBoxStorageByDocumentWarehouseNo } from "@/s
 
 const WarehouseCalculation = () => {
   const { warehouseId: documentWarehouseNo } = useParams<{ warehouseId: string }>();
-  // const location = useLocation();
-  // const documentWarehouseNoLocation = location.state?.documentWarehouseNo;
-  // // Get warehouse data
-  // const {
-  //   data: warehouse,
-  //   status: warehouseStatus,
-  //   isLoading: isWarehouseLoading,
-  //   isError: isWarehouseError,
-  // } = useQuery({
-  //   queryKey: ['warehouse', warehouse_master_id, documentWarehouseNoLocation],
-  //   queryFn: () => getMswarehouseById(warehouse_master_id!),
-  //   enabled: !!warehouse_master_id,
-  // });
 
-  // // Get calculated warehouse (calwarehouse)
   const {
     data: calwarehouseData,
     isLoading: isCalLoading,
@@ -37,33 +23,23 @@ const WarehouseCalculation = () => {
     queryFn: () => getCalWarehouseByDocumentWarehouseNo(documentWarehouseNo!),
     enabled: !!documentWarehouseNo,
 
-    staleTime: 0,          // ถือว่า cache เก่าเสมอ
-    refetchOnMount: true,  // รีโหลดทุกครั้งตอน mount
-    refetchOnWindowFocus: true // รีโหลดตอนกลับมา focus
-
   });
   const calwarehouse = calwarehouseData?.responseObject[0];
-  // const calwarehouse = Array.isArray(calwarehouseData?.responseObject)
-  //   ? calwarehouseData.responseObject
-  //   : [];
-  // const documentWarehouseNo = calwarehouse[0]?.document_warehouse_no;
 
-  // // Get shelf box storage by documentWarehouseNo
   const {
     data: shelfBoxStorageData,
     status: statusShelf,
     isLoading: isShelfLoading,
     isError: isShelfError,
   } = useQuery({
-    queryKey: ['shelfBoxStorage', documentWarehouseNo, calwarehouse?.master_warehouse_id],
+    queryKey: ['shelfBoxStorage', documentWarehouseNo],
     queryFn: () => getShelfBoxStorageByDocumentWarehouseNo(documentWarehouseNo!),
     enabled: !!documentWarehouseNo,
-
     refetchOnMount: true,
   });
+  const shelfBoxStorage_ = shelfBoxStorageData?.responseObject || []
 
-
-  const documentProductNos = shelfBoxStorageData?.responseObject
+  const shelfBoxStorage = shelfBoxStorage_
     .map(item => item.cal_box?.document_product_no)
     .filter(Boolean); // ตัดค่า null/undefined ออก
 
@@ -76,22 +52,11 @@ const WarehouseCalculation = () => {
     );
   }
 
-  // if (error) {
-  //   return (
-  //     <ErrorWareHouse title="Error" message={error} />
-  //   );
-  // }
-
-  // if (!warehouse) {
-  //   return (<ErrorWareHouse title="Warehouse Not Found" message="The requested warehouse could not be found." />)
-
-  // }
 
   if (calwarehouseStatus === 'success' && calwarehouse && documentWarehouseNo) {
     return (
-      <CalculateProvider warehouseNo={documentWarehouseNo}>
+      <CalculateProvider warehouseNo={documentWarehouseNo} defaultDocument={shelfBoxStorage?.[shelfBoxStorage.length - 1]} defaultZone={calwarehouse?.master_zone_id} defaultWarehouse={calwarehouse?.master_warehouse_id} >
         <div className="p-4">
-
           <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8 mt-6">
             {/* Show selected warehouse name if available */}
             {<BoxShow label={"Selected Warehouse"} input={
@@ -103,11 +68,11 @@ const WarehouseCalculation = () => {
             {/* Selected Document Warehouse No */}
             <BoxShow label={"Document Warehouse No"} input={documentWarehouseNo || <span className="text-gray-400">No document selected</span>} />
             {/* Zone & Document Selector Component */}
-            <ZoneDocumentSelector defaultDocument={documentProductNos?.[documentProductNos.length - 1]} />
+            <ZoneDocumentSelector />
 
 
 
-            {<DialogCaulate />}
+            {<DialogCaulate shelfBoxStorage={shelfBoxStorageData?.responseObject!} />}
 
 
           </div>

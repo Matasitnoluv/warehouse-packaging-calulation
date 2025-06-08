@@ -23,6 +23,64 @@ export const shelfBoxStorageServices = {
         }
     },
 
+
+    getShelfExportAsync: async ({ master_warehouse_id, master_zone_id }: { master_warehouse_id: string, master_zone_id: string }) => {
+
+        try {
+            const warehouse = await prisma.masterwarehouse.findUnique({
+                where: {
+                    master_warehouse_id: master_warehouse_id,
+                }
+            })
+            const zone = await prisma.masterzone.findUnique({
+                where: {
+                    master_zone_id: master_zone_id,
+                }
+            });
+
+
+            const racks = await prisma.masterrack.findMany({
+                where: {
+                    master_zone_id: master_zone_id,
+                }
+            });
+            const rackIds = racks.map(rack => rack.master_rack_id);
+            const shelfs = await prisma.mastershelf.findMany({
+                where: {
+                    master_rack_id: {
+                        in: rackIds,
+                    },
+                },
+            });
+
+            const shelfBoxStorage = await prisma.shelf_box_storage.findMany({
+                where: {
+                    master_warehouse_id: master_warehouse_id,
+                    master_zone_id: master_zone_id,
+                }
+            });
+
+            const data = {
+                warehouse,
+                zone,
+                racks,
+                shelfs,
+                shelfBoxStorage,
+            }
+            return {
+                success: true,
+                responseObject: data,
+                message: "Get data export successful",
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message,
+            };
+        }
+    },
+
     getByDocumentWarehouseNoAsync: async (document_warehouse_no: string) => {
         try {
             const data = await shelfBoxStorageRepository.findByDocumentWareHouse(document_warehouse_no);

@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { TypeMsbox } from "./reponse.msbox";
 import { TypeCalBox } from "./reponse.cal_box";
+import { TypeMswarehouse } from "./reponse.mswarehouse";
+import { TypeMszone } from "./reponse.mszone";
+import { TypeMsrack } from "./reponse.msrack";
+import { TypeMsshelfAll } from "./reponse.msshelf";
 
 export const shelfBoxStorageSchema = z.object({
     storage_id: z.string().uuid().optional(),
@@ -18,7 +22,7 @@ export const shelfBoxStorageSchema = z.object({
 });
 
 export type TypeShelfBoxStorage = {
-    storage_id?: string;
+    storage_id: string;
     master_shelf_id: string;
     cal_box_id: string;
     stored_date?: Date;
@@ -32,7 +36,20 @@ export type TypeShelfBoxStorage = {
     document_warehouse_no?: string | null;
     box_no?: number | null;
     cal_box: TypeMsbox & { cal_box_id?: string } & TypeCalBox;
+    master_warehouse_id?: string | null;
+    master_zone_id?: string | null;
+    export?: boolean;
+    export_date?: Date;
 };
+
+export type TypeShelfExport = {
+    warehouse: TypeMswarehouse;
+    zone: TypeMszone;
+    racks: TypeMsrack[];
+    shelfs: TypeMsshelfAll[];
+    shelfBoxStorage: TypeShelfBoxStorage[];
+};
+
 
 
 export type ZTypeShelfBoxStorage = z.infer<typeof shelfBoxStorageSchema>;

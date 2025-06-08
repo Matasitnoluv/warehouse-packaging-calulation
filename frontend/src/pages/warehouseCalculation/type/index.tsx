@@ -1,3 +1,4 @@
+import { TypeCalBox } from "@/types/response/reponse.cal_box";
 import { TypeMsrack } from "@/types/response/reponse.msrack";
 import { TypeMsshelfAll } from "@/types/response/reponse.msshelf";
 
@@ -29,20 +30,9 @@ export interface DocumentTypeCalculate {
     master_product_id: string;
 }
 
-export interface BoxType {
-    cal_box_id: string;
-    box_no: number;
-    master_box_name: string;
-    code_box: string;
-    master_product_name: string;
-    code_product: string;
-    cubic_centimeter_box: number;
-    count: number;
-    document_product_no: string;
-}
 
 export interface BoxFitResult {
-    box: BoxType;
+    box: TypeCalBox;
     fits: boolean;
     isStored: boolean;
     isStoredAnywhere: boolean;
@@ -160,31 +150,25 @@ export interface RackBoxStorage {
 export interface ApiResponse<T> {
     success: boolean;
     message?: string;
-    responseObject: T;
+    responseObject: T | null;
 }
 
 // Add new export interface for box placement
 export interface BoxPlacement {
-    box: BoxType;
+    box: TypeCalBox;
     suggestedShelf?: TypeMsshelfAll;
     suggestedRack?: TypeMsrack;
     volume: number;
     canFit: boolean;
 }
 
-export type FitBox = {
-    document_product_no: string;
-    box_no: string | number;
-    cubic_centimeter_box: number;
-    cal_box_id: string;
-    count: number;
-};
+
 
 export type ShelfWithFitBoxes = {
     shelf_id: string;
     shelf_name: string;
     master_rack_id: string;
-    fitBoxes: FitBox[];
+    fitBoxes: TypeCalBox[];
 };
 
 export type CalculateSummary = {

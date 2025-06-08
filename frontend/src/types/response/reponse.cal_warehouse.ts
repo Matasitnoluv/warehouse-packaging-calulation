@@ -5,6 +5,7 @@ export type TypeCalWarehouse = {
     document_warehouse_no: string;
     sort_by: number;
     master_warehouse_id: string;
+    master_zone_id: string;
 };
 
 export type CalWarehouseResponse = {

@@ -16,6 +16,8 @@ export class BoxInShelfRepository {
                             count: box.count,
                             total_volume: box.total_volume,
                             document_warehouse_no: payload.document_warehouse_no,
+                            master_warehouse_id: payload.master_warehouse_id,
+                            master_zone_id: payload.master_zone_id,
                             status: "stored",
                         },
                     });
@@ -27,6 +29,7 @@ export class BoxInShelfRepository {
                 where: { document_warehouse_no: payload.document_warehouse_no },
                 data: {
                     master_warehouse_id: payload.master_warehouse_id,
+                    master_zone_id: payload.master_zone_id,
                 },
             });
 

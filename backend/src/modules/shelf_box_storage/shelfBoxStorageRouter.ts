@@ -39,7 +39,28 @@ router.get("/shelf/:id", async (req: Request, res: Response) => {
 });
 
 
+// Get shelf box storage records by shelf ID
+// {master_warehouse_id:"", master_zone_id:""}
+router.get("/get_export/:master_warehouse_id/:master_zone_id", async (req: Request, res: Response) => {
+    try {
 
+        const { master_warehouse_id, master_zone_id } = req.params;
+        if (!master_warehouse_id || !master_zone_id) {
+            res.status(400).json({
+                success: false,
+                message: "Missing required fields: master_warehouse_id or master_zone_id"
+            });
+        }
+
+        const result = await shelfBoxStorageServices.getShelfExportAsync({ master_warehouse_id, master_zone_id });
+        res.json(result);
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Failed to retrieve shelf box storage records by shelf ID",
+        });
+    }
+});
 
 // Get shelf box storage records by document number
 router.get("/document/:docNo", async (req: Request, res: Response) => {

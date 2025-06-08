@@ -1,6 +1,6 @@
+import { ServiceResponse } from "@common/models/serviceResponse";
 import { BoxInShelfType } from "./box_in_shelf_onstorageModel";
 import { BoxInShelfRepository } from "./box_in_shelf_onstorageRepository";
-import { ServiceResponse } from "@common/types/response";
 
 export class BoxInShelfService {
     private repository: BoxInShelfRepository;

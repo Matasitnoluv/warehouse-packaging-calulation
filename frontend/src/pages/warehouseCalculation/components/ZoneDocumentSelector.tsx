@@ -1,16 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { BoxSelect, Layers } from "lucide-react";
-import CalculationSummary from "./CalculationSummary";
+
 import { DocumentTypeCalculate } from "../type";
 import { useQuery } from "@tanstack/react-query";
-import { getMszone } from "@/services/mszone.services";
-import { getMsbox } from "@/services/msbox.services";
-import { getMsproduct } from "@/services/msproduct.services";
-import { getCalMsproduct } from "@/services/calmsproduct.services";
 import { useCalculateContext } from "../context/useCalculateCotext";
 import { ButtonCalculate } from "../warehouseCalculation";
-import { getCalWarehouse } from "@/services/calwarehouse.services";
 import { getMswarehouse } from "@/services/mswarehouse.services";
+import { useCalMsProductQuery, useZoneQuery } from "@/services/queriesHook";
+import { Layers } from "lucide-react";
+import { useEffect } from "react";
 
 interface ZoneType {
     master_zone_id: string;
@@ -27,15 +23,19 @@ interface ZoneDocumentSelectorProps {
     onCalculate: () => void;
 }
 
-const SelectZone = ({ selectedZone, setSelectedZone }: { selectedZone: string, setSelectedZone: (zoneId: string) => void }) => {
-    const { data: zones, status } = useQuery({
-        queryKey: ["zones"],
-        queryFn: () => getMszone()
-    })
+export const SelectZone = ({ selectedZone, setSelectedZone, className, setZoneName }: { className?: string, setZoneName?: React.Dispatch<React.SetStateAction<string>>, selectedZone: string, setSelectedZone: (zoneId: string) => void }) => {
+    const { data: zones, status } = useZoneQuery()
+    useEffect(() => {
+        if (selectedZone && setZoneName) {
+            const zoneName = zones?.responseObject?.find(zone => zone.master_zone_id === selectedZone)?.master_zone_name || ""
+            setZoneName(zoneName)
+        }
+    }, [selectedZone, setZoneName, zones])
+
     if (status === 'pending') return "load";
     const zonesData = zones?.responseObject;
     return (
-        <div >
+        <div className={className}>
             <label className="block text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
                 <Layers className="text-blue-500 w-5 h-5" /> Select Zone
             </label>
@@ -56,15 +56,12 @@ const SelectZone = ({ selectedZone, setSelectedZone }: { selectedZone: string, s
 }
 
 
-const SelectProducts = ({ document, setDocument }: { document: string, setDocument: (document: string) => void }) => {
-    const { data: products, status } = useQuery({
-        queryKey: ["products"],
-        queryFn: () => getCalMsproduct()
-    })
+export const SelectProducts = ({ document, setDocument, className }: { className?: string, document: string | undefined, setDocument: (document: string) => void }) => {
+    const { data: products, status } = useCalMsProductQuery()
     if (status === 'pending') return "load";
     const productsData = products?.responseObject;
     return (
-        <div >
+        <div className={className}>
             <label className="block text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
                 <Layers className="text-blue-500 w-5 h-5" /> Select Products
             </label>
@@ -84,7 +81,7 @@ const SelectProducts = ({ document, setDocument }: { document: string, setDocume
     )
 }
 
-const SelectWarehouse = ({ warehouse, setWarehouse }: { warehouse: string, setWarehouse: (warehouseId: string) => void }) => {
+export const SelectWarehouse = ({ warehouse, setWarehouse, className }: { className?: string, warehouse: string, setWarehouse: (warehouseId: string) => void }) => {
     const { data: warehouses, status } = useQuery({
         queryKey: ["warehouses"],
         queryFn: () => getMswarehouse()
@@ -92,7 +89,7 @@ const SelectWarehouse = ({ warehouse, setWarehouse }: { warehouse: string, setWa
     if (status === 'pending') return "load";
     const warehousesData = warehouses?.responseObject;
     return (
-        <div>
+        <div className={className}>
             <label className="block text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
                 <Layers className="text-blue-500 w-5 h-5" /> Select Warehouse
             </label>
@@ -115,13 +112,11 @@ const SelectWarehouse = ({ warehouse, setWarehouse }: { warehouse: string, setWa
 
 
 
-const ZoneDocumentSelector = ({ defaultZone, defaultDocument }: { defaultZone?: string, defaultDocument?: string }) => {
+const ZoneDocumentSelector = () => {
 
     //   const [zones, setZones] = useState<ZoneType[]>([]);
-    const { zone, setZone, document, setDocument, warehouse, setWarehouse } = useCalculateContext();
+    const { zone, setZone, document, setDocument, warehouse, setWarehouse, setZoneName } = useCalculateContext();
 
-
-    useEffect(() => { defaultDocument && setDocument(defaultDocument) }, [defaultDocument])
 
     return (
         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-10 mt-8 border border-gray-100">
@@ -134,7 +129,7 @@ const ZoneDocumentSelector = ({ defaultZone, defaultDocument }: { defaultZone?: 
             <hr className="my-4 border-gray-200" />
             <div className="space-y-4 mt-8">
 
-                <SelectZone selectedZone={zone} setSelectedZone={setZone} />
+                <SelectZone selectedZone={zone} setSelectedZone={setZone} setZoneName={setZoneName} />
                 <SelectProducts document={document} setDocument={setDocument} />
 
 
@@ -142,29 +137,6 @@ const ZoneDocumentSelector = ({ defaultZone, defaultDocument }: { defaultZone?: 
                     <ButtonCalculate disabled={!zone || !document || !warehouse} />
                 </div>
             </div>
-
-            {/* Calculate Button */}
-            {/* {selectedZone && selectedDocument && (
-                <div className="flex justify-end mt-8">
-                    <button
-                        className="bg-green-500 hover:bg-green-600 text-white font-bold rounded-lg px-8 py-3 shadow-lg flex items-center gap-2 text-lg transition-all duration-200 focus:ring-2 focus:ring-green-400 focus:outline-none"
-                        onClick={handleCalculate}
-                    >
-                        <BoxSelect className="w-5 h-5 mr-1" />
-                        Calculate
-                    </button>
-                </div>
-            )} */}
-
-            {/* Calculation Summary */}
-            {/* {showCalculation && selectedZone && selectedDocument && (
-                <CalculationSummary
-                    selectedZone={selectedZone}
-                    selectedDocument={selectedDocument}
-                    onCalculate={onCalculate}
-                />
-            )} */}
-
 
         </div>
     );

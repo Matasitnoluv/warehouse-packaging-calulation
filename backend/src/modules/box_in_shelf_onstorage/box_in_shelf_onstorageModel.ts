@@ -4,6 +4,7 @@ export type BoxInShelfType = {
     master_shelf_id: string;
     document_warehouse_no: string;
     master_warehouse_id: string;
+    master_zone_id: string;
     fitBoxes: Array<{
         cal_box_id: string;
         document_product_no: string;

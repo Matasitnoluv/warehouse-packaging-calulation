@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Dialog, Button, Table } from "@radix-ui/themes";
-import { TypeMsboxAll } from "@/types/response/reponse.msbox";
+import { MsboxResponse, TypeMsbox, TypeMsboxAll } from "@/types/response/reponse.msbox";
 import { patchMsbox, getBoxes } from "@/services/msbox.services";
+import React from "react";
 
 const DialogBox = ({
     selectedBoxes,
@@ -9,10 +10,10 @@ const DialogBox = ({
     getMsboxData
 }: {
     selectedBoxes: TypeMsboxAll[];
-    setSelectedBoxes: (boxes: TypeMsboxAll[]) => void;
-    getMsboxData: () => Promise<void>;
+    setSelectedBoxes: React.Dispatch<React.SetStateAction<TypeMsbox[]>>;
+    getMsboxData: () => Promise<MsboxResponse>;
 }) => {
-    const [msbox, setMsbox] = useState<TypeMsboxAll[]>([]);
+    const [msbox, setMsbox] = useState<TypeMsbox[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [activeSearchTerm, setActiveSearchTerm] = useState("");
 
@@ -21,7 +22,7 @@ const DialogBox = ({
             try {
                 const response = await getMsboxData();
                 if (response?.responseObject) {
-                    setMsbox(response.responseObject);
+                    setMsbox(response?.responseObject);
                 }
             } catch (error) {
                 console.error("Error fetching boxes:", error);
@@ -30,12 +31,12 @@ const DialogBox = ({
         fetchBoxes();
     }, [getMsboxData]);
 
-    const handleSelectBox = async (box: TypeMsboxAll) => {
+    const handleSelectBox = async (box: TypeMsbox) => {
         if (!box) return;
 
         //console.log("[DialogBox] Box selected:", box);
 
-        setSelectedBoxes((prev) => [...prev, box]);
+        setSelectedBoxes((prev: TypeMsbox[]) => [...prev, box]);
 
         // 1. Save box (patchMsbox) ถ้าต้องการ
         // await patchMsbox(box); // (คอมเมนต์ไว้ถ้าไม่ต้องการ save)
@@ -128,7 +129,7 @@ const DialogBox = ({
                                     </Table.Cell>
                                     <Table.Cell>
                                         <Button
-                                            onClick={() => handleSelectBox(box)}
+                                            onClick={() => handleSelectBox(box as TypeMsbox)}
                                             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded w-full"
                                         >
                                             Select

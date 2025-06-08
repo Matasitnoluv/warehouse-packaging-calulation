@@ -91,6 +91,7 @@ export const API_ENDPOINTS = {
     GET_BY_DOCUMENT_WAREHOUSE: "/v1/shelf_box_storage/document-warehouse",
     STORE: "/v1/shelf_box_storage",
     STORE_MULTIPLE: "/v1/shelf_box_storage/store-multiple",
+    GET_SHELF_EXPORT: "/v1/shelf_box_storage/get_export",
     UPDATE: "/v1/shelf_box_storage/:storage_id",
     DELETE: "/v1/shelf_box_storage/:storage_id"
   }

@@ -267,12 +267,17 @@ export const getShelfBoxStorage = async (document_product_no: string) => {
 };
 
 
-export const getShelfBoxStorageByDocumentWarehouseNo = async (master_warehouse_id: string): Promise<ApiResponse<TypeShelfBoxStorage[]>> => {
+export const getShelfBoxStorageByDocumentWarehouseNoAndZone = async (master_warehouse_id: string, master_zone_id: string): Promise<ApiResponse<TypeShelfBoxStorage[]>> => {
   const { data: response } = await mainApi.get(
-    API_ENDPOINTS.SHELF_BOX_STORAGE.GET_BY_DOCUMENT_WAREHOUSE + "/" + master_warehouse_id
+    API_ENDPOINTS.SHELF_BOX_STORAGE.GET_BY_DOCUMENT_WAREHOUSE + "/" + master_warehouse_id + "/" + master_zone_id
   );
   return response;
 };
+
+
+
+
+
 
 export const createShelfBoxStorage = async (payload: any) => {
   try {

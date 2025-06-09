@@ -1,7 +1,7 @@
 import { Table, Card, AlertDialog, Button } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { getCalWarehouse } from "@/services/calwarehouse.services";
-import { TypeCalWarehouseAll } from "@/types/response/reponse.cal_warehouse";
+
 import { useNavigate } from "react-router-dom";
 import DilogAddCalwarehouse from "./dilogAddCalwarehouse";
 import DilogEditCalwarehouse from "./dilogEditCalwarehouse";
@@ -19,7 +19,7 @@ import CalEditButton from "./CalEditButton";
 
 const CalWarehouseTable = () => {
     const navigate = useNavigate();
-    const [calculations, setCalculations] = useState<TypeCalWarehouseAll[]>([]);
+    const [calculations, setCalculations] = useState<any[]>([]);
     const [openRemainingSpace, setOpenRemainingSpace] = useState(false);
     const [remainingSpaceData, setRemainingSpaceData] = useState<any>(null);
     const [warehouses, setWarehouses] = useState<TypeMswarehouse[]>([]);

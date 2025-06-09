@@ -149,11 +149,6 @@ const CalculationProductAndBox = () => {
     };
 
     const handleCalculation = () => {
-        console.log('=== Starting Calculation ===');
-        console.log('Selected Products:', selectedProducts);
-        console.log('Selected Boxes:', selectedBoxs);
-        console.log('Calculation Type:', calculationType);
-
         if (selectedProducts.length === 0) {
             showAlert(
                 'Missing Information',
@@ -162,15 +157,7 @@ const CalculationProductAndBox = () => {
             );
             return;
         }
-
-        // ตรวจสอบเงื่อนไขเฉพาะสำหรับโหมด Single
         if (calculationType === "single") {
-            // Check if all products can fit in a single box
-            const totalProductVolume = selectedProducts.reduce((total, product) => {
-                return total + (product.cubic_centimeter_product * product.count);
-            }, 0);
-            console.log('Total Product Volume:', totalProductVolume);
-
             const selectedBox = selectedBoxs[0];
             if (!selectedBox) {
                 showAlert(
@@ -183,7 +170,7 @@ const CalculationProductAndBox = () => {
             console.log('Selected Box Volume:', selectedBox.cubic_centimeter_box);
         }
 
-        // เตรียมข้อมูลสินค้าและกล่อง
+
         const products = selectedProducts.map((product, index) => ({
             ...product,
             id: product.master_product_id,
@@ -231,17 +218,13 @@ const CalculationProductAndBox = () => {
         let currentBoxIndex = 0;
         let totalItemsPackedOverall = 0;
 
-        // ลูปตามลำดับสินค้าที่เลือก
         while (products.some(p => p.remainingCount > 0)) {
-            // หาสินค้าถัดไปที่ยังไม่ได้บรรจุทั้งหมด ตามลำดับเดิม
             const productToPack = products.find(p => p.remainingCount > 0);
             if (!productToPack) break;
-
             const currentBox = boxes[currentBoxIndex];
             const maxItemsInCurrentBox = Math.floor(currentBox.volume / productToPack.volume);
             console.log(`Processing Product: ${productToPack.name}`);
             console.log(`Current Box: ${currentBox.name}, Max Items: ${maxItemsInCurrentBox}`);
-
             if (maxItemsInCurrentBox > 0) {
                 // สร้างกล่องใหม่
                 boxInstanceCounter++;
@@ -756,8 +739,23 @@ const CalculationProductAndBox = () => {
                                 onClick={async () => {
                                     try {
                                         console.log('Exported:', calculationResults);
-                                        // Export each calculation result to the database
-                                        for (const result of calculationResults) {
+                                        const merged = Object.values(
+                                            calculationResults.reduce((acc: Record<string, any>, item: any) => {
+                                                const key = `${item.no}-${item.documentProductNo}`;
+                                                if (!acc[key]) {
+                                                    acc[key] = { ...item, productName: [item.productName], productCode: [item.productCode] };
+                                                } else {
+                                                    acc[key].productName.push(item.productName);
+                                                    acc[key].productCode.push(item.productCode);
+                                                }
+                                                return acc;
+                                            }, {} as Record<string, any>)
+                                        ).map(item => ({
+                                            ...item,
+                                            productName: item.productName.join(','),
+                                            productCode: item.productCode.join(',')
+                                        }));
+                                        for (const result of merged) {
                                             await postCalBox({
                                                 box_no: result.no,
                                                 master_box_name: result.boxName,

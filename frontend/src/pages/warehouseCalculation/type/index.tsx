@@ -162,13 +162,14 @@ export interface BoxPlacement {
     canFit: boolean;
 }
 
+type TypefitBoxes = TypeCalBox & { stored_date?: Date };
 
 
 export type ShelfWithFitBoxes = {
     shelf_id: string;
     shelf_name: string;
     master_rack_id: string;
-    fitBoxes: TypeCalBox[];
+    fitBoxes: TypefitBoxes[];
 };
 
 export type CalculateSummary = {

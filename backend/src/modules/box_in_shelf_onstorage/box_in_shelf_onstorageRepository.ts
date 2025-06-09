@@ -7,22 +7,58 @@ export class BoxInShelfRepository {
             // Create box storage records for each box
             const boxStorageRecords = await Promise.all(
                 payload.fitBoxes.map(async (box) => {
-                    return prisma.shelf_box_storage.create({
-                        data: {
-                            master_shelf_id: payload.master_shelf_id,
+                    const existing = await prisma.shelf_box_storage.findFirst({
+                        where: {
                             cal_box_id: box.cal_box_id,
-                            document_product_no: box.document_product_no,
-                            cubic_centimeter_box: box.cubic_centimeter_box,
-                            count: box.count,
-                            total_volume: box.total_volume,
-                            document_warehouse_no: payload.document_warehouse_no,
                             master_warehouse_id: payload.master_warehouse_id,
-                            master_zone_id: payload.master_zone_id,
-                            status: "stored",
                         },
                     });
+                    if (existing) {
+                        if (existing.master_zone_id !== payload.master_zone_id) {
+                            await prisma.shelf_box_storage.delete({
+                                where: {
+                                    storage_id: existing.storage_id,
+                                },
+                            });
+                            return prisma.shelf_box_storage.create({
+                                data: {
+                                    master_shelf_id: payload.master_shelf_id,
+                                    cal_box_id: box.cal_box_id,
+                                    document_product_no: box.document_product_no,
+                                    cubic_centimeter_box: box.cubic_centimeter_box,
+                                    count: box.count,
+                                    total_volume: box.total_volume,
+                                    document_warehouse_no: payload.document_warehouse_no,
+                                    master_warehouse_id: payload.master_warehouse_id,
+                                    master_zone_id: payload.master_zone_id,
+                                    status: "stored",
+                                    stored_date: box.stored_date ?? undefined,
+                                },
+                            });
+                        } else {
+                            return existing;
+                        }
+                    } else {
+                        return prisma.shelf_box_storage.create({
+                            data: {
+                                master_shelf_id: payload.master_shelf_id,
+                                cal_box_id: box.cal_box_id,
+                                document_product_no: box.document_product_no,
+                                cubic_centimeter_box: box.cubic_centimeter_box,
+                                count: box.count,
+                                total_volume: box.total_volume,
+                                document_warehouse_no: payload.document_warehouse_no,
+                                master_warehouse_id: payload.master_warehouse_id,
+                                master_zone_id: payload.master_zone_id,
+                                status: "stored",
+                                stored_date: box.stored_date ?? undefined,
+                            },
+                        });
+                    }
                 })
             );
+
+
 
             // Update warehouse status
             await prisma.cal_warehouse.update({

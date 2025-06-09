@@ -27,6 +27,7 @@ export const TabsExportContent = ({ exportData, exportTabs = false }: { exportDa
                 <table className="w-full border-collapse">
                     <thead>
                         <tr className="bg-gray-50">
+                            <th className="p-3 text-left font-semibold text-gray-900">รหัสสินค้า</th>
                             <th className="p-3 text-left font-semibold text-gray-900">เลขที่เอกสาร</th>
                             {/* <th className="p-3 text-left font-semibold text-gray-900">จำนวนกล่อง</th> */}
                             <th className="p-3 text-left font-semibold text-gray-900">คลัง</th>
@@ -40,6 +41,7 @@ export const TabsExportContent = ({ exportData, exportTabs = false }: { exportDa
                         {shelfBoxStorage.map((doc) => (
                             <tr key={doc.document_product_no} className="border-t hover:bg-gray-50 transition-colors duration-150">
                                 <td className="p-3">{doc.document_product_no}</td>
+                                <td className="p-3">{doc.document_warehouse_no}</td>
                                 {/* <td className="p-3">{doc.boxCount}</td> */}
                                 <td className="p-3">{exportData.warehouse.master_warehouse_name}</td>
                                 <td className="p-3">{exportData.zone.master_zone_name}</td>

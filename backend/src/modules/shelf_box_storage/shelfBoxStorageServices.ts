@@ -81,9 +81,9 @@ export const shelfBoxStorageServices = {
         }
     },
 
-    getByDocumentWarehouseNoAsync: async (document_warehouse_no: string) => {
+    getByDocumentWarehouseNoAsync: async (document_warehouse_no: string, master_zone_id: string) => {
         try {
-            const data = await shelfBoxStorageRepository.findByDocumentWareHouse(document_warehouse_no);
+            const data = await shelfBoxStorageRepository.findByDocumentWareHouseAndZoneAsync(document_warehouse_no, master_zone_id);
             return {
                 success: true,
                 responseObject: data,

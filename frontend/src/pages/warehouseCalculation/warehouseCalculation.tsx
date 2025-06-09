@@ -1,22 +1,21 @@
-import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
-import { getMswarehouse, getMswarehouseById, getMswarehouseUsage } from "@/services/mswarehouse.services";
+import { useParams } from "react-router-dom";
 import ZoneDocumentSelector from "./components/ZoneDocumentSelector";
 import DialogCaulate from "./components/dialogCaulate";
 import BoxShow from "./components/BoxShow";
 import { CalculateProvider, useCalculateContext } from "./context/useCalculateCotext";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@radix-ui/themes";
-import { getCalWarehouse, getCalWarehouseByDocumentWarehouseNo, getCalWarehouseByMasterWarehouseId } from "@/services/calwarehouse.services";
-import { getShelfBoxStorage, getShelfBoxStorageByDocumentWarehouseNo } from "@/services/shelfBoxStorage.services";
+import { getCalWarehouseByDocumentWarehouseNo } from "@/services/calwarehouse.services";
+import { getShelfBoxStorageByDocumentWarehouseNoAndZone } from "@/services/shelfBoxStorage.services";
+import { useState } from "react";
 // Update the calculateBoxPlacement function with proper types
 
 const WarehouseCalculation = () => {
   const { warehouseId: documentWarehouseNo } = useParams<{ warehouseId: string }>();
-
+  const [zone, setZone] = useState<string>("")
   const {
     data: calwarehouseData,
-    isLoading: isCalLoading,
-    isError: isCalError,
+
     status: calwarehouseStatus,
   } = useQuery({
     queryKey: ['calwarehouse', documentWarehouseNo],
@@ -28,20 +27,18 @@ const WarehouseCalculation = () => {
 
   const {
     data: shelfBoxStorageData,
-    status: statusShelf,
-    isLoading: isShelfLoading,
-    isError: isShelfError,
+
   } = useQuery({
-    queryKey: ['shelfBoxStorage', documentWarehouseNo],
-    queryFn: () => getShelfBoxStorageByDocumentWarehouseNo(documentWarehouseNo!),
-    enabled: !!documentWarehouseNo,
+    queryKey: ['shelfBoxStorage', documentWarehouseNo, zone],
+    queryFn: () => getShelfBoxStorageByDocumentWarehouseNoAndZone(documentWarehouseNo!, zone),
+    enabled: !!documentWarehouseNo && !!zone,
     refetchOnMount: true,
   });
   const shelfBoxStorage_ = shelfBoxStorageData?.responseObject || []
 
   const shelfBoxStorage = shelfBoxStorage_
     .map(item => item.cal_box?.document_product_no)
-    .filter(Boolean); // ตัดค่า null/undefined ออก
+    .filter(Boolean);
 
 
   if (calwarehouseStatus === 'pending') {
@@ -63,12 +60,13 @@ const WarehouseCalculation = () => {
               ''
             }
             />}
+
             {/* Divider */}
 
             {/* Selected Document Warehouse No */}
             <BoxShow label={"Document Warehouse No"} input={documentWarehouseNo || <span className="text-gray-400">No document selected</span>} />
             {/* Zone & Document Selector Component */}
-            <ZoneDocumentSelector />
+            <ZoneDocumentSelector setZone={setZone} />
 
 
 

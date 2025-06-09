@@ -81,10 +81,10 @@ router.get("/document/:docNo", async (req: Request, res: Response) => {
 });
 
 // Get shelf box storage records by document number
-router.get("/document-warehouse/:docNo", async (req: Request, res: Response) => {
+router.get("/document-warehouse/:docNo/:master_zone_id", async (req: Request, res: Response) => {
     try {
-        const docNo = req.params.docNo;
-        const result = await shelfBoxStorageServices.getByDocumentWarehouseNoAsync(docNo);
+        const { docNo, master_zone_id } = req.params;
+        const result = await shelfBoxStorageServices.getByDocumentWarehouseNoAsync(docNo, master_zone_id);
         res.json({
             success: true,
             responseObject: result.responseObject,

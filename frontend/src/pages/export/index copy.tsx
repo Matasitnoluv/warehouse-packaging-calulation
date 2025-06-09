@@ -517,6 +517,7 @@ const ExportPage: React.FC = () => {
                     <thead>
                       <tr className="bg-gray-50">
                         <th className="p-3 text-left font-semibold text-gray-900">เลขที่เอกสาร</th>
+                        <th className="p-3 text-left font-semibold text-gray-900">รหัสสินค้า</th>
                         <th className="p-3 text-left font-semibold text-gray-900">จำนวนกล่อง</th>
                         <th className="p-3 text-left font-semibold text-gray-900">คลัง</th>
                         <th className="p-3 text-left font-semibold text-gray-900">โซน</th>

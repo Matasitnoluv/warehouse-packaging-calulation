@@ -11,6 +11,7 @@ export type BoxInShelfType = {
         cubic_centimeter_box: number;
         count: number;
         total_volume: number;
+        stored_date?: Date;
     }>;
 };
 

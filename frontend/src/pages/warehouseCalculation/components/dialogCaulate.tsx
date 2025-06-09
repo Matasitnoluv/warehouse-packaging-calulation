@@ -1,14 +1,15 @@
 import { postBoxInShelfOnStorage } from "@/services/box_in_shelf_onstorage.services";
 import { Dialog, Button } from "@radix-ui/themes";
 import { ShelfWithFitBoxes, CalculateSummary, BoxPlacement } from "../type";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+
 import { useCalculateContext } from "../context/useCalculateCotext";
 
-import { TypeMsshelfAll, TypeMsshelfResponse } from "@/types/response/reponse.msshelf";
+import { TypeMsshelfAll } from "@/types/response/reponse.msshelf";
 import { TypeMsrack } from "@/types/response/reponse.msrack";
 import { TypeCalBox } from "@/types/response/reponse.cal_box";
 import { TypeShelfBoxStorage } from "@/types/response/reponse.msproduct copy";
+
 const calculateBoxPlacement = (
     boxes: TypeCalBox[],
     racks: TypeMsrack[],
@@ -116,6 +117,7 @@ export async function saveShelfPayload(
                     master_zone_id: meta.master_zone_id,
                     document_product_no: box.document_product_no,
                     cubic_centimeter_box: box.cubic_centimeter_box,
+                    stored_date: box.stored_date ?? new Date(),
                     count: box.count || 1,
                     total_volume: box.cubic_centimeter_box * (box.count || 1),
                 })),
@@ -150,12 +152,23 @@ export async function saveShelfPayload(
 const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStorage[] | undefined }) => {
     const { showCalculateDialog, setShowCalculateDialog, rack, shelf, boxs, zone, document, warehouseNo, warehouse, zoneName } = useCalculateContext();
     const [tempShelfData, setTempShelfData] = useState<ShelfWithFitBoxes[]>([]);
+    const [saveStatus, setSaveStatus] = useState<boolean>(true);
     const calculateSummary: CalculateSummary | undefined = useMemo(() => {
         if (boxs && rack && shelf && zone && document && shelfBoxStorage) {
             const storedCalBoxIds = shelfBoxStorage.map((box: TypeShelfBoxStorage) => box.cal_box.cal_box_id);
             const newBoxes = boxs.filter((box) => !storedCalBoxIds.includes(box.cal_box_id));
             const normalizedStoredBoxes = shelfBoxStorage
-                .sort((a: TypeShelfBoxStorage, b: TypeShelfBoxStorage) => new Date(a.stored_date ?? new Date()).getTime() - new Date(b.stored_date ?? new Date()).getTime())
+                .sort((a: TypeShelfBoxStorage, b: TypeShelfBoxStorage) => {
+                    const dateA = a.stored_date ? new Date(a.stored_date).getTime() : 0;
+                    const dateB = b.stored_date ? new Date(b.stored_date).getTime() : 0;
+
+                    if (dateA !== dateB) {
+                        return dateA - dateB; // sort ตามวันที่ก่อน
+                    }
+
+                    // ถ้าวันเดียวกัน (หรือวันที่ไม่มี), เรียงตาม box_no
+                    return Number(a.cal_box.box_no) - Number(b.cal_box.box_no);
+                })
                 .map((box: TypeShelfBoxStorage) => ({
                     cal_box_id: box.cal_box_id,
                     cal_box: box,
@@ -164,10 +177,10 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                     document_product_no: box.cal_box.document_product_no,
                     box_no: box.cal_box.box_no,
                     master_warehouse_id: warehouse,
-                    master_zone_id: zone
+                    master_zone_id: zone,
+                    stored_date: box.stored_date ?? new Date()
                 }));
-            console.log("normalizedStoredBoxes", normalizedStoredBoxes);
-            // Calculate placements
+
             const formattedNewBoxes = newBoxes.map((box) => ({
                 cal_box_id: box.cal_box_id,
                 cal_box: box,
@@ -184,7 +197,10 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                     [...normalizedStoredBoxes, ...formattedNewBoxes].map((box) => [box.cal_box_id, box])
                 ).values()
             );
-            console.log("allBoxesToCalculate", allBoxesToCalculate);
+            const calBox = calculateBoxPlacement(allBoxesToCalculate as unknown as TypeCalBox[], rack, shelf);
+
+
+            setSaveStatus(calBox.every((box) => box.canFit));
             return {
                 boxPlacements: calculateBoxPlacement(allBoxesToCalculate as unknown as TypeCalBox[], rack, shelf),
                 racks: rack,
@@ -264,22 +280,26 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
         <Dialog.Content className="max-w-4xl max-h-[80vh] flex flex-col">
             <div className="flex-none">
                 <Dialog.Title className="text-xl font-bold mb-4">
-                    Calculation Summary
+                    Calculation Summary {saveStatus ? '✅' : '❌'}
                 </Dialog.Title>
                 {calculateSummary && (
                     <div className="mb-4">
                         <strong>Zone:</strong> {zoneName}
                         <br />
                         <strong>Document:</strong> {calculateSummary.document}
+
+                        {!saveStatus && <p className="text-red-500 font-bold mt-2">Some boxes cannot fit in the shelf</p>}
                     </div>
                 )}
+
             </div>
+
             <div className="flex-1 overflow-y-auto pr-2">
                 {tempShelfData.map((shelf) => {
                     return (
                         <div key={shelf.shelf_id} className="mb-4 p-4 bg-gray-50 rounded-lg">
                             <div className="font-bold text-blue-800 mb-2">
-                                Rack: {shelf.master_rack_id}
+                                Rack: {rack?.find((rack) => rack.master_rack_id === shelf.master_rack_id)?.master_rack_name}
                             </div>
 
                             <div className="ml-4 mb-4">
@@ -306,18 +326,21 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                 })}
 
             </div>
-
             <div className="flex-none mt-6 flex justify-end gap-4 border-t pt-4">
+
                 <Button
+                    disabled={!saveStatus}
                     onClick={handleSave}
-                    className="bg-green-500 hover:bg-green-600 text-white"
+                    color='green'
                 >
-                    Save
+
+                    {saveStatus ? 'Save' : 'Not Save'}
+
                 </Button>
 
                 <Button
                     onClick={() => setShowCalculateDialog(false)}
-                    className="bg-gray-500 hover:bg-gray-600 text-white"
+                    color='gray'
                 >
                     Close
                 </Button>

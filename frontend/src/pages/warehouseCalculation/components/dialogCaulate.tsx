@@ -320,11 +320,20 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                                         <span className="underline">{shelf.shelf_name}</span>:
                                     </div>
                                     <ul className="list-disc ml-5">
-                                        {shelf.fitBoxes.map((box, i) => (
-                                            <li key={i}>
-                                                Doc: {box.document_product_no}, Box No: {box.box_no} Volume: {box.cubic_centimeter_box}
-                                            </li>
-                                        ))}
+                                        {shelf.fitBoxes.map((box, i) => {
+                                            const isNewBox = !shelfBoxStorage?.some(
+                                                (storedBox) => storedBox.cal_box_id === box.cal_box_id
+                                            );
+                                            return (
+                                                <li
+                                                    key={i}
+                                                    className={`${isNewBox ? 'bg-yellow-100 p-1 rounded' : ''}`}
+                                                >
+                                                    Doc: {box.document_product_no}, Box No: {box.box_no} Volume: {box.cubic_centimeter_box}
+                                                    {isNewBox && <span className="ml-2 text-yellow-700">(New)</span>}
+                                                </li>
+                                            );
+                                        })}
                                     </ul>
                                 </div>
                             </div>

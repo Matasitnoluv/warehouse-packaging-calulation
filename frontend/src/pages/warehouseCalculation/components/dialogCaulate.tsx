@@ -288,7 +288,14 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                         <br />
                         <strong>Document:</strong> {calculateSummary.document}
 
-                        {!saveStatus && <p className="text-red-500 font-bold mt-2">Some boxes cannot fit in the shelf</p>}
+                        {!saveStatus && (
+                            <div className="mt-2">
+                                <p className="text-red-500 font-bold">Some boxes cannot fit in the shelf</p>
+                                <p className="text-red-500">
+                                    Number of boxes exceeding capacity: {calculateSummary.boxPlacements.filter(box => !box.canFit).length} Box
+                                </p>
+                            </div>
+                        )}
                     </div>
                 )}
 

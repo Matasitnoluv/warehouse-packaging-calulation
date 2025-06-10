@@ -1,6 +1,6 @@
 import { Button } from "@radix-ui/themes";
 import { useState, useEffect } from "react";
-import { postCalWarehouse } from "@/services/calwarehouse.services";
+import { postCalWarehouse, getCalWarehouse } from "@/services/calwarehouse.services";
 import { useNavigate } from "react-router-dom"; // เพิ่ม useNavigate
 import { Plus } from "lucide-react";
 
@@ -16,19 +16,34 @@ const getFormattedDate = () => {
     return `${year}${month}${day}`;
 };
 
-const getNextDocumentNumber = () => {
+const getNextDocumentNumber = async () => {
     const currentDate = getFormattedDate();
-    const lastNumberKey = 'last_warehouse_doc_number';
-    const lastDateKey = 'last_warehouse_doc_date';
+    const prefix = `WH${currentDate}`;
 
-    const lastNumber = localStorage.getItem(lastDateKey) === currentDate
-        ? Number(localStorage.getItem(lastNumberKey) || 0) + 1
-        : 1;
+    try {
+        const response = await getCalWarehouse();
+        if (response.success && response.responseObject) {
+            // กรองเฉพาะเอกสารที่มีเลขที่ขึ้นต้นด้วย prefix เดียวกัน
+            const todayDocuments = response.responseObject
+                .filter((doc: any) => doc.document_warehouse_no.startsWith(prefix))
+                .map((doc: any) => {
+                    // แยกเอาเฉพาะตัวเลขท้าย
+                    const numberPart = doc.document_warehouse_no.replace(prefix, '');
+                    return parseInt(numberPart, 10);
+                });
 
-    localStorage.setItem(lastDateKey, currentDate);
-    localStorage.setItem(lastNumberKey, lastNumber.toString());
+            // หาเลขที่มากที่สุด
+            const maxNumber = todayDocuments.length > 0 ? Math.max(...todayDocuments) : 0;
 
-    return `WH${currentDate}${String(lastNumber).padStart(4, "0")}`;
+            // สร้างเลขที่ใหม่โดยเพิ่มจากเลขที่มากที่สุด
+            return `${prefix}${String(maxNumber + 1).padStart(4, "0")}`;
+        }
+    } catch (error) {
+        console.error("Error getting next document number:", error);
+    }
+
+    // ถ้าเกิดข้อผิดพลาด ให้เริ่มที่ 1
+    return `${prefix}0001`;
 };
 
 const DilogAddCalwarehouse = ({ getCalwarehouseData }: DialogCalwarehouseProps) => {
@@ -38,7 +53,28 @@ const DilogAddCalwarehouse = ({ getCalwarehouseData }: DialogCalwarehouseProps) 
     const navigate = useNavigate();
 
     useEffect(() => {
-        setDocumentWarehouseNo(getNextDocumentNumber());
+        const controller = new AbortController();
+
+        const initializeDocumentNumber = async () => {
+            try {
+                const nextNumber = await getNextDocumentNumber();
+                if (!controller.signal.aborted) {
+                    setDocumentWarehouseNo(nextNumber);
+                }
+            } catch (error) {
+                console.error("Error initializing document number:", error);
+                if (!controller.signal.aborted) {
+                    const currentDate = getFormattedDate();
+                    setDocumentWarehouseNo(`WH${currentDate}0001`);
+                }
+            }
+        };
+
+        initializeDocumentNumber();
+
+        return () => {
+            controller.abort();
+        };
     }, []);
 
     const handleCreateCalwarehouse = async () => {
@@ -51,14 +87,14 @@ const DilogAddCalwarehouse = ({ getCalwarehouseData }: DialogCalwarehouseProps) 
             });
 
             if (response.statusCode === 200) {
-                setDocumentWarehouseNo(getNextDocumentNumber());
+                const nextNumber = await getNextDocumentNumber();
+                setDocumentWarehouseNo(nextNumber);
                 navigate("/calwarehouseTable");
                 setShowSuccessAlert(true);
                 setTimeout(() => {
                     setShowSuccessAlert(false);
                 }, 2000);
                 getCalwarehouseData();
-
             } else {
                 alert(response.message || "Unexpected error");
             }

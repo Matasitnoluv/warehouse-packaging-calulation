@@ -2,6 +2,7 @@ import { postBoxInShelfOnStorage } from "@/services/box_in_shelf_onstorage.servi
 import { Dialog, Button } from "@radix-ui/themes";
 import { ShelfWithFitBoxes, CalculateSummary, BoxPlacement } from "../type";
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { useCalculateContext } from "../context/useCalculateCotext";
 
@@ -153,6 +154,7 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
     const { showCalculateDialog, setShowCalculateDialog, rack, shelf, boxs, zone, document, warehouseNo, warehouse, zoneName } = useCalculateContext();
     const [tempShelfData, setTempShelfData] = useState<ShelfWithFitBoxes[]>([]);
     const [saveStatus, setSaveStatus] = useState<boolean>(true);
+    const navigate = useNavigate();
     const calculateSummary: CalculateSummary | undefined = useMemo(() => {
         if (boxs && rack && shelf && zone && document && shelfBoxStorage) {
             const storedCalBoxIds = shelfBoxStorage.map((box: TypeShelfBoxStorage) => box.cal_box.cal_box_id);
@@ -267,6 +269,7 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
         if (response) {
             alert("Successfully saved all shelf data!");
             setShowCalculateDialog(false);
+            navigate('/calwarehouseTable');
         } else {
             alert("Some shelves failed to save. Please check the console for details.");
         }

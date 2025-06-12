@@ -2,7 +2,7 @@ import axios from "axios";
 import { API_URL } from "../config";
 import { API_ENDPOINTS } from "@/apis/endpoint.api";
 import { RackBoxStorage } from "./rackBoxStorage.services";
-import { TypeShelfBoxStorage, TypeShelfExport } from "@/types/response/reponse.msproduct copy";
+import { TypeShelfBoxStorage, TypeShelfExport } from "@/types/response/reponse.msproduct";
 import mainApi from "@/apis/main.api";
 import { ApiResponse } from "@/pages/warehouseCalculation/type";
 
@@ -17,7 +17,7 @@ export interface StoreBoxPayload {
   count: number;
   document_product_no: string;
   export?: boolean;
-  export_date?: string;
+  export_date?: string | null;
 }
 
 // Get all stored boxes

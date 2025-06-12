@@ -10,6 +10,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 
 import { getCalBox } from '@/services/calbox.servicers';
 import { TypeCalBox } from '@/types/response/reponse.cal_box';
+import { TypeMswarehouse } from '@/types/response/reponse.mswarehouse';
 
 export interface CalculateContextType {
   zone: string;
@@ -20,9 +21,12 @@ export interface CalculateContextType {
   shelf?: TypeMsshelfAll[] | null;
   boxs?: TypeCalBox[] | null;
   boxPlacements?: TypeMsbox;
-  warehouse: string;
+  warehouse?: TypeMswarehouse | null;
+  warehouseId: string;
   warehouseNo: string;
-  setWarehouse: (warehouse: string) => void;
+
+  setWarehouseId: (warehouseId: string) => void;
+  setWarehouse: (warehouse: TypeMswarehouse) => void;
   setZoneName: React.Dispatch<React.SetStateAction<string>>;
   setZone: (zone: string) => void;
   setDocument: (document: string) => void;
@@ -39,7 +43,8 @@ export const CalculateProvider = ({ children, warehouseNo, defaultZone, defaultD
   const [zone, setZone] = useState<string>(defaultZone);
   const [document, setDocument] = useState<CalculateContextType['document']>(defaultDocument);
   const [showCalculateDialog, setShowCalculateDialog] = useState<boolean>(false);
-  const [warehouse, setWarehouse] = useState<string>(defaultWarehouse);
+  const [warehouse, setWarehouse] = useState<TypeMswarehouse | null>(null);
+  const [warehouseId, setWarehouseId] = useState<string>(defaultWarehouse);
   const [zoneName, setZoneName] = useState<string>("");
   useEffect(() => {
     defaultDocument && setDocument(defaultDocument);
@@ -67,7 +72,7 @@ export const CalculateProvider = ({ children, warehouseNo, defaultZone, defaultD
   const boxs = boxData?.responseObject ? boxData.responseObject : []
 
   return (
-    <CalculateContext.Provider value={{ warehouseNo, showCalculateDialog, warehouse, setWarehouse, setShowCalculateDialog, zone, setZone, document, setDocument, zoneName, setZoneName, rack, shelf, boxs }}>
+    <CalculateContext.Provider value={{ warehouseNo, showCalculateDialog, warehouse, warehouseId, setWarehouseId, setWarehouse, setShowCalculateDialog, zone, setZone, document, setDocument, zoneName, setZoneName, rack, shelf, boxs }}>
       {children}
     </CalculateContext.Provider>
   );

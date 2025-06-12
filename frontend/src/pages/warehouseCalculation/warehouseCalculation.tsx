@@ -27,7 +27,7 @@ const WarehouseCalculation = () => {
 
   const {
     data: shelfBoxStorageData,
-
+    status: shelfBoxStorageStatus,
   } = useQuery({
     queryKey: ['shelfBoxStorage', documentWarehouseNo, zone],
     queryFn: () => getShelfBoxStorageByDocumentWarehouseNoAndZone(documentWarehouseNo!, zone),
@@ -66,9 +66,9 @@ const WarehouseCalculation = () => {
             {/* Selected Document Warehouse No */}
             <BoxShow label={"Document Warehouse No"} input={documentWarehouseNo || <span className="text-gray-400">No document selected</span>} />
             {/* Zone & Document Selector Component */}
-            <ZoneDocumentSelector setZone={setZone} />
-
-
+            <ZoneDocumentSelector setZone={setZone}
+              disables={{ selectProduct: !!calwarehouse.master_warehouse_id }}
+            />
 
             {<DialogCaulate shelfBoxStorage={shelfBoxStorageData?.responseObject!} />}
 

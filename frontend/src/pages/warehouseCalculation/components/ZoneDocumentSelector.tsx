@@ -81,11 +81,12 @@ export const SelectProducts = ({ document, setDocument, className }: { className
     )
 }
 
-export const SelectWarehouse = ({ warehouse, setWarehouse, className }: { className?: string, warehouse: string, setWarehouse: (warehouseId: string) => void }) => {
+export const SelectWarehouse = ({ warehouseId, setWarehouse, className, setWarehouseId }: { className?: string, warehouseId: string, setWarehouse?: (warehouseId: string) => void, setWarehouseId: (warehouseId: string) => void }) => {
     const { data: warehouses, status } = useQuery({
         queryKey: ["warehouses"],
         queryFn: () => getMswarehouse()
     })
+
     if (status === 'pending') return "load";
     const warehousesData = warehouses?.responseObject;
     return (
@@ -95,8 +96,8 @@ export const SelectWarehouse = ({ warehouse, setWarehouse, className }: { classN
             </label>
             <select
                 className="w-full px-5 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none text-lg shadow-sm transition-all duration-200 hover:border-blue-400"
-                value={warehouse}
-                onChange={e => setWarehouse(e.target.value)}
+                value={warehouseId}
+                onChange={e => setWarehouseId(e.target.value)}
             >
                 <option value="">-- Select Warehouse --</option>
                 {warehousesData?.map((warehouse) => (
@@ -112,10 +113,10 @@ export const SelectWarehouse = ({ warehouse, setWarehouse, className }: { classN
 
 
 
-const ZoneDocumentSelector = ({ setZone: setMainZone }: { setZone: (zone: string) => void }) => {
+const ZoneDocumentSelector = ({ setZone: setMainZone, disables }: { setZone: (zone: string) => void, disables?: { selectProduct?: boolean, selectZone?: boolean } }) => {
 
     //   const [zones, setZones] = useState<ZoneType[]>([]);
-    const { zone, setZone, document, setDocument, warehouse, setWarehouse, setZoneName } = useCalculateContext();
+    const { zone, setZone, document, setDocument, warehouse, setWarehouse, setZoneName, setWarehouseId, warehouseId } = useCalculateContext();
     useEffect(() => {
         if (zone) {
             setMainZone(zone)
@@ -129,16 +130,16 @@ const ZoneDocumentSelector = ({ setZone: setMainZone }: { setZone: (zone: string
             <hr className="my-6 border-gray-200" />
             {/* Document Box No */}
 
-            <SelectWarehouse warehouse={warehouse} setWarehouse={setWarehouse} />
+            <SelectWarehouse warehouseId={warehouseId} setWarehouseId={setWarehouseId} />
             <hr className="my-4 border-gray-200" />
             <div className="space-y-4 mt-8">
 
-                <SelectZone selectedZone={zone} setSelectedZone={setZone} setZoneName={setZoneName} />
-                <SelectProducts document={document} setDocument={setDocument} />
+                {!disables?.selectZone && <SelectZone selectedZone={zone} setSelectedZone={setZone} setZoneName={setZoneName} />}
+                {!disables?.selectProduct && <SelectProducts document={document} setDocument={setDocument} />}
 
 
                 <div className="flex justify-end">
-                    <ButtonCalculate disabled={!zone || !document || !warehouse} />
+                    <ButtonCalculate disabled={!zone || !document || !warehouseId} />
                 </div>
             </div>
 

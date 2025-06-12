@@ -381,6 +381,7 @@ const CalWarehouseTable = () => {
                                                                             {/* Shelves in Rack */}
                                                                             {rack.shelves.length > 0 && (
                                                                                 <div className="ml-4 mt-1 space-y-1">
+
                                                                                     <div className="font-semibold text-purple-700 mb-1">Shelves</div>
                                                                                     {rack.shelves.map((shelf: any) => (
                                                                                         <div key={shelf.master_shelf_id} className="bg-purple-50 rounded p-2 mb-1">

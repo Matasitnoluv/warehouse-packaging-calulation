@@ -59,13 +59,24 @@ export const shelfBoxStorageServices = {
                     master_zone_id: master_zone_id,
                 }
             });
+            const cal_box = await prisma.cal_box.findMany({
+                where: {
+                    cal_box_id: {
+                        in: shelfBoxStorage.map(storage => storage.cal_box_id),
+                    },
+                },
+            });
 
+            const shelfBoxStorageWithCalBox = shelfBoxStorage.map(storage => ({
+                ...storage,
+                cal_box: cal_box.find(box => box.cal_box_id === storage.cal_box_id),
+            }));
             const data = {
                 warehouse,
                 zone,
                 racks,
                 shelfs,
-                shelfBoxStorage,
+                shelfBoxStorage: shelfBoxStorageWithCalBox,
             }
             return {
                 success: true,

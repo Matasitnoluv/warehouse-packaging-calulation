@@ -9,7 +9,8 @@ import { useCalculateContext } from "../context/useCalculateCotext";
 import { TypeMsshelfAll } from "@/types/response/reponse.msshelf";
 import { TypeMsrack } from "@/types/response/reponse.msrack";
 import { TypeCalBox } from "@/types/response/reponse.cal_box";
-import { TypeShelfBoxStorage } from "@/types/response/reponse.msproduct copy";
+import { TypeShelfBoxStorage } from "@/types/response/reponse.msproduct";
+import { useQueryClient } from "@tanstack/react-query";
 
 const calculateBoxPlacement = (
     boxes: TypeCalBox[],
@@ -151,7 +152,7 @@ export async function saveShelfPayload(
 
 
 const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStorage[] | undefined }) => {
-    const { showCalculateDialog, setShowCalculateDialog, rack, shelf, boxs, zone, document, warehouseNo, warehouse, zoneName } = useCalculateContext();
+    const { showCalculateDialog, setShowCalculateDialog, rack, shelf, boxs, zone, document, warehouseNo, zoneName, warehouseId } = useCalculateContext();
     const [tempShelfData, setTempShelfData] = useState<ShelfWithFitBoxes[]>([]);
     const [saveStatus, setSaveStatus] = useState<boolean>(true);
     const navigate = useNavigate();
@@ -178,7 +179,7 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                     cubic_centimeter_box: box.cal_box.cubic_centimeter_box,
                     document_product_no: box.cal_box.document_product_no,
                     box_no: box.cal_box.box_no,
-                    master_warehouse_id: warehouse,
+                    master_warehouse_id: warehouseId,
                     master_zone_id: zone,
                     stored_date: box.stored_date ?? new Date()
                 }));
@@ -190,7 +191,7 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                 cubic_centimeter_box: box.cubic_centimeter_box,
                 document_product_no: box.document_product_no,
                 box_no: box.box_no,
-                master_warehouse_id: warehouse,
+                master_warehouse_id: warehouseId,
                 master_zone_id: zone
             })).sort((a, b) => Number(a.box_no) - Number(b.box_no));;
 
@@ -252,9 +253,9 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
 
         setTempShelfData(newShelfData);
     }, [calculateSummary]);
-
+    const queryClient = useQueryClient();
     const handleSave = async () => {
-        if (!document || !zone || !warehouse || !warehouseNo) {
+        if (!document || !zone || !warehouseId || !warehouseNo) {
             alert("Missing required data!");
             return;
         }
@@ -263,13 +264,14 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
         const response = await saveShelfPayload(tempShelfData, {
             document_warehouse_no: warehouseNo,
             master_zone_id: zone,
-            master_warehouse_id: warehouse,
+            master_warehouse_id: warehouseId,
         });
 
         if (response) {
             alert("Successfully saved all shelf data!");
+            await queryClient.invalidateQueries({ queryKey: ["cal_msproducts"] });
             setShowCalculateDialog(false);
-            navigate('/calwarehouseTable');
+            navigate('/calwarehouseTable', { replace: true });
         } else {
             alert("Some shelves failed to save. Please check the console for details.");
         }
@@ -295,7 +297,7 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                             <div className="mt-2">
                                 <p className="text-red-500 font-bold">Some boxes cannot fit in the shelf</p>
                                 <p className="text-red-500">
-                                    Number of boxes exceeding capacity: {calculateSummary.boxPlacements.filter(box => !box.canFit).length} Box
+                                    Number of boxes exceeding capacity: {calculateSummary?.boxPlacements?.filter(box => !box.canFit).length} Box
                                 </p>
                             </div>
                         )}
@@ -327,6 +329,9 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                                             const isNewBox = !shelfBoxStorage?.some(
                                                 (storedBox) => storedBox.cal_box_id === box.cal_box_id
                                             );
+                                            // const isChangeZone = shelfBoxStorage?.some(
+                                            //     (storedBox) => storedBox.master_zone_id !== zone
+                                            // );
                                             return (
                                                 <li
                                                     key={i}

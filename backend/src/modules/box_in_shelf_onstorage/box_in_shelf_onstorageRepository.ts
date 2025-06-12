@@ -20,6 +20,14 @@ export class BoxInShelfRepository {
                                     storage_id: existing.storage_id,
                                 },
                             });
+                            await prisma.cal_msproduct.updateMany({
+                                where: {
+                                    document_product_no: box.document_product_no,
+                                },
+                                data: {
+                                    status: true,
+                                }
+                            })
                             return prisma.shelf_box_storage.create({
                                 data: {
                                     master_shelf_id: payload.master_shelf_id,
@@ -39,6 +47,14 @@ export class BoxInShelfRepository {
                             return existing;
                         }
                     } else {
+                        await prisma.cal_msproduct.updateMany({
+                            where: {
+                                document_product_no: box.document_product_no,
+                            },
+                            data: {
+                                status: true,
+                            }
+                        })
                         return prisma.shelf_box_storage.create({
                             data: {
                                 master_shelf_id: payload.master_shelf_id,

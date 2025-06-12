@@ -3,8 +3,8 @@ import { getCalMsproduct } from "../calmsproduct.services"
 
 export const useCalMsProductQuery = () => {
     const query = useQuery({
-        queryKey: ["products"],
-        queryFn: () => getCalMsproduct()
+        queryKey: ["cal_msproducts"],
+        queryFn: () => getCalMsproduct(false)
     })
     return query
 }

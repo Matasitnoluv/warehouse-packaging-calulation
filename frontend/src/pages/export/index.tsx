@@ -10,14 +10,14 @@ import { useState } from "react";
 
 const ExportPage = () => {
   const [selectedZone, setZone] = useState<string>('');
-  const [warehouse, setWarehouse] = useState<string>('');
+  const [warehouseId, setWarehouseId] = useState<string>('');
   return (
     <ContainerExport>
       <HeaderExport>
-        <SelectWarehouse warehouse={warehouse} setWarehouse={setWarehouse} />
+        <SelectWarehouse warehouseId={warehouseId} setWarehouseId={setWarehouseId} />
         <SelectZone selectedZone={selectedZone} setSelectedZone={setZone} />
       </HeaderExport>
-      <TabsExport wareHouse={warehouse} zone={selectedZone} />
+      <TabsExport wareHouse={warehouseId} zone={selectedZone} />
     </ContainerExport>
   );
 };

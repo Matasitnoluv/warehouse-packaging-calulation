@@ -71,6 +71,35 @@ export const cal_warehouseRepository = {
     },
 
     delete: async (document_warehouse_id: string) => {
+        const cal_warehouse = await prisma.cal_warehouse.findUnique({
+            where: {
+                document_warehouse_id: document_warehouse_id,
+            },
+        })
+
+        if (!cal_warehouse) {
+            throw new Error(`Cal warehouse not found with id ${document_warehouse_id}`)
+        }
+
+        if (cal_warehouse.document_warehouse_no) {
+            const shelf_box_storage = await prisma.shelf_box_storage.findMany({
+                where: {
+                    document_warehouse_no: cal_warehouse.document_warehouse_no,
+                },
+            })
+
+            const document_product_nos = shelf_box_storage.map((storage) => storage.document_product_no).filter((no) => no !== null)
+
+            await prisma.cal_msproduct.updateMany({
+                where: {
+                    document_product_no: { in: document_product_nos },
+                },
+                data: {
+                    status: false,
+                }
+            })
+        }
+
         return await prisma.cal_warehouse.delete({
             where: { document_warehouse_id: document_warehouse_id },
         });

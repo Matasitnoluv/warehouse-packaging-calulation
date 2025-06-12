@@ -5,8 +5,8 @@ import { TypePayloadcal_msproduct } from "@modules/cal_msproduct/cal_msproductMo
 import { cal_msproduct } from "@prisma/client";
 
 export const cal_msproductService = {
-    findAll: async () => {
-        const cal_msproduct = await cal_msproductRepository.findAllAsync();
+    findAll: async ({ status }: { status?: boolean }) => {
+        const cal_msproduct = await cal_msproductRepository.findAllAsync({ status });
         return new ServiceResponse(
             ResponseStatus.Success,
             "Get All success",

@@ -10,8 +10,11 @@ export const Keys = [
 ];
 
 export const cal_msproductRepository = {
-    findAllAsync: async () => {
+    findAllAsync: async ({ status }: { status?: boolean }) => {
         return prisma.cal_msproduct.findMany({
+            where: {
+                status: status,
+            },
             select: {
                 document_product_id: true,
                 document_product_no: true,

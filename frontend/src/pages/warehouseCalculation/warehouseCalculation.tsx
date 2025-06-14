@@ -52,14 +52,11 @@ const WarehouseCalculation = () => {
 
   if (calwarehouseStatus === 'success' && calwarehouse && documentWarehouseNo) {
     return (
-      <CalculateProvider warehouseNo={documentWarehouseNo} defaultDocument={shelfBoxStorage?.[shelfBoxStorage.length - 1]} defaultZone={calwarehouse?.master_zone_id} defaultWarehouse={calwarehouse?.master_warehouse_id} >
+      <CalculateProvider warehouseNo={documentWarehouseNo} defaultDocument={calwarehouse?.cal_msproduct_id} defaultZone={calwarehouse?.master_zone_id} defaultWarehouse={calwarehouse?.master_warehouse_id} >
         <div className="p-4">
           <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8 mt-6">
             {/* Show selected warehouse name if available */}
-            {<BoxShow label={"Selected Warehouse"} input={
-              ''
-            }
-            />}
+            {<BoxShow label={"Selected Warehouse"} input={''} />}
 
             {/* Divider */}
 

@@ -29,8 +29,13 @@ const CalWarehouseTable = () => {
 
     const getCalWarehouseData = () => {
         getCalWarehouse().then((res) => {
-            //console.log(res);
-            setCalculations(res.responseObject);
+
+            const sorted = res.responseObject.sort((a, b) =>
+                a.document_warehouse_no.localeCompare(b.document_warehouse_no)
+            );
+
+
+            setCalculations(sorted);
         });
     };
 
@@ -224,6 +229,7 @@ const CalWarehouseTable = () => {
                                             <Table.RowHeaderCell className="px-6 py-4">
                                                 <div className="font-medium text-gray-900">
                                                     {cal_warehouse.document_warehouse_no}
+
                                                 </div>
                                             </Table.RowHeaderCell>
                                             <Table.Cell className="px-6 py-4">

@@ -46,10 +46,7 @@ export const CalculateProvider = ({ children, warehouseNo, defaultZone, defaultD
   const [warehouse, setWarehouse] = useState<TypeMswarehouse | null>(null);
   const [warehouseId, setWarehouseId] = useState<string>(defaultWarehouse);
   const [zoneName, setZoneName] = useState<string>("");
-  useEffect(() => {
-    defaultDocument && setDocument(defaultDocument);
 
-  }, [defaultDocument])
 
   const { data: rackData } = useQuery({
     queryKey: ['rack', zone],

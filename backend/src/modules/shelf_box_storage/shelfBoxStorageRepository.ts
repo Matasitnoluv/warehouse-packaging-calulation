@@ -165,6 +165,7 @@ export const shelfBoxStorageRepository = {
                 total_volume: true,
                 document_product_no: true,
                 document_warehouse_no: true,
+                master_zone_id: true,
                 cal_box: {
                     select: {
                         cal_box_id: true,

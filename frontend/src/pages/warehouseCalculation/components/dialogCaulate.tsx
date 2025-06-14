@@ -155,21 +155,18 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
     const { showCalculateDialog, setShowCalculateDialog, rack, shelf, boxs, zone, document, warehouseNo, zoneName, warehouseId } = useCalculateContext();
     const [tempShelfData, setTempShelfData] = useState<ShelfWithFitBoxes[]>([]);
     const [saveStatus, setSaveStatus] = useState<boolean>(true);
-    const navigate = useNavigate();
+
     const calculateSummary: CalculateSummary | undefined = useMemo(() => {
         if (boxs && rack && shelf && zone && document && shelfBoxStorage) {
-            const storedCalBoxIds = shelfBoxStorage.map((box: TypeShelfBoxStorage) => box.cal_box.cal_box_id);
-            const newBoxes = boxs.filter((box) => !storedCalBoxIds.includes(box.cal_box_id));
+            // กล่องที่อยู่ zone เดิม
             const normalizedStoredBoxes = shelfBoxStorage
+                .filter((box: TypeShelfBoxStorage) => box?.master_zone_id === zone)
                 .sort((a: TypeShelfBoxStorage, b: TypeShelfBoxStorage) => {
                     const dateA = a.stored_date ? new Date(a.stored_date).getTime() : 0;
                     const dateB = b.stored_date ? new Date(b.stored_date).getTime() : 0;
-
                     if (dateA !== dateB) {
-                        return dateA - dateB; // sort ตามวันที่ก่อน
+                        return dateA - dateB;
                     }
-
-                    // ถ้าวันเดียวกัน (หรือวันที่ไม่มี), เรียงตาม box_no
                     return Number(a.cal_box.box_no) - Number(b.cal_box.box_no);
                 })
                 .map((box: TypeShelfBoxStorage) => ({
@@ -184,7 +181,12 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                     stored_date: box.stored_date ?? new Date()
                 }));
 
-            const formattedNewBoxes = newBoxes.map((box) => ({
+            // กล่องที่ย้ายมาจาก zone อื่น (ต้องต่อท้าย)
+            const movedBoxes = boxs.filter(box =>
+                shelfBoxStorage.some(stored =>
+                    stored.cal_box_id === box.cal_box_id && stored.master_zone_id !== zone
+                )
+            ).map((box) => ({
                 cal_box_id: box.cal_box_id,
                 cal_box: box,
                 count: box.count,
@@ -193,19 +195,33 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                 box_no: box.box_no,
                 master_warehouse_id: warehouseId,
                 master_zone_id: zone
-            })).sort((a, b) => Number(a.box_no) - Number(b.box_no));;
+            }));
 
-            const allBoxesToCalculate = Array.from(
-                new Map(
-                    [...normalizedStoredBoxes, ...formattedNewBoxes].map((box) => [box.cal_box_id, box])
-                ).values()
-            );
+            // กล่องใหม่ที่ไม่เคยอยู่ shelf นี้ (ต้องต่อท้ายสุด)
+            const newBoxes = boxs.filter(box =>
+                !shelfBoxStorage.some(stored => stored.cal_box_id === box.cal_box_id)
+            ).map((box) => ({
+                cal_box_id: box.cal_box_id,
+                cal_box: box,
+                count: box.count,
+                cubic_centimeter_box: box.cubic_centimeter_box,
+                document_product_no: box.document_product_no,
+                box_no: box.box_no,
+                master_warehouse_id: warehouseId,
+                master_zone_id: zone
+            }));
+
+            // ต่อท้าย movedBoxes และ newBoxes หลัง normalizedStoredBoxes
+            const allBoxesToCalculate = [
+                ...normalizedStoredBoxes,
+                ...movedBoxes,
+                ...newBoxes
+            ];
+
             const calBox = calculateBoxPlacement(allBoxesToCalculate as unknown as TypeCalBox[], rack, shelf);
-
-
             setSaveStatus(calBox.every((box) => box.canFit));
             return {
-                boxPlacements: calculateBoxPlacement(allBoxesToCalculate as unknown as TypeCalBox[], rack, shelf),
+                boxPlacements: calBox,
                 racks: rack,
                 shelves: shelf,
                 zone,
@@ -238,6 +254,7 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                         box_no: bp.box.box_no,
                         cubic_centimeter_box: bp.box.cubic_centimeter_box,
                         count: bp.box.count || 1,
+                        master_zone_id: zone,
                     }));
 
                 if (fitBoxes.length > 0) {
@@ -271,7 +288,7 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
             alert("Successfully saved all shelf data!");
             await queryClient.invalidateQueries({ queryKey: ["cal_msproducts"] });
             setShowCalculateDialog(false);
-            navigate('/calwarehouseTable', { replace: true });
+            window.location.href = '/calwarehouseTable';
         } else {
             alert("Some shelves failed to save. Please check the console for details.");
         }
@@ -329,16 +346,23 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                                             const isNewBox = !shelfBoxStorage?.some(
                                                 (storedBox) => storedBox.cal_box_id === box.cal_box_id
                                             );
-                                            // const isChangeZone = shelfBoxStorage?.some(
-                                            //     (storedBox) => storedBox.master_zone_id !== zone
-                                            // );
+                                            const isChangeZone = shelfBoxStorage?.some(
+                                                (storedBox) =>
+                                                    storedBox.cal_box_id === box.cal_box_id &&
+                                                    storedBox.master_zone_id !== box.master_zone_id
+                                            );
                                             return (
                                                 <li
                                                     key={i}
-                                                    className={`${isNewBox ? 'bg-yellow-100 p-1 rounded' : ''}`}
+                                                    className={`${isNewBox || isChangeZone ? 'bg-yellow-100 p-1 rounded' : ''}`}
                                                 >
                                                     Doc: {box.document_product_no}, Box No: {box.box_no} Volume: {box.cubic_centimeter_box}
-                                                    {isNewBox && <span className="ml-2 text-yellow-700">(New)</span>}
+                                                    {isChangeZone && (
+                                                        <span className="ml-2 text-yellow-700">(ChangeZone)</span>
+                                                    )}
+                                                    {!isChangeZone && isNewBox && (
+                                                        <span className="ml-2 text-yellow-700">(New)</span>
+                                                    )}
                                                 </li>
                                             );
                                         })}

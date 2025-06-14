@@ -6,7 +6,7 @@ import { ButtonCalculate } from "../warehouseCalculation";
 import { getMswarehouse } from "@/services/mswarehouse.services";
 import { useCalMsProductQuery, useZoneQuery } from "@/services/queriesHook";
 import { Layers } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 interface ZoneType {
     master_zone_id: string;
@@ -56,10 +56,27 @@ export const SelectZone = ({ selectedZone, setSelectedZone, className, setZoneNa
 }
 
 
-export const SelectProducts = ({ document, setDocument, className }: { className?: string, document: string | undefined, setDocument: (document: string) => void }) => {
+export const SelectProducts = ({ document, setDocument, className, disabled }: { className?: string, document: string | undefined, setDocument: (document: string) => void, disabled?: boolean }) => {
     const { data: products, status } = useCalMsProductQuery()
-    if (status === 'pending') return "load";
+    const [documentId, setDocumentId] = useState<string | undefined>("")
     const productsData = products?.responseObject;
+    useLayoutEffect(() => {
+        if (disabled) {
+            if (document && productsData && !documentId) {
+                setDocumentId(productsData?.find(product => product?.document_product_id === document)?.document_product_no!)
+            }
+        }
+    }, [document, disabled, productsData, setDocument])
+
+    useEffect(() => {
+        if (documentId) {
+            setDocument(documentId)
+        }
+    }, [documentId, setDocument])
+
+
+    if (status === 'pending') return "load";
+
     return (
         <div className={className}>
             <label className="block text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
@@ -69,9 +86,10 @@ export const SelectProducts = ({ document, setDocument, className }: { className
                 className="w-full px-5 py-3 rounded-lg  border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none text-lg shadow-sm transition-all duration-200 hover:border-blue-400"
                 value={document}
                 onChange={e => setDocument(e.target.value)}
+                disabled={disabled}
             >
-                <option value="">-- Select products --</option>
-                {productsData?.map((product) => (
+                {documentId ? <option value={documentId} key={documentId}>{documentId}</option> : <option value="" key={'select-products'}>-- Select products --</option>}
+                {productsData?.filter(product => !product.status).map((product) => (
                     <option key={product.document_product_no} value={product.document_product_no}>
                         {product.document_product_no}
                     </option>
@@ -135,9 +153,8 @@ const ZoneDocumentSelector = ({ setZone: setMainZone, disables }: { setZone: (zo
             <div className="space-y-4 mt-8">
 
                 {!disables?.selectZone && <SelectZone selectedZone={zone} setSelectedZone={setZone} setZoneName={setZoneName} />}
-                {!disables?.selectProduct && <SelectProducts document={document} setDocument={setDocument} />}
 
-
+                {<SelectProducts document={document} setDocument={setDocument} disabled={disables?.selectProduct} />}
                 <div className="flex justify-end">
                     <ButtonCalculate disabled={!zone || !document || !warehouseId} />
                 </div>

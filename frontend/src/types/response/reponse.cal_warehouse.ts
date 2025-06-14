@@ -6,6 +6,8 @@ export type TypeCalWarehouse = {
     sort_by: number;
     master_warehouse_id: string;
     master_zone_id: string;
+    cal_msproduct_id: string;
+
 };
 
 export type CalWarehouseResponse = {

@@ -7,24 +7,40 @@ import DialogAdd from "./components/dilogAddCalmsproduct";
 import DialogEditCalmsproduct from "./components/dilogEditCalmsproduct";
 import AlertDialogDelete from "./components/aletdilogDelteDocument";
 import { FileSpreadsheet, ArrowLeft } from "lucide-react";
+import { getMsproduct } from "@/services/msproduct.services";
+import { getMsbox } from "@/services/msbox.services";
+import DialogProduct from "./components/dilogProduct";
+import DialogBox from "./components/dilogBox";
 
 const CalculationProductAndBoxTable = () => {
     const navigate = useNavigate();
     const [calculations, setCalculations] = useState<TypeCalMsproductAll[]>([]);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [productList, setProductList] = useState([]);
+    const [boxList, setBoxList] = useState([]);
 
     const getCalMsproductData = () => {
         getCalMsproduct().then((res) => {
-            console.log(res);
+            //console.log(res);
             setCalculations(res.responseObject);
         });
     };
 
+    const getMsproductData = async () => {
+        const res = await getMsproduct();
+        setProductList(res.responseObject || []);
+    };
+
+    const getMsboxData = async () => {
+        const res = await getMsbox();
+        setBoxList(res.responseObject || []);
+    };
+
     useEffect(() => {
         getCalMsproductData();
+        getMsproductData();
+        getMsboxData();
     }, []);
-
-    
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
@@ -119,7 +135,18 @@ const CalculationProductAndBoxTable = () => {
                         </Table.Root>
                     </div>
                 </Card>
-                
+
+                <DialogProduct
+                    selectedProducts={productList}
+                    setSelectedProducts={setProductList}
+                    getMsproductData={getMsproductData}
+                    selectedBoxes={boxList}
+                />
+                <DialogBox
+                    selectedBoxes={boxList}
+                    setSelectedBoxes={setBoxList}
+                    getMsboxData={getMsboxData}
+                />
             </div>
         </div>
     );

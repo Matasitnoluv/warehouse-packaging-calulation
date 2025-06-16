@@ -1,7 +1,7 @@
 import { Table, Card, AlertDialog, Button } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
-import { getCalWarehouse } from "@/services/calwarehouse.service";
-import { TypeCalWarehouseAll } from "@/types/response/reponse.cal_warehouse";
+import { getCalWarehouse } from "@/services/calwarehouse.services";
+
 import { useNavigate } from "react-router-dom";
 import DilogAddCalwarehouse from "./dilogAddCalwarehouse";
 import DilogEditCalwarehouse from "./dilogEditCalwarehouse";
@@ -13,25 +13,29 @@ import { getMswarehouse } from "@/services/mswarehouse.services";
 import { getMszone } from "@/services/mszone.services";
 import { getMsrack } from "@/services/msrack.services";
 import { getMsshelf } from "@/services/msshelf.services";
-import { shelfBoxStorageService } from "@/services/shelfBoxStorage.services";
+import { TypeMswarehouse } from "@/types/response/reponse.mswarehouse";
+import EditButton from "./CalEditButton";
+import CalEditButton from "./CalEditButton";
 
 const CalWarehouseTable = () => {
     const navigate = useNavigate();
-    const [calculations, setCalculations] = useState<TypeCalWarehouseAll[]>([]);
-    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-    const [showWarehouseDialog, setShowWarehouseDialog] = useState(false);
-    const [selectedDocumentNo, setSelectedDocumentNo] = useState<string | null>(null);
+    const [calculations, setCalculations] = useState<any[]>([]);
     const [openRemainingSpace, setOpenRemainingSpace] = useState(false);
     const [remainingSpaceData, setRemainingSpaceData] = useState<any>(null);
-    const [warehouses, setWarehouses] = useState<any[]>([]);
+    const [warehouses, setWarehouses] = useState<TypeMswarehouse[]>([]);
     const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>("");
     const [isLoading, setIsLoading] = useState(false);
     const [showDetails, setShowDetails] = useState(false);
 
     const getCalWarehouseData = () => {
         getCalWarehouse().then((res) => {
-            console.log(res);
-            setCalculations(res.responseObject);
+
+            const sorted = res.responseObject.sort((a, b) =>
+                a.document_warehouse_no.localeCompare(b.document_warehouse_no)
+            );
+
+
+            setCalculations(sorted);
         });
     };
 
@@ -43,7 +47,7 @@ const CalWarehouseTable = () => {
         async function fetchWarehouses() {
             try {
                 const res = await getMswarehouse();
-                console.log("Warehouse API Response:", res);
+                //console.log("Warehouse API Response:", res);
                 if (res && res.responseObject) {
                     const warehouseData = Array.isArray(res.responseObject) ? res.responseObject : [res.responseObject];
                     setWarehouses(warehouseData);
@@ -62,24 +66,9 @@ const CalWarehouseTable = () => {
         fetchWarehouses();
     }, []);
 
-    const handleRemainingSpace = async (warehouseId: string) => {
-        try {
-            const data = await fetchRemainingSpaceData(warehouseId);
-            console.log("Remaining Space Data:", data);
-            if (!data) {
-                alert("ไม่พบข้อมูล warehouse นี้ หรือข้อมูลไม่สมบูรณ์");
-                return;
-            }
-            setRemainingSpaceData(data);
-            setOpenRemainingSpace(true);
-        } catch (e) {
-            console.error("Error in handleRemainingSpace:", e);
-            alert("เกิดข้อผิดพลาดในการดึงข้อมูล Remaining space");
-        }
-    };
 
     const handleConfirm = async () => {
-        console.log('handleConfirm called', selectedWarehouseId);
+        //console.log('handleConfirm called', selectedWarehouseId);
         if (!selectedWarehouseId) {
             alert("Please select a warehouse");
             return;
@@ -87,7 +76,7 @@ const CalWarehouseTable = () => {
         setIsLoading(true);
         try {
             const data = await fetchRemainingSpaceData(selectedWarehouseId);
-            console.log('fetchRemainingSpaceData result', data);
+            //console.log('fetchRemainingSpaceData result', data);
             if (!data) {
                 alert("No data found for this warehouse or data is incomplete");
                 return;
@@ -104,11 +93,11 @@ const CalWarehouseTable = () => {
 
     async function fetchRemainingSpaceData(warehouseId: string) {
         try {
-            console.log('fetchRemainingSpaceData called', warehouseId);
-            // Fetch warehouse
+            //console.log('fetchRemainingSpaceData called', warehouseId);
+            // Fetch warehouse (ใช้ responseObject เหมือนหน้า Warehouse Management Details)
             const msWarehouseRes = await getMswarehouse();
             const msWarehouseList = msWarehouseRes.responseObject || [];
-            const msWarehouse = msWarehouseList.find((w: any) => w.master_warehouse_id === warehouseId);
+            const msWarehouse = (msWarehouseList as TypeMswarehouse[]).find((w) => w.master_warehouse_id === warehouseId);
             if (!msWarehouse) return null;
 
             // Fetch zones
@@ -146,7 +135,7 @@ const CalWarehouseTable = () => {
                             console.log('boxRes:', boxRes);
                             boxes = boxRes.success ? boxRes.responseObject : [];
                             console.log('boxes:',);
-                            
+
                             used = boxes.responseObject[0]._sum.cubic_centimeter_box;
                         } catch (e) {
                             used = 0;
@@ -284,15 +273,14 @@ const CalWarehouseTable = () => {
                                             <Table.RowHeaderCell className="px-6 py-4">
                                                 <div className="font-medium text-gray-900">
                                                     {cal_warehouse.document_warehouse_no}
+
                                                 </div>
                                             </Table.RowHeaderCell>
                                             <Table.Cell className="px-6 py-4">
                                                 <div className="flex justify-center gap-2">
-                                                    <DialogSelectWarehouse
-                                                        documentWarehouseNo={cal_warehouse.document_warehouse_no}
-                                                        triggerButtonText="Calculation"
-                                                        buttonClassName="inline-flex items-center gap-2 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-md shadow-md transition-colors text-sm"
-                                                    />
+                                                    {<CalEditButton calWarehouse={cal_warehouse} />}
+
+
                                                 </div>
                                             </Table.Cell>
                                             <Table.Cell className="px-6 py-4">
@@ -322,13 +310,6 @@ const CalWarehouseTable = () => {
                     </div>
                 </Card>
 
-                {/* DialogSelectWarehouse Popup */}
-                {showWarehouseDialog && (
-                    <DialogSelectWarehouse
-                        triggerButtonText={null}
-                        documentWarehouseNo={selectedDocumentNo ?? undefined}
-                    />
-                )}
 
                 {openRemainingSpace && (
                     <RemainingSpaceDialog.Root open={openRemainingSpace} onOpenChange={setOpenRemainingSpace}>
@@ -371,63 +352,43 @@ const CalWarehouseTable = () => {
                                     </div>
                                 ) : (
                                     <>
-                                    <div className="space-y-8">
-                                        {/* Warehouse Summary */}
-                                        <div className="bg-white rounded-xl p-6 shadow-md border border-gray-100">
-                                            <div className="flex justify-between items-center mb-4">
-                                                <h4 className="font-bold text-xl text-blue-700">Warehouse: {remainingSpaceData.warehouse.name}</h4>
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-4 mb-4">
-                                                <div className="bg-blue-50 p-4 rounded-lg">
-                                                    <div className="text-sm text-blue-600 font-medium">Total Space</div>
-                                                    <div className="text-xl font-bold text-blue-800">{remainingSpaceData.warehouse.total.toLocaleString()} cm³</div>
+                                        <div className="space-y-8">
+                                            {/* Warehouse Summary */}
+                                            <div className="bg-white rounded-xl p-6 shadow-md border border-gray-100">
+                                                <div className="flex justify-between items-center mb-4">
+                                                    <h4 className="font-bold text-xl text-blue-700">Warehouse: {remainingSpaceData.warehouse.name}</h4>
                                                 </div>
-                                                <div className="bg-blue-50 p-4 rounded-lg">
-                                                    <div className="text-sm text-blue-600 font-medium">Dimensions</div>
-                                                    <div className="text-xl font-bold text-blue-800">
-                                                        {remainingSpaceData.warehouse.dimensions.width} × {remainingSpaceData.warehouse.dimensions.length} × {remainingSpaceData.warehouse.dimensions.height} cm
+                                                <div className="grid grid-cols-2 gap-4 mb-4">
+                                                    <div className="bg-blue-50 p-4 rounded-lg">
+                                                        <div className="text-sm text-blue-600 font-medium">Total Space</div>
+                                                        <div className="text-xl font-bold text-blue-800">{remainingSpaceData.warehouse.total.toLocaleString()} cm³</div>
+                                                    </div>
+                                                    <div className="bg-blue-50 p-4 rounded-lg">
+                                                        <div className="text-sm text-blue-600 font-medium">Dimensions</div>
+                                                        <div className="text-xl font-bold text-blue-800">
+                                                            {remainingSpaceData.warehouse.dimensions.width} × {remainingSpaceData.warehouse.dimensions.length} × {remainingSpaceData.warehouse.dimensions.height} cm
+                                                        </div>
                                                     </div>
                                                 </div>
+                                                <div className="w-full bg-gray-200 rounded-full h-4 mt-2">
+                                                    <div
+                                                        className="bg-blue-500 h-4 rounded-full transition-all duration-500"
+                                                        style={{ width: `${remainingSpaceData.warehouse.total ? (remainingSpaceData.warehouse.used / remainingSpaceData.warehouse.total) * 100 : 0}%` }}
+                                                    />
+                                                </div>
+                                                <div className="text-right text-sm text-gray-500 mt-2">
+                                                    <span className="text-gray-600">Used: {remainingSpaceData.warehouse.used.toLocaleString()} cm³</span>
+                                                    <span className="ml-2 text-blue-600">
+                                                        (Remaining: {remainingSpaceData.warehouse.remaining.toLocaleString()} cm³)
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div className="w-full bg-gray-200 rounded-full h-4 mt-2">
-                                                <div
-                                                    className="bg-blue-500 h-4 rounded-full transition-all duration-500"
-                                                    style={{ width: `${remainingSpaceData.warehouse.total ? (remainingSpaceData.warehouse.used / remainingSpaceData.warehouse.total) * 100 : 0}%` }}
-                                                />
-                                            </div>
-                                            <div className="grid grid-cols-3 text-xs font-medium mt-1 mb-2">
-                                                {(() => {
-                                                    // รวม shelves ของทุก rack ทุก zone
-                                                    const allShelves = remainingSpaceData.zones
-                                                        .flatMap((zone: any) => zone.racks)
-                                                        .flatMap((rack: any) => rack.shelves);
-                                                    const warehouseTotalFromShelves = allShelves.reduce((sum: number, shelf: any) => sum + (shelf.total || 0), 0);
-                                                    const warehouseUsedFromShelves = allShelves.reduce((sum: number, shelf: any) => sum + (shelf.used || 0), 0);
-                                                    const warehouseRemainingFromShelves = warehouseTotalFromShelves - warehouseUsedFromShelves;
-                                                    return <>
-                                                <span className="text-left text-blue-700">
-                                                            Total: <span className="text-blue-800">{warehouseTotalFromShelves.toLocaleString()} cm³</span>
-                                                </span>
-                                                <span className="text-center text-blue-700">
-                                                            Used: <span className="text-blue-800">{warehouseUsedFromShelves.toLocaleString()} cm³</span>
-                                                </span>
-                                                <span className="text-right text-blue-700">
-                                                            Remaining: <span className="text-blue-800">{warehouseRemainingFromShelves.toLocaleString()} cm³</span>
-                                                </span>
-                                                    </>;
-                                                })()}
-                                            </div>
-                                        </div>
 
-                                        {/* Zones with nested Racks and Shelves */}
-                                        <div className="bg-white rounded-xl p-6 shadow-md border border-gray-100">
-                                            <h4 className="font-bold text-xl mb-4 text-green-700">Zones</h4>
-                                            <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                                                {remainingSpaceData.zones.map((zone: any) => {
-                                                    const zoneTotal = zone.racks.reduce((sum: number, rack: any) => sum + sumShelf(rack.shelves, 'total'), 0);
-                                                    const zoneUsed = zone.racks.reduce((sum: number, rack: any) => sum + sumShelf(rack.shelves, 'used'), 0);
-                                                    const zoneRemaining = zone.racks.reduce((sum: number, rack: any) => sum + sumShelf(rack.shelves, 'remaining'), 0);
-                                                    return (
+                                            {/* Zones with nested Racks and Shelves */}
+                                            <div className="bg-white rounded-xl p-6 shadow-md border border-gray-100">
+                                                <h4 className="font-bold text-xl mb-4 text-green-700">Zones</h4>
+                                                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                                                    {remainingSpaceData.zones.map((zone: any) => (
                                                         <div key={zone.master_zone_id} className="bg-green-50 rounded-lg p-4">
                                                             <div className="flex justify-between items-center mb-2">
                                                                 <span className="font-semibold text-green-800">{zone.master_zone_name}</span>
@@ -439,15 +400,10 @@ const CalWarehouseTable = () => {
                                                                     style={{ width: `${zone.cubic_centimeter_zone ? (zone.used / zone.cubic_centimeter_zone) * 100 : 0}%` }}
                                                                 />
                                                             </div>
-                                                            <div className="grid grid-cols-3 text-xs font-medium mt-1 mb-2">
-                                                                <span className="text-left text-green-700">
-                                                                    Total: <span className="text-green-800">{zoneTotal.toLocaleString()} cm³</span>
-                                                                </span>
-                                                                <span className="text-center text-green-700">
-                                                                    Used: <span className="text-green-800">{zoneUsed.toLocaleString()} cm³</span>
-                                                                </span>
-                                                                <span className="text-right text-green-700">
-                                                                    Remaining: <span className="text-green-800">{(zoneTotal - zoneUsed).toLocaleString()} cm³</span>
+                                                            <div className="flex justify-between text-xs text-gray-500 mt-1 mb-2">
+                                                                <span>Used: {zone.used.toLocaleString()} cm³</span>
+                                                                <span className="text-green-600">
+                                                                    (Remaining: {zone.remaining.toLocaleString()} cm³)
                                                                 </span>
                                                             </div>
                                                             {/* Racks in Zone */}
@@ -466,15 +422,10 @@ const CalWarehouseTable = () => {
                                                                                     style={{ width: `${rack.cubic_centimeter_rack ? (rack.used / rack.cubic_centimeter_rack) * 100 : 0}%` }}
                                                                                 />
                                                                             </div>
-                                                                            <div className="grid grid-cols-3 text-xs font-medium mt-1 mb-2">
-                                                                                <span className="text-left text-yellow-700">
-                                                                                    Total: <span className="text-yellow-800">{sumShelf(rack.shelves, 'total').toLocaleString()} cm³</span>
-                                                                                </span>
-                                                                                <span className="text-center text-yellow-700">
-                                                                                    Used: <span className="text-yellow-800">{sumShelf(rack.shelves, 'used').toLocaleString()} cm³</span>
-                                                                                </span>
-                                                                                <span className="text-right text-yellow-700">
-                                                                                    Remaining: <span className="text-yellow-800">{(sumShelf(rack.shelves, 'total') - sumShelf(rack.shelves, 'used')).toLocaleString()} cm³</span>
+                                                                            <div className="flex justify-between text-xs text-gray-500 mt-1 mb-1">
+                                                                                <span>Used: {rack.used.toLocaleString()} cm³</span>
+                                                                                <span className="text-yellow-600">
+                                                                                    (Remaining: {rack.remaining.toLocaleString()} cm³)
                                                                                 </span>
                                                                             </div>
                                                                             {/* Shelves in Rack */}
@@ -490,31 +441,15 @@ const CalWarehouseTable = () => {
                                                                                             <div className="w-full bg-gray-200 rounded-full h-2">
                                                                                                 <div
                                                                                                     className="bg-purple-500 h-2 rounded-full transition-all duration-500"
-                                                                                                    style={{ width: `${shelf.total ? (shelf.used / shelf.total) * 100 : 0}%` }}
+                                                                                                    style={{ width: `${shelf.cubic_centimeter_shelf ? (shelf.used / shelf.cubic_centimeter_shelf) * 100 : 0}%` }}
                                                                                                 />
                                                                                             </div>
-                                                                                            <div className="grid grid-cols-3 text-xs font-medium mt-1">
-                                                                                                <span className="text-left text-purple-700">
-                                                                                                    Total: <span className="text-purple-800">{shelf.total.toLocaleString()} cm³</span>
-                                                                                                </span>
-                                                                                                <span className="text-center text-purple-700">
-                                                                                                    Used: <span className="text-purple-800">{shelf.used.toLocaleString()} cm³</span>
-                                                                                                </span>
-                                                                                                <span className="text-right text-purple-700">
-                                                                                                    Remaining: <span className="text-purple-800">{(shelf.total - shelf.used).toLocaleString()} cm³</span>
+                                                                                            <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                                                                                <span>Used: {shelf.used.toLocaleString()} cm³</span>
+                                                                                                <span className="text-purple-600">
+                                                                                                    (Remaining: {shelf.remaining.toLocaleString()} cm³)
                                                                                                 </span>
                                                                                             </div>
-                                                                                            {/* เพิ่มแสดงกล่องใน shelf */}
-                                                                                            {shelf.boxes && shelf.boxes.length > 0 && (
-                                                                                                <div className="mt-2 ml-2">
-                                                                                                    <div className="font-semibold text-pink-700 mb-1">Boxes</div>
-                                                                                                    {shelf.boxes.map((box: any, idx: number) => (
-                                                                                                        <div key={box.cal_box_id || idx} className="text-xs text-pink-800">
-                                                                                                            Box ID: {box.cal_box_id} | Qty: {box.count} | Volume: {box.cubic_centimeter_box}
-                                                                                                        </div>
-                                                                                                    ))}
-                                                                                                </div>
-                                                                                            )}
                                                                                         </div>
                                                                                     ))}
                                                                                 </div>
@@ -524,22 +459,21 @@ const CalWarehouseTable = () => {
                                                                 </div>
                                                             )}
                                                         </div>
-                                                    );
-                                                })}
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div className="mt-6 flex justify-end">
-                                        <Button 
-                                            onClick={() => {
-                                                setOpenRemainingSpace(false);
-                                                setShowDetails(false);
-                                            }} 
-                                            className="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors"
-                                        >
-                                            Close
-                                        </Button>
-                                    </div>
+                                        <div className="mt-6 flex justify-end">
+                                            <Button
+                                                onClick={() => {
+                                                    setOpenRemainingSpace(false);
+                                                    setShowDetails(false);
+                                                }}
+                                                className="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors"
+                                            >
+                                                Close
+                                            </Button>
+                                        </div>
                                     </>
                                 )}
                             </RemainingSpaceDialog.Description>
@@ -547,6 +481,7 @@ const CalWarehouseTable = () => {
                     </RemainingSpaceDialog.Root>
                 )}
             </div>
+
         </div>
     );
 }

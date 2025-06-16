@@ -11,7 +11,7 @@ type DialogCalMsproductProps = {
 const AlertDialogDelete = ({ getCalMsproductData, document_product_id, document_product_no }: DialogCalMsproductProps) => {
     const handleDeleteCalMsproduct = async () => {
         try {
-            console.log("Deleting document with ID:", document_product_id);
+            //console.log("Deleting document with ID:", document_product_id);
             const response = await deleteCalProduct({
                 document_product_id: document_product_id,
             });

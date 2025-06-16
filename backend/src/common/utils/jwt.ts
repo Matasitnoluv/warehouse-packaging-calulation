@@ -19,10 +19,10 @@ export const verifyToken = (token: string) => {
         return jwt.verify(token, JWT_SECRET);
     } catch (error) {
         if (error instanceof jwt.TokenExpiredError) {
-            console.log('Token has expired');
+            //console.log('Token has expired');
             return { expired: true };
         }
-        console.log('Token verification failed:', error);
+        //console.log('Token verification failed:', error);
         return null;
     }
 };

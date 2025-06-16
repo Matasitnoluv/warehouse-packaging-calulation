@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Dialog, Button, Table } from "@radix-ui/themes";
-import { TypeMsboxAll } from "@/types/response/reponse.msbox";
-import { patchMsbox } from "@/services/msbox.services";
+import { MsboxResponse, TypeMsbox, TypeMsboxAll } from "@/types/response/reponse.msbox";
+import { patchMsbox, getBoxes } from "@/services/msbox.services";
+import React from "react";
 
 const DialogBox = ({
     selectedBoxes,
@@ -9,10 +10,10 @@ const DialogBox = ({
     getMsboxData
 }: {
     selectedBoxes: TypeMsboxAll[];
-    setSelectedBoxes: Function;
-    getMsboxData: Function;
+    setSelectedBoxes: React.Dispatch<React.SetStateAction<TypeMsbox[]>>;
+    getMsboxData: () => Promise<MsboxResponse>;
 }) => {
-    const [msbox, setMsbox] = useState<TypeMsboxAll[]>([]);
+    const [msbox, setMsbox] = useState<TypeMsbox[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [activeSearchTerm, setActiveSearchTerm] = useState("");
 
@@ -21,7 +22,7 @@ const DialogBox = ({
             try {
                 const response = await getMsboxData();
                 if (response?.responseObject) {
-                    setMsbox(response.responseObject);
+                    setMsbox(response?.responseObject);
                 }
             } catch (error) {
                 console.error("Error fetching boxes:", error);
@@ -30,51 +31,20 @@ const DialogBox = ({
         fetchBoxes();
     }, [getMsboxData]);
 
-    const handleSelectBox = async (box: TypeMsboxAll) => {
+    const handleSelectBox = async (box: TypeMsbox) => {
         if (!box) return;
 
-        // Get calculation type from URL or localStorage
-        const urlParams = new URLSearchParams(window.location.search);
-        const calculationType = urlParams.get('type') || localStorage.getItem('calculationType') || 'mixed';
+        //console.log("[DialogBox] Box selected:", box);
 
-        // Add the new box to the list
-        setSelectedBoxes((prev: TypeMsboxAll[]) => {
-            const newBox = {
-                ...box,
-                sort_by: prev.length + 1, // คำนวณ `sort_by` ใหม่ให้ต่อเนื่อง
-            };
+        setSelectedBoxes((prev: TypeMsbox[]) => [...prev, box]);
 
-            const updatedList = [...prev, newBox].map((item, index) => ({
-                ...item,
-                sort_by: index + 1, // อัปเดตลำดับให้ทุกตัว
-            }));
+        // 1. Save box (patchMsbox) ถ้าต้องการ
+        // await patchMsbox(box); // (คอมเมนต์ไว้ถ้าไม่ต้องการ save)
 
-            return updatedList;
-        });
-
-        // บันทึกข้อมูลลงในฐานข้อมูล
-        try {
-            await Promise.all(
-                [box, ...selectedBoxes].map((box) =>
-                    patchMsbox({
-                        master_box_id: box.master_box_id,
-                        master_box_name: box.master_box_name,
-                        height: box.height,
-                        length: box.length,
-                        width: box.width,
-                        cubic_centimeter_box: box.cubic_centimeter_box,
-                        description: box.description,
-                        image: box.image,
-                        code_box: box.code_box
-                    })
-                )
-            );
-            console.log("Box updated successfully");
-        } catch (error) {
-            console.error("Failed to update box order:", error);
-        }
+        // 2. Refresh box list
+        const result = await getMsboxData();
+        //console.log("[DialogBox] getMsboxData result:", result);
     };
-
 
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
@@ -159,7 +129,7 @@ const DialogBox = ({
                                     </Table.Cell>
                                     <Table.Cell>
                                         <Button
-                                            onClick={() => handleSelectBox(box)}
+                                            onClick={() => handleSelectBox(box as TypeMsbox)}
                                             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded w-full"
                                         >
                                             Select

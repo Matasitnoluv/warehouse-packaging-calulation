@@ -2,14 +2,18 @@ import { cal_warehouseService } from '@modules/cal_warehouse/cal_warehouseServic
 import express, { Request, Response } from "express";
 import { handleServiceResponse, validateRequest, } from "@common/utils/httpHandlers";
 import { CreateCal_warehouseSchema, DeleteCal_warehouseSchema, UpdateCal_warehouseSchema, } from "@modules/cal_warehouse/cal_warehouseModel";
-import { authenticateJWT } from '@common/middleware/AuthToken';
-import rolegrop1 from '@common/middleware/roleAdmin';
 
 export const cal_warehouseRouter = (() => {
     const router = express.Router();
 
     router.get("/get", async (req: Request, res: Response) => {
         const ServiceResponse = await cal_warehouseService.findAll();
+        handleServiceResponse(ServiceResponse, res);
+    });
+
+    router.get("/get/:document_warehouse_no", async (req: Request, res: Response) => {
+        const { document_warehouse_no } = req.params;
+        const ServiceResponse = await cal_warehouseService.findByDocumentWarehouseNo(document_warehouse_no);
         handleServiceResponse(ServiceResponse, res);
     });
 
@@ -23,9 +27,9 @@ export const cal_warehouseRouter = (() => {
 
     router.patch("/update", validateRequest(UpdateCal_warehouseSchema),
         async (req: Request, res: Response) => {
-            const { cal_product_id } = req.body;
+            const { document_warehouse_id } = req.body;
             const payload = req.body;
-            const ServiceResponse = await cal_warehouseService.update(cal_product_id, payload);
+            const ServiceResponse = await cal_warehouseService.update(document_warehouse_id, payload);
             handleServiceResponse(ServiceResponse, res);
         }
     );

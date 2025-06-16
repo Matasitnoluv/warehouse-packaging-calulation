@@ -161,16 +161,16 @@ function calculatePacking() {
                 } else {
                     // Can only partially fill. Consider this as a potential fit.
                     if (!bestFitFound || boxType.volume > bestFitFound.boxType.volume) {
-                         bestFitFound = { boxType, product: productToPack, itemsToPack: productToPack.remainingCount, isFullBox: false };
+                        bestFitFound = { boxType, product: productToPack, itemsToPack: productToPack.remainingCount, isFullBox: false };
                     }
                     // Continue checking smaller boxes, they might be better for partial fills.
                 }
             } else if (!canDimensionsFit && productToPack.remainingCount > 0) {
-                 // **IMPORTANT:** If dimensions don't fit, log it but continue checking smaller boxes.
-                 // console.log(`สินค้า ${productToPack.name} มีขนาดไม่พอดีกับกล่อง ${boxType.name} (ตามมิติ 3D)`);
+                // **IMPORTANT:** If dimensions don't fit, log it but continue checking smaller boxes.
+                // //console.log(`สินค้า ${productToPack.name} มีขนาดไม่พอดีกับกล่อง ${boxType.name} (ตามมิติ 3D)`);
             }
         } // --- End loop through box types ---
-         // --- MODIFICATION END ---
+        // --- MODIFICATION END ---
 
 
         // --- Action based on finding a best fit ---
@@ -194,35 +194,35 @@ function calculatePacking() {
             // --- Attempt to fill remaining space (using VOLUME check primarily for simplicity) ---
             if (currentBoxInstance.remainingVolume > 0.01) {
                 products.filter(p => p.id !== bestFitFound.product.id && p.remainingCount > 0 && p.volume > 0 && p.volume <= currentBoxInstance.remainingVolume)
-                         // **Optional NEW CHECK:** Add dimension check here too? Could slow down significantly.
-                         // .filter(p => checkDimensionFit(p, bestFitFound.boxType)) // <-- Uncomment to add stricter check
-                        .sort((a, b) => b.volume - a.volume)
-                        .forEach(otherProduct => {
-                    // **Optional Check:** const canOtherFitDims = checkDimensionFit(otherProduct, bestFitFound.boxType);
-                    // if (canOtherFitDims && currentBoxInstance.remainingVolume >= otherProduct.volume) { ... } else { proceed without dim check }
-                    if (currentBoxInstance.remainingVolume >= otherProduct.volume) { // Primarily volume check here
-                        const maxFitOther = Math.floor(currentBoxInstance.remainingVolume / otherProduct.volume);
-                        const qtyToAddOther = Math.min(otherProduct.remainingCount, maxFitOther);
-                        if (qtyToAddOther > 0) {
-                            const existingItemEntry = currentBoxInstance.items.find(item => item.productId === otherProduct.id);
-                            if (existingItemEntry) { existingItemEntry.quantity += qtyToAddOther; }
-                            else { currentBoxInstance.items.push({ productId: otherProduct.id, productName: otherProduct.name, quantity: qtyToAddOther }); }
-                            const volumeAddedOther = qtyToAddOther * otherProduct.volume;
-                            currentBoxInstance.usedVolume += volumeAddedOther;
-                            currentBoxInstance.remainingVolume = Math.max(0, currentBoxInstance.boxVolume - currentBoxInstance.usedVolume);
-                            otherProduct.remainingCount -= qtyToAddOther;
-                            totalItemsPackedOverall += qtyToAddOther;
+                    // **Optional NEW CHECK:** Add dimension check here too? Could slow down significantly.
+                    // .filter(p => checkDimensionFit(p, bestFitFound.boxType)) // <-- Uncomment to add stricter check
+                    .sort((a, b) => b.volume - a.volume)
+                    .forEach(otherProduct => {
+                        // **Optional Check:** const canOtherFitDims = checkDimensionFit(otherProduct, bestFitFound.boxType);
+                        // if (canOtherFitDims && currentBoxInstance.remainingVolume >= otherProduct.volume) { ... } else { proceed without dim check }
+                        if (currentBoxInstance.remainingVolume >= otherProduct.volume) { // Primarily volume check here
+                            const maxFitOther = Math.floor(currentBoxInstance.remainingVolume / otherProduct.volume);
+                            const qtyToAddOther = Math.min(otherProduct.remainingCount, maxFitOther);
+                            if (qtyToAddOther > 0) {
+                                const existingItemEntry = currentBoxInstance.items.find(item => item.productId === otherProduct.id);
+                                if (existingItemEntry) { existingItemEntry.quantity += qtyToAddOther; }
+                                else { currentBoxInstance.items.push({ productId: otherProduct.id, productName: otherProduct.name, quantity: qtyToAddOther }); }
+                                const volumeAddedOther = qtyToAddOther * otherProduct.volume;
+                                currentBoxInstance.usedVolume += volumeAddedOther;
+                                currentBoxInstance.remainingVolume = Math.max(0, currentBoxInstance.boxVolume - currentBoxInstance.usedVolume);
+                                otherProduct.remainingCount -= qtyToAddOther;
+                                totalItemsPackedOverall += qtyToAddOther;
+                            }
                         }
-                    }
-                });
+                    });
             }
             packedBoxesResult.push(currentBoxInstance);
 
         } else if (productToPack && productToPack.remainingCount > 0) {
             // If a product remains but NO box could fit it (either by volume or dimensions)
-             console.error(`ไม่สามารถหาขนาดกล่องที่เหมาะสมสำหรับสินค้าที่เหลือ: ${productToPack.name} (ปริมาตร: ${productToPack.volume}, ขนาด: ${productToPack.width}x${productToPack.length}x${productToPack.height}) ได้`);
-             packedSomethingThisIteration = false; // Ensure loop terminates
-             break;
+            console.error(`ไม่สามารถหาขนาดกล่องที่เหมาะสมสำหรับสินค้าที่เหลือ: ${productToPack.name} (ปริมาตร: ${productToPack.volume}, ขนาด: ${productToPack.width}x${productToPack.length}x${productToPack.height}) ได้`);
+            packedSomethingThisIteration = false; // Ensure loop terminates
+            break;
         }
 
         // Safety Break
@@ -247,7 +247,7 @@ function displayResults(packedBoxesResult, productsInput, boxesInput, errorOccur
     let summary = ""; if (errorOccurred) { summary += "คำเตือน: ไม่สามารถบรรจุสินค้าทั้งหมดลงในกล่องตามที่กำหนดได้\n\n"; }
     summary += `--- สรุปผลการคำนวณการจัดสินค้า (Dynamic) ---\n\n`;
     summary += "1. จำนวนกล่องที่ต้องใช้:\n"; const boxCountsByType = {}; packedBoxesResult.forEach(box => { boxCountsByType[box.boxTypeName] = (boxCountsByType[box.boxTypeName] || 0) + 1; }); let totalBoxesUsed = 0; boxesInput.sort((a, b) => b.volume - a.volume).forEach(boxInfo => { const count = boxCountsByType[boxInfo.name] || 0; if (count > 0) { summary += `   - ${boxInfo.name} (${boxInfo.id}): ${count} กล่อง\n`; totalBoxesUsed += count; } }); for (const boxName in boxCountsByType) { if (!boxesInput.some(b => b.name === boxName)) { const boxInfoFromResult = packedBoxesResult.find(b => b.boxTypeName === boxName); summary += `   - ${boxName} (${boxInfoFromResult?.boxTypeId || 'N/A'}): ${boxCountsByType[boxName]} กล่อง (ชนิดนี้อาจไม่มีในรายการตั้งต้น)\n`; totalBoxesUsed += boxCountsByType[boxName]; } } summary += `   * รวมทั้งหมด: ${totalBoxesUsed} กล่อง\n\n`;
-    summary += "2. การกระจายสินค้า:\n"; if (packedBoxesResult.length === 0) { summary += "   (ไม่มีกล่องที่ถูกใช้งาน)\n"; } else { packedBoxesResult.sort((a, b) => a.instanceNumber - b.instanceNumber); let i = 0; while (i < packedBoxesResult.length) { const firstBoxInGroup = packedBoxesResult[i]; let j = i; while ( j + 1 < packedBoxesResult.length && packedBoxesResult[j + 1].boxTypeId === firstBoxInGroup.boxTypeId && packedBoxesResult[j + 1].items.length === firstBoxInGroup.items.length && firstBoxInGroup.items.every((item, index) => { const nextItem = packedBoxesResult[j + 1].items[index]; return nextItem && item.productId === nextItem.productId && item.quantity === nextItem.quantity; }) ) { j++; } const lastBoxInGroup = packedBoxesResult[j]; const startInstance = firstBoxInGroup.instanceNumber; const endInstance = lastBoxInGroup.instanceNumber; const groupSize = endInstance - startInstance + 1; if (groupSize === 1) { summary += `   * กล่อง ${firstBoxInGroup.boxTypeName} ลำดับที่ ${startInstance}:\n`; } else { summary += `   * กล่อง ${firstBoxInGroup.boxTypeName} ลำดับที่ ${startInstance}-${endInstance} (${groupSize} กล่อง):\n`; } firstBoxInGroup.items.forEach(item => { summary += `     - บรรจุสินค้า ${item.productName} (${item.productId}) จำนวน ${item.quantity} ชิ้นต่อกล่อง\n`; }); summary += `     (ปริมาตรใช้ไป ~${firstBoxInGroup.usedVolume.toFixed(0)} / ${firstBoxInGroup.boxVolume.toFixed(0)} ต่อกล่อง, เหลือ ~${firstBoxInGroup.remainingVolume.toFixed(0)})\n`; i = j + 1; } } summary += "\n";
+    summary += "2. การกระจายสินค้า:\n"; if (packedBoxesResult.length === 0) { summary += "   (ไม่มีกล่องที่ถูกใช้งาน)\n"; } else { packedBoxesResult.sort((a, b) => a.instanceNumber - b.instanceNumber); let i = 0; while (i < packedBoxesResult.length) { const firstBoxInGroup = packedBoxesResult[i]; let j = i; while (j + 1 < packedBoxesResult.length && packedBoxesResult[j + 1].boxTypeId === firstBoxInGroup.boxTypeId && packedBoxesResult[j + 1].items.length === firstBoxInGroup.items.length && firstBoxInGroup.items.every((item, index) => { const nextItem = packedBoxesResult[j + 1].items[index]; return nextItem && item.productId === nextItem.productId && item.quantity === nextItem.quantity; })) { j++; } const lastBoxInGroup = packedBoxesResult[j]; const startInstance = firstBoxInGroup.instanceNumber; const endInstance = lastBoxInGroup.instanceNumber; const groupSize = endInstance - startInstance + 1; if (groupSize === 1) { summary += `   * กล่อง ${firstBoxInGroup.boxTypeName} ลำดับที่ ${startInstance}:\n`; } else { summary += `   * กล่อง ${firstBoxInGroup.boxTypeName} ลำดับที่ ${startInstance}-${endInstance} (${groupSize} กล่อง):\n`; } firstBoxInGroup.items.forEach(item => { summary += `     - บรรจุสินค้า ${item.productName} (${item.productId}) จำนวน ${item.quantity} ชิ้นต่อกล่อง\n`; }); summary += `     (ปริมาตรใช้ไป ~${firstBoxInGroup.usedVolume.toFixed(0)} / ${firstBoxInGroup.boxVolume.toFixed(0)} ต่อกล่อง, เหลือ ~${firstBoxInGroup.remainingVolume.toFixed(0)})\n`; i = j + 1; } } summary += "\n";
     summary += "3. จำนวนสินค้าทั้งหมดที่ถูกบรรจุ:\n"; let totalPackedCountOverallDisplay = 0; const packedCountsByProductId = {}; packedBoxesResult.forEach(box => { box.items.forEach(item => { packedCountsByProductId[item.productId] = (packedCountsByProductId[item.productId] || 0) + item.quantity; totalPackedCountOverallDisplay += item.quantity; }); }); productsInput.sort((a, b) => a.originalIndex - b.originalIndex); productsInput.forEach(prod => { const packedCount = packedCountsByProductId[prod.id] || 0; const neededCount = prod.totalCount; const remainingCount = Math.max(0, neededCount - packedCount); summary += `   - ${prod.name} (${prod.id}): บรรจุ ${packedCount} / ${neededCount} ชิ้น `; if (remainingCount <= 0) { summary += '(ครบ)\n'; } else { summary += `(ขาด ${remainingCount} ชิ้น)\n`; } }); summary += `   * รวมสินค้าที่บรรจุทั้งหมด: ${totalPackedCountOverallDisplay} ชิ้น\n\n`;
     summary += "4. ประสิทธิภาพการใช้พื้นที่:\n"; let totalBoxVolumeUsed = 0; let totalProductVolumePacked = 0; packedBoxesResult.forEach(box => { totalBoxVolumeUsed += box.boxVolume; totalProductVolumePacked += box.usedVolume; }); const totalRemainingVolumeOverall = totalBoxVolumeUsed - totalProductVolumePacked; const overallEfficiencyPercent = totalBoxVolumeUsed > 0 ? (totalProductVolumePacked / totalBoxVolumeUsed) * 100 : 0; summary += `   - ปริมาตรรวมของกล่องทั้งหมดที่ใช้: ${totalBoxVolumeUsed.toFixed(0)} ลบ.หน่วย\n`; summary += `   - ปริมาตรรวมของสินค้าที่บรรจุ: ${totalProductVolumePacked.toFixed(0)} ลบ.หน่วย\n`; summary += `   - ปริมาตรคงเหลือรวมในกล่องทั้งหมด: ${totalRemainingVolumeOverall.toFixed(0)} ลบ.หน่วย\n`; summary += `   * ประสิทธิภาพการใช้พื้นที่เฉลี่ย: ${overallEfficiencyPercent.toFixed(1)}%\n\n`;
     summary += "5. สถานะการบรรจุสินค้า:\n"; const unpackedItems = productsInput.filter(prod => { const packedCount = packedCountsByProductId[prod.id] || 0; return (prod.totalCount - packedCount) > 0; }); if (unpackedItems.length > 0) { summary += "   สินค้าที่ไม่สามารถบรรจุได้ (หรือบรรจุไม่ครบ):\n"; unpackedItems.forEach(prod => { const packedCount = packedCountsByProductId[prod.id] || 0; const remainingCount = prod.totalCount - packedCount; summary += `     - ${prod.name} (${prod.id}): เหลือ ${remainingCount} ชิ้น\n`; }); summary += "   **เหตุผลที่เป็นไปได้:** ข้อจำกัดขนาดกล่อง/มิติ, ปริมาตรสินค้าเหลือไม่พอดีช่องว่าง, หรือ Logic การจัดเรียง\n"; } else if (!errorOccurred) { summary += "   สินค้าทั้งหมดถูกบรรจุลงกล่องเรียบร้อยแล้ว\n"; } else { summary += "   (เกิดข้อผิดพลาดระหว่างการคำนวณ แต่ดูเหมือนสินค้าถูกบรรจุหมดแล้ว โปรดตรวจสอบ)\n"; }

@@ -30,7 +30,15 @@ export const mswarehouseService = {
             StatusCodes.OK
         );
     },
-
+    findById: async (master_warehouse_id: string) => {
+        const masterwarehouse = await mswarehouseRepository.findById(master_warehouse_id);
+        return new ServiceResponse(
+            ResponseStatus.Success,
+            `Get  success ${master_warehouse_id}`,
+            masterwarehouse,
+            StatusCodes.OK
+        );
+    },
     create: async (payload: TypePayloadMsWarehouse) => {
         try {
             const checkmswarehouse = await mswarehouseRepository.findByName(payload.master_warehouse_name);
@@ -105,29 +113,29 @@ export const mswarehouseService = {
         try {
             // 1. ดึงข้อมูล warehouse ทั้งหมด
             const warehouses = await mswarehouseRepository.findAllAsync();
-            
+
             // สร้างอาเรย์เปล่าสำหรับเก็บข้อมูลการใช้พื้นที่
             const warehouseUsageData: WarehouseUsage[] = [];
-            
+
             // วนลูปแต่ละ warehouse เพื่อคำนวณการใช้พื้นที่
             for (const warehouse of warehouses) {
                 const warehouseId = warehouse.master_warehouse_id;
                 const totalVolume = warehouse.cubic_centimeter_warehouse || 0;
-                
+
                 // ดึงข้อมูล zone ทั้งหมดใน warehouse นี้
                 const zones = await prisma.masterzone.findMany({
                     where: { master_warehouse_id: warehouseId }
                 });
-                
+
                 // คำนวณพื้นที่ที่ถูกใช้โดย zone
                 let usedByZones = 0;
                 for (const zone of zones) {
                     usedByZones += zone.cubic_centimeter_zone || 0;
                 }
-                
+
                 // ดึงข้อมูล rack ทั้งหมดใน warehouse นี้ (ผ่าน zone)
                 const zoneIds = zones.map(zone => zone.master_zone_id);
-                
+
                 // ดึงข้อมูล rack ทั้งหมดใน zone เหล่านี้
                 const racks = await prisma.masterrack.findMany({
                     where: {
@@ -136,7 +144,7 @@ export const mswarehouseService = {
                         }
                     }
                 });
-                
+
                 // ดึงข้อมูลการใช้พื้นที่จาก shelf_box_storage แทน rack_box_storage
                 let usedByBoxes = 0;
                 const shelfIds = await prisma.mastershelf.findMany({
@@ -149,11 +157,11 @@ export const mswarehouseService = {
                         master_shelf_id: true
                     }
                 });
-                
+
                 // ถ้ามี shelf ใน warehouse นี้
                 if (shelfIds.length > 0) {
                     const shelfIdArray = shelfIds.map(shelf => shelf.master_shelf_id);
-                    
+
                     // ดึงข้อมูลกล่องที่ถูกเก็บใน shelf ทั้งหมด
                     const storedBoxes = await prisma.shelf_box_storage.findMany({
                         where: {
@@ -163,7 +171,7 @@ export const mswarehouseService = {
                             status: 'stored'
                         }
                     });
-                    
+
                     // รวมพื้นที่ที่ถูกใช้โดยกล่องทั้งหมด
                     for (const box of storedBoxes) {
                         // คำนวณปริมาตรของกล่อง (ป้องกันกรณี null)
@@ -171,11 +179,11 @@ export const mswarehouseService = {
                         usedByBoxes += boxVolume;
                     }
                 }
-                
+
                 // คำนวณพื้นที่ที่เหลือและเปอร์เซ็นต์การใช้พื้นที่
                 const totalUsed = usedByBoxes; // เราใช้พื้นที่จากกล่องที่ถูกเก็บเท่านั้น ไม่รวมพื้นที่ zone
                 const availableSpace = Math.max(0, totalVolume - totalUsed);
-                
+
                 // คำนวณเปอร์เซ็นต์การใช้พื้นที่ ป้องกันการหารด้วย 0
                 let usagePercentage = 0;
                 if (totalVolume > 0) {
@@ -183,7 +191,7 @@ export const mswarehouseService = {
                     // ปัดเศษให้เป็นทศนิยม 2 ตำแหน่ง
                     usagePercentage = Math.round(usagePercentage * 100) / 100;
                 }
-                
+
                 // เพิ่มข้อมูลลงในอาเรย์
                 warehouseUsageData.push({
                     master_warehouse_id: warehouseId,
@@ -199,7 +207,7 @@ export const mswarehouseService = {
                     description: warehouse.description || ''
                 });
             }
-            
+
             return new ServiceResponse<WarehouseUsage[]>(
                 ResponseStatus.Success,
                 "Get warehouse usage data success",

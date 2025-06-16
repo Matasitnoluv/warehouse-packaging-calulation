@@ -2,6 +2,7 @@ import { useEffect, useState, ReactNode } from "react";
 import { Dialog, Button, Card, Flex, Box, Text, Badge, Separator } from "@radix-ui/themes";
 import { getMswarehouse, getMswarehouseUsage } from "@/services/mswarehouse.services";
 import { useNavigate } from "react-router-dom";
+import { TypeMswarehouse } from "@/types/response/reponse.mswarehouse";
 
 // Define warehouse usage type for the enhanced warehouse selection dialog
 
@@ -26,8 +27,8 @@ interface DialogSelectWarehouseProps {
   buttonClassName?: string;
 }
 
-const DialogSelectWarehouse = ({ 
-  triggerButtonText = "Calculation", 
+const DialogSelectWarehouse = ({
+  triggerButtonText = "Calculation",
   documentWarehouseNo,
   buttonClassName = "inline-flex items-center gap-2 px-6 py-2 bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-lg shadow-md transition-colors text-sm"
 }: DialogSelectWarehouseProps) => {
@@ -53,7 +54,7 @@ const DialogSelectWarehouse = ({
 
           if (basicResponse.success) {
             // Create warehouse data with default usage values
-            const warehousesWithDefaultUsage = (basicResponse.responseObject || []).map((warehouse: any) => ({
+            const warehousesWithDefaultUsage = (basicResponse.responseObject as TypeMswarehouse[] || []).map((warehouse: any) => ({
               master_warehouse_id: warehouse.master_warehouse_id,
               master_warehouse_name: warehouse.master_warehouse_name || '',
               total_volume: warehouse.cubic_centimeter_warehouse || 0,
@@ -81,7 +82,7 @@ const DialogSelectWarehouse = ({
         try {
           const basicResponse = await getMswarehouse();
           if (basicResponse.success) {
-            const warehousesWithDefaultUsage = (basicResponse.responseObject || []).map((warehouse: any) => ({
+            const warehousesWithDefaultUsage = (basicResponse.responseObject as TypeMswarehouse[] || []).map((warehouse: any) => ({
               master_warehouse_id: warehouse.master_warehouse_id,
               master_warehouse_name: warehouse.master_warehouse_name || '',
               total_volume: warehouse.cubic_centimeter_warehouse || 0,
@@ -108,7 +109,7 @@ const DialogSelectWarehouse = ({
   }, []);
 
   const handleWarehouseSelect = (warehouse: WarehouseUsage) => {
-    console.log("Selected warehouse:", warehouse);
+    //console.log("Selected warehouse:", warehouse);
     if (documentWarehouseNo) {
       navigate(`/warehouse-calculation/${warehouse.master_warehouse_id}`, {
         state: { documentWarehouseNo, warehouseName: warehouse.master_warehouse_name }

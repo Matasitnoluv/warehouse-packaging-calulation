@@ -94,6 +94,7 @@ const DialogEditRack = ({ rack, zoneVolume, onRackUpdated }: DialogEditRackProps
                 <Button 
                     variant="soft" 
                     size="1"
+                    data-testid={`edit-rack-btn-${rack.master_rack_id}`}
                 >
                     Edit
                 </Button>

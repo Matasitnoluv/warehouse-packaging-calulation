@@ -69,7 +69,7 @@ const DialogEditZone = ({ zone, onZoneUpdated }: DialogEditZoneProps) => {
     return (
         <Dialog.Root>
             <Dialog.Trigger>
-                <Button size="1" color="blue" variant="soft">
+                <Button id="btn-edit-zone" size="1" color="blue" variant="soft">
                     Edit
                 </Button>
             </Dialog.Trigger>
@@ -154,6 +154,7 @@ const DialogEditZone = ({ zone, onZoneUpdated }: DialogEditZoneProps) => {
                         </Button>
                     </Dialog.Close>
                     <Button 
+                        id="btn-update-zone"
                         className="bg-blue-500 hover:bg-blue-600 text-white"
                         disabled={isSubmitting}
                         onClick={handleSubmit}

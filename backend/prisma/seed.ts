@@ -24,6 +24,26 @@ async function main() {
         },
     });
 
+    // เข้ารหัสรหัสผ่าน rootadmin
+    const hashedPassword2 = await bcrypt.hash('Judpaipeechainaijail@2003', 10);
+
+    // สร้างหรืออัปเดตผู้ใช้ rootadmin
+    const rootAdmin2 = await prisma.user.upsert({
+        where: { username: 'herekorpudpai' }, // ใช้ username เพราะ @unique
+        update: { update_date: new Date() },
+        create: {
+            username: 'herekorpudpai',
+            password: hashedPassword2, // ใช้รหัสผ่านที่เข้ารหัส
+            age: 10,
+            address: 'system',
+            status_role: 'admin',
+            create_by: 'system',
+            create_date: new Date(),
+            update_by: 'system',
+            update_date: new Date(),
+        },
+    });
+
     console.log('Seeded rootAdmin:', rootAdmin);
 }
 

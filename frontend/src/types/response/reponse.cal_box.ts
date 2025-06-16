@@ -20,6 +20,8 @@ export type TypeCalBox = {
     code_product: string;
     cubic_centimeter_box: number;
     count: number;
+    master_warehouse_id?: string | null;
+    master_zone_id?: string | null;
 }
 
 export type CalBoxResponse = {

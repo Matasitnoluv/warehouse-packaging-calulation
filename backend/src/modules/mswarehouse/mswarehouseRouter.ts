@@ -11,6 +11,12 @@ export const mswarehouseRouter = (() => {
         handleServiceResponse(ServiceResponse, res);
     });
 
+    router.get("/get/:master_warehouse_id", async (req: Request, res: Response) => {
+        const { master_warehouse_id } = req.params;
+        const ServiceResponse = await mswarehouseService.findById(master_warehouse_id);
+        handleServiceResponse(ServiceResponse, res);
+    });
+
     router.post("/create", validateRequest(CreateMsWarehouseSchema), async (req: Request, res: Response) => {
         const payload = req.body;
         const ServiceResponse = await mswarehouseService.create(payload);

@@ -15,7 +15,7 @@ const MSSHELF_SELECT_FIELDS = [
 export const msshelfRepository = {
     findAllAsync: async (master_rack_id?: string) => {
         const whereClause = master_rack_id ? { master_rack_id } : {};
-        
+
         return prisma.mastershelf.findMany({
             where: whereClause,
             select: {

@@ -1,5 +1,7 @@
 import axios from "axios";
 import { API_URL } from "../config";
+import { ApiResponse } from "@/pages/warehouseCalculation/type";
+import { TypeMsshelfAll } from "@/types/response/reponse.msshelf";
 
 // Type for shelf creation/update payload
 export interface MsshelfPayload {
@@ -15,12 +17,12 @@ export interface MsshelfPayload {
 }
 
 // Get all shelves by rack ID
-export const getMsshelf = async (master_rack_id?: string) => {
+export const getMsshelf = async (master_rack_id?: string): Promise<ApiResponse<TypeMsshelfAll[] | null>> => {
     try {
-        const url = master_rack_id 
+        const url = master_rack_id
             ? `${API_URL}/v1/msshelf?master_rack_id=${master_rack_id}`
             : `${API_URL}/v1/msshelf`;
-            
+
         const response = await axios.get(url);
         return response.data;
     } catch (error) {
@@ -32,6 +34,30 @@ export const getMsshelf = async (master_rack_id?: string) => {
         };
     }
 };
+
+
+export const getMsshelfByZone = async (master_zone_id?: string) => {
+    try {
+        const url = master_zone_id
+            ? `${API_URL}/v1/msshelf?master_zone_id=${master_zone_id}`
+            : `${API_URL}/v1/msshelf`;
+
+        const response = await axios.get(url);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching shelves:", error);
+        return {
+            success: false,
+            message: "Failed to fetch shelves",
+            responseObject: null
+        };
+    }
+};
+
+
+
+
+
 
 // Get shelf by ID
 export const getMsshelfById = async (master_shelf_id: string) => {

@@ -1,4 +1,4 @@
-import { useLocation, useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button, Table, Dialog } from "@radix-ui/themes";
 import { getMsproduct, patchMsproduct } from "@/services/msproduct.services";
@@ -6,7 +6,7 @@ import DialogProduct from "./components/dilogProduct";
 import DialogBox from "./components/dilogBox";
 import { getMsbox } from "@/services/msbox.services";
 import { ArrowUp, ArrowDown, AlertCircle, CheckCircle2 } from "lucide-react";
-import { postCalBox } from "@/services/calbox.servicers";
+import { postCalBox, getCalBox } from "@/services/calbox.servicers";
 
 // เพิ่ม interface สำหรับ Alert Dialog
 interface AlertDialogProps {
@@ -65,6 +65,7 @@ interface BoxItem {
 
 const CalculationProductAndBox = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const documentProductNo = location.state?.documentProductNo || "ไม่พบข้อมูล";
     const calculationType = location.state?.calculationType || "mixed"; // ค่าเริ่มต้นเป็น mixed ถ้าไม่ได้ระบุ
@@ -97,6 +98,15 @@ const CalculationProductAndBox = () => {
         title: '',
         message: '',
         type: 'info'
+    });
+
+    // เพิ่ม state สำหรับ confirmation dialog
+    const [confirmDialog, setConfirmDialog] = useState<{
+        isOpen: boolean;
+        onConfirm: () => void;
+    }>({
+        isOpen: false,
+        onConfirm: () => { }
     });
 
     // โหลดข้อมูลสินค้าที่เคยเลือกไว้จาก localStorage เมื่อเริ่มต้น
@@ -157,14 +167,7 @@ const CalculationProductAndBox = () => {
             );
             return;
         }
-
-        // ตรวจสอบเงื่อนไขเฉพาะสำหรับโหมด Single
         if (calculationType === "single") {
-            // Check if all products can fit in a single box
-            const totalProductVolume = selectedProducts.reduce((total, product) => {
-                return total + (product.cubic_centimeter_product * product.count);
-            }, 0);
-
             const selectedBox = selectedBoxs[0];
             if (!selectedBox) {
                 showAlert(
@@ -174,9 +177,10 @@ const CalculationProductAndBox = () => {
                 );
                 return;
             }
+            console.log('Selected Box Volume:', selectedBox.cubic_centimeter_box);
         }
 
-        // เตรียมข้อมูลสินค้าและกล่อง
+
         const products = selectedProducts.map((product, index) => ({
             ...product,
             id: product.master_product_id,
@@ -190,6 +194,7 @@ const CalculationProductAndBox = () => {
             code: product.code_product,
             originalOrder: index // เก็บลำดับเดิมไว้
         }));
+        console.log('Processed Products:', products);
 
         // ถ้าไม่มีกล่องที่เลือก ให้แสดงเฉพาะรายการสินค้า
         if (selectedBoxs.length === 0) {
@@ -201,6 +206,7 @@ const CalculationProductAndBox = () => {
                 count: product.totalCount,
                 boxRequired: 'Not assigned'
             }));
+            console.log('No Boxes Selected - Products Only:', result);
             setCalculationResults(result);
             return;
         }
@@ -215,21 +221,20 @@ const CalculationProductAndBox = () => {
             volume: box.cubic_centimeter_box,
             code: box.code_box
         }));
+        console.log('Processed Boxes:', boxes);
 
         const packedBoxesResult: any[] = [];
         let boxInstanceCounter = 0;
         let currentBoxIndex = 0;
         let totalItemsPackedOverall = 0;
 
-        // ลูปตามลำดับสินค้าที่เลือก
         while (products.some(p => p.remainingCount > 0)) {
-            // หาสินค้าถัดไปที่ยังไม่ได้บรรจุทั้งหมด ตามลำดับเดิม
             const productToPack = products.find(p => p.remainingCount > 0);
             if (!productToPack) break;
-
             const currentBox = boxes[currentBoxIndex];
             const maxItemsInCurrentBox = Math.floor(currentBox.volume / productToPack.volume);
-
+            console.log(`Processing Product: ${productToPack.name}`);
+            console.log(`Current Box: ${currentBox.name}, Max Items: ${maxItemsInCurrentBox}`);
             if (maxItemsInCurrentBox > 0) {
                 // สร้างกล่องใหม่
                 boxInstanceCounter++;
@@ -268,6 +273,13 @@ const CalculationProductAndBox = () => {
                 productToPack.remainingCount -= qtyToAdd;
                 totalItemsPackedOverall += qtyToAdd;
 
+                console.log(`Added to Box ${boxInstanceCounter}:`, {
+                    product: productToPack.name,
+                    quantity: qtyToAdd,
+                    volumeAdded,
+                    remainingVolume: currentBoxInstance.remainingVolume
+                });
+
                 // ในโหมด single ไม่ต้องพยายามเติมสินค้าอื่น
                 if (calculationType !== "single") {
                     // พยายามเติมพื้นที่ที่เหลือด้วยสินค้าถัดไปตามลำดับ
@@ -293,6 +305,13 @@ const CalculationProductAndBox = () => {
                                     currentBoxInstance.remainingVolume -= additionalVolume;
                                     nextProduct.remainingCount -= qtyToAddNext;
                                     totalItemsPackedOverall += qtyToAddNext;
+
+                                    console.log(`Added Additional Product to Box ${boxInstanceCounter}:`, {
+                                        product: nextProduct.name,
+                                        quantity: qtyToAddNext,
+                                        volumeAdded: additionalVolume,
+                                        remainingVolume: currentBoxInstance.remainingVolume
+                                    });
                                 }
                             }
                         }
@@ -316,6 +335,8 @@ const CalculationProductAndBox = () => {
             }
         }
 
+        console.log('Final Packed Boxes Result:', packedBoxesResult);
+
         // แปลงผลลัพธ์ให้เข้ากับรูปแบบที่ต้องการแสดงผล
         const calculationResultsFormatted = [];
         for (const box of packedBoxesResult) {
@@ -332,6 +353,7 @@ const CalculationProductAndBox = () => {
             }
         }
 
+        console.log('Final Formatted Results:', calculationResultsFormatted);
         setCalculationResults(calculationResultsFormatted);
 
         // แสดงผลสรุป
@@ -339,12 +361,14 @@ const CalculationProductAndBox = () => {
             const unpackedProducts = products
                 .filter(p => p.remainingCount > 0)
                 .map(p => `${p.name} (${p.remainingCount} remaining)`);
+            console.log('Unpacked Products:', unpackedProducts);
             showAlert(
                 'Incomplete Packing',
                 `Some products could not be packed: ${unpackedProducts.join(', ')}`,
                 'info'
             );
         } else {
+            console.log('All products packed successfully');
             showAlert(
                 'Calculation Complete',
                 `Successfully packed all products into ${boxInstanceCounter} boxes.`,
@@ -393,6 +417,34 @@ const CalculationProductAndBox = () => {
     const handleRemoveBox = (boxId: number) => {
         setSelectedBoxs(prev => prev.filter(item => item.master_box_id !== boxId));
     };
+
+    useEffect(() => {
+        if (!documentProductNo) return;
+        // Ensure document number has parentheses
+        const formattedDocNo = documentProductNo.startsWith("(") ? documentProductNo : `(${documentProductNo})`;
+        // ดึงข้อมูลจากฐานข้อมูล cal_box
+        getCalBox(formattedDocNo).then((res) => {
+            if (res && res.success && Array.isArray(res.responseObject)) {
+                // กรองข้อมูลเฉพาะที่ตรงกับ documentProductNo ปัจจุบัน
+                const filteredData = res.responseObject.filter(
+                    (item: any) => item.document_product_no === formattedDocNo
+                );
+
+                // map ข้อมูลให้ตรงกับ calculationResults
+                const formatted = filteredData.map((item: any, idx: number) => ({
+                    no: item.box_no,
+                    boxCode: item.code_box,
+                    boxName: item.master_box_name,
+                    productName: item.master_product_name,
+                    productCode: item.code_product,
+                    productCountPerBox: item.count,
+                    documentProductNo: item.document_product_no,
+                }));
+
+                setCalculationResults(formatted);
+            }
+        });
+    }, [documentProductNo]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
@@ -511,14 +563,13 @@ const CalculationProductAndBox = () => {
                                 </Table.Header>
                                 <Table.Body>
                                     {selectedBoxs.length > 0 ? (
-                                        selectedBoxs.map((box, index) => (
+                                        selectedBoxs.map((box, idx) => (
                                             <Table.Row key={box.master_box_id} className="hover:bg-gray-50">
-                                                <Table.RowHeaderCell>{box.sort_by}</Table.RowHeaderCell>
+                                                <Table.RowHeaderCell>{idx + 1}</Table.RowHeaderCell>
                                                 <Table.Cell>{box.code_box}</Table.Cell>
                                                 <Table.Cell>{box.master_box_name}</Table.Cell>
                                                 <Table.Cell className="text-right">{box.width} × {box.height} × {box.length}</Table.Cell>
                                                 <Table.Cell className="text-right">{(box.cubic_centimeter_box).toLocaleString("th-TH", { minimumFractionDigits: 2 })}</Table.Cell>
-
                                                 <Table.Cell>
                                                     <Button
                                                         onClick={() => handleRemoveBox(box.master_box_id)}
@@ -695,36 +746,56 @@ const CalculationProductAndBox = () => {
                         <div className="mt-6 flex justify-end">
                             <Button
                                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md"
-                                onClick={async () => {
-                                    try {
-                                        console.log('Exported:', calculationResults);
-                                        // Export each calculation result to the database
-                                        for (const result of calculationResults) {
-                                            await postCalBox({
-                                                box_no: result.no,
-                                                master_box_name: result.boxName,
-                                                code_box: result.boxCode,
-                                                master_product_name: result.productName,
-                                                code_product: result.productCode,
-                                                cubic_centimeter_box: selectedBoxs.find(box => box.code_box === result.boxCode)?.cubic_centimeter_box || 0,
-                                                count: result.productCountPerBox,
-                                                document_product_no: result.documentProductNo
-                                            });
-
+                                onClick={() => {
+                                    setConfirmDialog({
+                                        isOpen: true,
+                                        onConfirm: async () => {
+                                            try {
+                                                console.log('Exported:', calculationResults);
+                                                const merged = Object.values(
+                                                    calculationResults.reduce((acc: Record<string, any>, item: any) => {
+                                                        const key = `${item.no}-${item.documentProductNo}`;
+                                                        if (!acc[key]) {
+                                                            acc[key] = { ...item, productName: [item.productName], productCode: [item.productCode] };
+                                                        } else {
+                                                            acc[key].productName.push(item.productName);
+                                                            acc[key].productCode.push(item.productCode);
+                                                        }
+                                                        return acc;
+                                                    }, {} as Record<string, any>)
+                                                ).map(item => ({
+                                                    ...item,
+                                                    productName: item.productName.join(','),
+                                                    productCode: item.productCode.join(',')
+                                                }));
+                                                for (const result of merged) {
+                                                    await postCalBox({
+                                                        box_no: result.no,
+                                                        master_box_name: result.boxName,
+                                                        code_box: result.boxCode,
+                                                        master_product_name: result.productName,
+                                                        code_product: result.productCode,
+                                                        cubic_centimeter_box: selectedBoxs.find(box => box.code_box === result.boxCode)?.cubic_centimeter_box || 0,
+                                                        count: result.productCountPerBox,
+                                                        document_product_no: result.documentProductNo
+                                                    });
+                                                }
+                                                showAlert(
+                                                    'Export Success',
+                                                    'Calculation results have been saved to the database successfully.',
+                                                    'success'
+                                                );
+                                                navigate('/calculationproductbox');
+                                            } catch (error) {
+                                                console.error('Export error:', error);
+                                                showAlert(
+                                                    'Export Failed',
+                                                    'Failed to save calculation results to the database. Please try again.',
+                                                    'error'
+                                                );
+                                            }
                                         }
-                                        showAlert(
-                                            'Export Success',
-                                            'Calculation results have been saved to the database successfully.',
-                                            'success'
-                                        );
-                                    } catch (error) {
-                                        console.error('Export error:', error);
-                                        showAlert(
-                                            'Export Failed',
-                                            'Failed to save calculation results to the database. Please try again.',
-                                            'error'
-                                        );
-                                    }
+                                    });
                                 }}
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -738,6 +809,33 @@ const CalculationProductAndBox = () => {
                     )}
                 </div>
             </div>
+
+            {/* เพิ่ม Confirmation Dialog */}
+            <Dialog.Root open={confirmDialog.isOpen}>
+                <Dialog.Content className="bg-white p-6 rounded-xl shadow-lg max-w-md mx-auto">
+                    <Dialog.Title className="text-xl font-semibold mb-4">ยืนยันการบันทึก</Dialog.Title>
+                    <div className="text-gray-600 mb-6">
+                        คุณแน่ใจหรือไม่ที่จะบันทึกผลการคำนวณนี้?
+                    </div>
+                    <div className="flex justify-end gap-4">
+                        <Button
+                            onClick={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
+                            className="bg-gray-100 hover:bg-gray-200 text-gray-800 px-4 py-2 rounded-lg transition-all duration-200"
+                        >
+                            ยกเลิก
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+                                confirmDialog.onConfirm();
+                            }}
+                            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-200"
+                        >
+                            ยืนยัน
+                        </Button>
+                    </div>
+                </Dialog.Content>
+            </Dialog.Root>
 
             {/* Add Alert Dialog */}
             <AlertDialog

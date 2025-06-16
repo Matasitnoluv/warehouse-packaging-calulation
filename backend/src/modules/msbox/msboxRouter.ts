@@ -6,6 +6,7 @@ import multer from "multer";
 import path from "path";
 import { authenticateJWT } from "@common/middleware/AuthToken";
 import checkAllowedRoles from "@common/middleware/checkAllowedRoles";
+import { PrismaClient } from "@prisma/client";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -30,6 +31,8 @@ const upload = multer({
     cb(new Error('Only image files are allowed!'));
   }
 });
+
+const prisma = new PrismaClient();
 
 export const msboxRouter = (() => {
   const router = express.Router();
@@ -69,6 +72,11 @@ export const msboxRouter = (() => {
       handleServiceResponse(ServiceResponse, res);
     }
   );
+
+  router.get("/", async (req, res) => {
+    const boxes = await prisma.masterbox.findMany();
+    res.json({ responseObject: boxes });
+  });
 
   return router;
 })();

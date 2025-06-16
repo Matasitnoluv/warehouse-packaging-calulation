@@ -18,6 +18,6 @@ export type TypeCalMsproduct = {
 export type CalMsproductResponse = {
     success: boolean;
     message: string;
-    responseObject: TypeCalMsproduct;
+    responseObject: TypeCalMsproduct[];
     statusCode: number;
 };

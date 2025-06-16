@@ -15,7 +15,7 @@ const CalculationProductAndBoxTableSingle = () => {
 
     const getCalMsproductData = () => {
         getCalMsproductByType("single").then((res) => {
-            console.log(res);
+            //console.log("Single Calculation Records:", res);
             setCalculations(res.responseObject);
         });
     };

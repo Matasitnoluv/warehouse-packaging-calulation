@@ -83,5 +83,16 @@ export const API_ENDPOINTS = {
     STORE: "/v1/rack_box_storage",
     UPDATE: "/v1/rack_box_storage/:storage_id",
     DELETE: "/v1/rack_box_storage/:storage_id"
+  },
+  SHELF_BOX_STORAGE: {
+    GET_ALL: "/v1/shelf_box_storage",
+    GET_BY_SHELF_ID: "/v1/shelf_box_storage/shelf/:master_shelf_id",
+    GET_BY_DOCUMENT: "/v1/shelf_box_storage/document",
+    GET_BY_DOCUMENT_WAREHOUSE: "/v1/shelf_box_storage/document-warehouse",
+    STORE: "/v1/shelf_box_storage",
+    STORE_MULTIPLE: "/v1/shelf_box_storage/store-multiple",
+    GET_SHELF_EXPORT: "/v1/shelf_box_storage/get_export",
+    UPDATE: "/v1/shelf_box_storage/:storage_id",
+    DELETE: "/v1/shelf_box_storage/:storage_id"
   }
 };

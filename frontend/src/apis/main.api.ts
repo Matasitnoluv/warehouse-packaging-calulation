@@ -33,7 +33,7 @@ mainApi.interceptors.response.use(
   },
   function (error) {
     if (error.response?.status === 401 && error.response?.data?.expired) {
-      console.log('Token has expired');
+      //console.log('Token has expired');
       alert('Your session has expired. Please login again.');
       window.location.href = '/login';
     }

@@ -1,6 +1,7 @@
 import { GET_MSRACK, CREATE_MSRACK, UPDATE_MSRACK, DELETE_MSRACK } from "@/apis/endpoint.api";
-import { MsrackResponse } from "@/types/response/reponse.msrack";
+import { MsrackResponse, TypeMsrack } from "@/types/response/reponse.msrack";
 import mainApi from "@/apis/main.api";
+import { ApiResponse } from "@/pages/warehouseCalculation/type";
 
 export type CreateRackPayload = {
     master_rack_id: string;
@@ -25,7 +26,7 @@ export type UpdateRackPayload = {
 };
 
 // Get racks, optionally filtered by zone ID
-export const getMsrack = async (master_zone_id?: string) => {
+export const getMsrack = async (master_zone_id?: string): Promise<ApiResponse<TypeMsrack[]>> => {
     const params = master_zone_id ? { master_zone_id } : {};
     const { data: response } = await mainApi.get(
         GET_MSRACK,

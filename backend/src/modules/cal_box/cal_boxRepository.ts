@@ -48,10 +48,12 @@ export const cal_boxRepository = {
         return result as Pick<cal_box, Key> | null;
     },
 
+
+
     findByDocumentProductNo: async (document_product_no: string) => {
         return prisma.cal_box.findMany({
-            where: { 
-                document_product_no: document_product_no 
+            where: {
+                document_product_no: document_product_no
             },
             select: {
                 cal_box_id: true,

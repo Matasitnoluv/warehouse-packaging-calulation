@@ -7,7 +7,8 @@ export type PayloadCreateCal_Warehouse = {
 export type PayloadUpdateCal_Warehouse = {
     document_warehouse_id: string;
     document_warehouse_no: string;
-    sort_by: number;
+    master_warehouse_id?: string;
+    sort_by?: number;
 };
 
 export type PayloadDeleteCal_Warehouse = {

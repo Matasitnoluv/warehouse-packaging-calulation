@@ -23,6 +23,6 @@ export type TypeMszone = {
 export type MszoneResponse = {
     success: boolean;
     message: string;
-    responseObject: TypeMszone;
+    responseObject: TypeMszone[];
     statusCode: number;
 };

@@ -81,7 +81,7 @@ export const rack_box_storageRepository = {
                 JOIN "cal_box" b ON s."cal_box_id" = b."cal_box_id"
                 WHERE s."storage_id" = '${storage_id}'
             `) as RackBoxStorageRecord[];
-            
+
             return result[0] || null;
         } catch (error) {
             console.error(`Error in findByIdAsync for storage ${storage_id}:`, error);
@@ -99,7 +99,7 @@ export const rack_box_storageRepository = {
                 WHERE "cal_box_id" = '${cal_box_id}'
                 AND "status" = 'stored'
             `) as { count: string }[];
-            
+
             return parseInt(result[0]?.count, 10) > 0;
         } catch (error) {
             console.error(`Error in isBoxStoredAsync for box ${cal_box_id}:`, error);
@@ -118,7 +118,7 @@ export const rack_box_storageRepository = {
                 WHERE s."master_rack_id" = '${master_rack_id}'
                 AND s."status" = 'stored'
             `) as { total_volume: string }[];
-            
+
             return parseInt(result[0]?.total_volume || '0', 10);
         } catch (error) {
             console.error(`Error in calculateUsedVolumeAsync for rack ${master_rack_id}:`, error);
@@ -133,20 +133,20 @@ export const rack_box_storageRepository = {
             const storage_id = uuidv4();
             const stored_by = payload.stored_by || null;
             const position = payload.position !== undefined ? payload.position : null;
-            
+
             // Extract additional fields from payload
             const cubic_centimeter_box = payload.cubic_centimeter_box || null;
             const count = payload.count || null;
             const total_volume = payload.total_volume || null;
             const document_product_no = payload.document_product_no || null;
-            
+
             console.log('Storing box with additional information:', {
                 cubic_centimeter_box,
                 count,
                 total_volume,
                 document_product_no
             });
-            
+
             // Use direct SQL query to avoid Prisma client issues
             await prisma.$executeRawUnsafe(`
                 INSERT INTO "rack_box_storage" (
@@ -175,7 +175,7 @@ export const rack_box_storageRepository = {
                     ${document_product_no ? `'${document_product_no}'` : 'NULL'}
                 )
             `);
-            
+
             // Return the newly created record
             const newRecord = await prisma.$queryRawUnsafe(`
                 SELECT s.*, r.*, b.* 
@@ -184,7 +184,7 @@ export const rack_box_storageRepository = {
                 JOIN "cal_box" b ON s."cal_box_id" = b."cal_box_id"
                 WHERE s."storage_id" = '${storage_id}'
             `) as RackBoxStorageRecord[];
-            
+
             return newRecord[0] || null;
         } catch (error) {
             console.error("Error in createAsync:", error);
@@ -196,16 +196,16 @@ export const rack_box_storageRepository = {
     updateAsync: async (storage_id: string, payload: any) => {
         try {
             let updateQuery = '';
-            
+
             if (payload.status) {
                 updateQuery += `"status" = '${payload.status}'`;
             }
-            
+
             if (payload.position !== undefined) {
                 if (updateQuery) updateQuery += ', ';
                 updateQuery += `"position" = ${payload.position === null ? 'NULL' : payload.position}`;
             }
-            
+
             if (updateQuery) {
                 await prisma.$executeRawUnsafe(`
                     UPDATE "rack_box_storage"
@@ -213,7 +213,7 @@ export const rack_box_storageRepository = {
                     WHERE "storage_id" = '${storage_id}'
                 `);
             }
-            
+
             // Return the updated record
             return await rack_box_storageRepository.findByIdAsync(storage_id);
         } catch (error) {

@@ -9,7 +9,14 @@ export const cal_msproductRouter = (() => {
     const router = express.Router();
 
     router.get("/get", async (req: Request, res: Response) => {
-        const ServiceResponse = await cal_msproductService.findAll();
+        const { status } = req.query;
+        const ServiceResponse = await cal_msproductService.findAll({ status: status === 'true' ? true : status === 'false' ? false : undefined });
+        handleServiceResponse(ServiceResponse, res);
+    });
+
+    router.get("/get/:document_product_no", async (req: Request, res: Response) => {
+        const { document_product_no } = req.params;
+        const ServiceResponse = await cal_msproductService.findByNo(document_product_no);
         handleServiceResponse(ServiceResponse, res);
     });
 

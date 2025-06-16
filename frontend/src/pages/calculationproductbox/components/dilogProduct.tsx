@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Dialog, Button, Table } from "@radix-ui/themes";
 import { TypeMsproductAll } from "@/types/response/reponse.msproduct";
 import { patchMsproduct } from "@/services/msproduct.services";
-import { getMsbox } from "@/services/msbox.services";
+import { getMsbox, getBoxes } from "@/services/msbox.services";
 
 // นำเข้า icon จาก lucide-react หรือใช้ SVG inline
 // ถ้าคุณมี lucide-react ให้ import แบบนี้:
@@ -15,8 +15,8 @@ const DialogProduct = ({
     selectedBoxes
 }: {
     selectedProducts: TypeMsproductAll[];
-    setSelectedProducts: () => void;
-    getMsproductData: () => void;
+    setSelectedProducts: React.Dispatch<React.SetStateAction<any[]>>;
+    getMsproductData: () => any;
     selectedBoxes: any[];
 }) => {
     const [msproduct, setMsproduct] = useState<TypeMsproductAll[]>([]);
@@ -120,40 +120,29 @@ const DialogProduct = ({
         });
 
         // ถ้ามีกล่องที่เลือก ให้ตรวจสอบความเข้ากันได้
-        if (selectedBoxes.length > 0) {
-            const fitCheck = checkProductFitsInBox(product, selectedBoxes[0]);
-            if (!fitCheck.fits) {
-                if (!confirm(`${fitCheck.message}\nDo you want to continue adding the product anyway?`)) {
-                    return;
-                }
-            }
+        // if (selectedBoxes.length > 0) {
+        //     const fitCheck = checkProductFitsInBox(product, selectedBoxes[0]);
+        //     if (!fitCheck.fits) {
+        //         if (!confirm(`${fitCheck.message}\nDo you want to continue adding the product anyway?`)) {
+        //             return;
+        //         }
+        //     }
 
-            const box = selectedBoxes[0];
-            const productsPerBox = Math.floor(box.cubic_centimeter_box / product.cubic_centimeter_product);
+        //     const box = selectedBoxes[0];
+        //     const productsPerBox = Math.floor(box.cubic_centimeter_box / product.cubic_centimeter_product);
 
-            if (count > productsPerBox) {
-                const boxesNeeded = Math.ceil(count / productsPerBox);
-                if (!confirm(`This product requires ${boxesNeeded} boxes for ${count} items. Each box can fit ${productsPerBox} items. Do you want to continue?`)) {
-                    return;
-                }
-            }
-        }
+        //     if (count > productsPerBox) {
+        //         const boxesNeeded = Math.ceil(count / productsPerBox);
+        //         if (!confirm(`This product requires ${boxesNeeded} boxes for ${count} items. Each box can fit ${productsPerBox} items. Do you want to continue?`)) {
+        //             return;
+        //         }
+        //     }
+        // }
 
         try {
             await Promise.all(
-                [product, ...selectedProducts].map((product) =>
-                    patchMsproduct({
-                        master_product_id: product.master_product_id,
-                        master_product_name: product.master_product_name,
-                        height: product.height,
-                        length: product.length,
-                        width: product.width,
-                        cubic_centimeter_product: product.cubic_centimeter_product,
-                        image: product.image,
-                        sort_by: product.sort_by,
-                        description: product.description,
-                        code_product: product.code_product
-                    })
+                [product, ...selectedProducts].map((product: TypeMsproductAll) =>
+                    patchMsproduct(product)
                 )
             );
             console.log("Product updated successfully");
@@ -161,7 +150,6 @@ const DialogProduct = ({
             console.error("Failed to update product order:", error);
         }
     };
-
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchTerm(event.target.value);
     };

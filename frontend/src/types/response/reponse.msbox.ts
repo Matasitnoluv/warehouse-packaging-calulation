@@ -1,17 +1,20 @@
-
 export type TypeMsboxAll = {
     master_box_id: string;
     master_box_name: string;
     code_box: string;
+    scale_box: string;
     height: number;
     length: number;
     width: number;
     cubic_centimeter_box: number;
-    description: string;
-    image_path: string;
+    description?: string;
+    image_path?: string;
 }
 
 export type TypeMsbox = {
+    cal_box_id: string;
+    document_product_no: string;
+    count: number;
     master_box_id: string;
     master_box_name: string;
     code_box: string;
@@ -26,6 +29,6 @@ export type TypeMsbox = {
 export type MsboxResponse = {
     success: boolean;
     message: string;
-    responseObject: TypeMsbox;
+    responseObject: TypeMsbox[];
     statusCode: number;
 };

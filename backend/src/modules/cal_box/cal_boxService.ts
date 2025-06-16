@@ -14,14 +14,23 @@ export const cal_boxService = {
             StatusCodes.OK
         );
     },
-    
+    findByNo: async (document_product_no: string) => {
+        const cal_box = await cal_boxRepository.findByDocumentProductNo(document_product_no);
+        return new ServiceResponse(
+            ResponseStatus.Success,
+            "Get All success",
+            cal_box,
+            StatusCodes.OK
+        );
+    },
+
     findByDocumentProductNo: async (document_product_no: string) => {
         try {
             // If document_product_no is empty, return all boxes
             if (!document_product_no) {
                 return await cal_boxService.findAll();
             }
-            
+
             const cal_box = await cal_boxRepository.findByDocumentProductNo(document_product_no);
             return new ServiceResponse(
                 ResponseStatus.Success,
@@ -39,7 +48,7 @@ export const cal_boxService = {
             );
         }
     },
-    
+
     create: async (payload: TypePayloadcal_box) => {
         try {
             const checkCal_box = await cal_boxRepository.findByName(payload.master_box_name);

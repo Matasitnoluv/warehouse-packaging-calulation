@@ -1,6 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
 import { shelfBoxStorageRepository } from "./shelfBoxStorageRepository";
 import { msshelfRepository } from "../msshelf/msshelfRepository";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export const shelfBoxStorageServices = {
     getAllAsync: async () => {
@@ -10,6 +13,92 @@ export const shelfBoxStorageServices = {
                 success: true,
                 responseObject: data,
                 message: "Get all shelf box storage successful",
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message,
+            };
+        }
+    },
+
+
+    getShelfExportAsync: async ({ master_warehouse_id, master_zone_id }: { master_warehouse_id: string, master_zone_id: string }) => {
+
+        try {
+            const warehouse = await prisma.masterwarehouse.findUnique({
+                where: {
+                    master_warehouse_id: master_warehouse_id,
+                }
+            })
+            const zone = await prisma.masterzone.findUnique({
+                where: {
+                    master_zone_id: master_zone_id,
+                }
+            });
+
+
+            const racks = await prisma.masterrack.findMany({
+                where: {
+                    master_zone_id: master_zone_id,
+                }
+            });
+            const rackIds = racks.map(rack => rack.master_rack_id);
+            const shelfs = await prisma.mastershelf.findMany({
+                where: {
+                    master_rack_id: {
+                        in: rackIds,
+                    },
+                },
+            });
+
+            const shelfBoxStorage = await prisma.shelf_box_storage.findMany({
+                where: {
+                    master_warehouse_id: master_warehouse_id,
+                    master_zone_id: master_zone_id,
+                }
+            });
+            const cal_box = await prisma.cal_box.findMany({
+                where: {
+                    cal_box_id: {
+                        in: shelfBoxStorage.map(storage => storage.cal_box_id),
+                    },
+                },
+            });
+
+            const shelfBoxStorageWithCalBox = shelfBoxStorage.map(storage => ({
+                ...storage,
+                cal_box: cal_box.find(box => box.cal_box_id === storage.cal_box_id),
+            }));
+            const data = {
+                warehouse,
+                zone,
+                racks,
+                shelfs,
+                shelfBoxStorage: shelfBoxStorageWithCalBox,
+            }
+            return {
+                success: true,
+                responseObject: data,
+                message: "Get data export successful",
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message,
+            };
+        }
+    },
+
+    getByDocumentWarehouseNoAsync: async (document_warehouse_no: string, master_zone_id: string) => {
+        try {
+            const data = await shelfBoxStorageRepository.findByDocumentWareHouseAndZoneAsync(document_warehouse_no, master_zone_id);
+            return {
+                success: true,
+                responseObject: data,
+                message: "Get shelf box storage by document warehouse number successful",
             };
         } catch (error: any) {
             return {
@@ -40,6 +129,7 @@ export const shelfBoxStorageServices = {
     getByDocumentNoAsync: async (document_product_no: string) => {
         try {
             const data = await shelfBoxStorageRepository.findByDocumentNoAsync(document_product_no);
+
             return {
                 success: true,
                 responseObject: data,
@@ -54,8 +144,26 @@ export const shelfBoxStorageServices = {
         }
     },
 
+    getByDocumentWareHouse: async (document_warehouse_no: string) => {
+        try {
+            const data = await shelfBoxStorageRepository.findByDocumentWareHouse(document_warehouse_no);
+            console.log('GetByDocumentWareHouse data:', data);
+            return {
+                success: true,
+                responseObject: data,
+                message: "Get shelf box storage by document number successful",
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message,
+            };
+        }
+    },
     createAsync: async (payload: any) => {
         try {
+            //console.log('CreateAsync payload:', payload);
             // Check if the shelf exists
             const shelf = await msshelfRepository.findByIdAsync(payload.master_shelf_id);
             if (!shelf) {
@@ -68,10 +176,18 @@ export const shelfBoxStorageServices = {
 
             // Check if there's enough space in the shelf
             const currentUsedVolume = await shelfBoxStorageRepository.getTotalVolumeByShelfIdAsync(payload.master_shelf_id);
-            const totalVolumeToAdd = payload.cubic_centimeter_box * payload.count;
-            
+            const totalVolumeToAdd = payload.cubic_centimeter_box;
+
             // Set the total volume in the payload
             payload.total_volume = totalVolumeToAdd;
+
+            if (!shelf.cubic_centimeter_shelf) {
+                return {
+                    success: false,
+                    responseObject: null,
+                    message: "Shelf capacity is not available",
+                };
+            }
 
             if (currentUsedVolume + totalVolumeToAdd > shelf.cubic_centimeter_shelf) {
                 return {
@@ -95,6 +211,7 @@ export const shelfBoxStorageServices = {
                 message: "Create shelf box storage successful",
             };
         } catch (error: any) {
+            console.error('CreateAsync error:', error);
             return {
                 success: false,
                 responseObject: null,
@@ -147,34 +264,24 @@ export const shelfBoxStorageServices = {
             for (const item of payload) {
                 // Check if the shelf exists
                 const shelf = await msshelfRepository.findByIdAsync(item.master_shelf_id);
-                if (!shelf) {
+                if (!shelf || !shelf.cubic_centimeter_shelf) {
                     errors.push({
                         cal_box_id: item.cal_box_id,
-                        message: "Shelf not found",
+                        message: "Shelf not found or invalid shelf volume",
                     });
                     continue;
                 }
 
-                // Check if there's enough space in the shelf
-                const currentUsedVolume = await shelfBoxStorageRepository.getTotalVolumeByShelfIdAsync(item.master_shelf_id);
-                const totalVolumeToAdd = item.cubic_centimeter_box * item.count;
-                
-                // Set the total volume in the payload
-                item.total_volume = totalVolumeToAdd;
-
-                if (currentUsedVolume + totalVolumeToAdd > shelf.cubic_centimeter_shelf) {
-                    errors.push({
-                        cal_box_id: item.cal_box_id,
-                        message: "Not enough space in the shelf",
-                    });
-                    continue;
-                }
+                // For single box storage, we don't need to check volume since we're storing one box at a time
+                // The volume check will be handled by the shelf capacity constraint
+                const totalVolumeToAdd = item.cubic_centimeter_box; // Just use the box volume since count is 1
 
                 // Generate a new UUID for the storage
                 const storage_id = uuidv4();
                 const newPayload = {
                     ...item,
                     storage_id,
+                    total_volume: totalVolumeToAdd // Keep total_volume for backward compatibility
                 };
 
                 // Create the storage record
@@ -189,6 +296,50 @@ export const shelfBoxStorageServices = {
                     failed: errors,
                 },
                 message: `Stored ${results.length} boxes successfully. ${errors.length} boxes failed.`,
+            };
+        } catch (error) {
+            console.error("Error storing multiple boxes:", error);
+            throw error;
+        }
+    },
+
+    getStoredBoxesByShelfIdAsync: async (master_shelf_id: string) => {
+        try {
+            const storedBoxes = await prisma.shelf_box_storage.findMany({
+                where: {
+                    master_shelf_id: { in: [master_shelf_id] }
+                },
+                include: {
+                    cal_box: true,
+                    mastershelf: true,
+                }
+            });
+
+            return {
+                success: true,
+                responseObject: storedBoxes,
+                message: "Get stored boxes by shelf ID successful",
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message,
+            };
+        }
+    },
+
+    getStoredBoxesByDocument: async (documentProductNo: string) => {
+        try {
+            const storedBoxes = await prisma.shelf_box_storage.findMany({
+                where: { document_product_no: documentProductNo },
+                include: { mastershelf: true, cal_box: true }
+            });
+
+            return {
+                success: true,
+                responseObject: storedBoxes,
+                message: "Get stored boxes by document number successful",
             };
         } catch (error: any) {
             return {

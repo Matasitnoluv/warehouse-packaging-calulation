@@ -73,12 +73,6 @@ export class BoxInShelfRepository {
                     }
                 })
             );
-            const ms_product = await prisma.cal_msproduct.findFirst({
-                where: {
-                    document_product_no: payload.fitBoxes[0].document_product_no,
-                },
-            });
-
 
             // Update warehouse status
             await prisma.cal_warehouse.update({
@@ -86,7 +80,7 @@ export class BoxInShelfRepository {
                 data: {
                     master_warehouse_id: payload.master_warehouse_id,
                     master_zone_id: payload.master_zone_id,
-                    cal_msproduct_id: ms_product?.document_product_id,
+                    cal_msproduct_id: payload?.document_product_id,
                 },
             });
 

@@ -10,8 +10,7 @@ export const TabsExport = ({ wareHouse, zone }: { wareHouse: string, zone: strin
         enabled: !!wareHouse && !!zone
     })
     const exportData = data?.responseObject;
-
-    return (<Tabs.Root className="TabsRoot max-w-7xl mx-auto" defaultValue="tab1">
+    return (<Tabs.Root className="TabsRoot max-w-7xl mx-auto" defaultValue="tab1" id={`${zone}-${wareHouse}`}>
         <Tabs.List className="TabsList mb-3" aria-label="Manage your account">
             <Tabs.Trigger className="TabsTrigger" value="tab1">
                 กล่องที่รอส่งออก

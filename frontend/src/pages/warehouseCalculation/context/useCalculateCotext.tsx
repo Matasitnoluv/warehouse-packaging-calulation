@@ -24,6 +24,9 @@ export interface CalculateContextType {
   warehouse?: TypeMswarehouse | null;
   warehouseId: string;
   warehouseNo: string;
+  documentId: string;
+
+  setDocumentId: (documentId: string) => void;
 
   setWarehouseId: (warehouseId: string) => void;
   setWarehouse: (warehouse: TypeMswarehouse) => void;
@@ -42,6 +45,7 @@ const CalculateContext = createContext<CalculateContextType | undefined>(undefin
 export const CalculateProvider = ({ children, warehouseNo, defaultZone, defaultDocument, defaultWarehouse }: { warehouseNo: string, children: ReactNode, defaultZone: string, defaultDocument?: string, defaultWarehouse: string }) => {
   const [zone, setZone] = useState<string>(defaultZone);
   const [document, setDocument] = useState<CalculateContextType['document']>(defaultDocument);
+  const [documentId, setDocumentId] = useState<string>("");
   const [showCalculateDialog, setShowCalculateDialog] = useState<boolean>(false);
   const [warehouse, setWarehouse] = useState<TypeMswarehouse | null>(null);
   const [warehouseId, setWarehouseId] = useState<string>(defaultWarehouse);
@@ -69,7 +73,10 @@ export const CalculateProvider = ({ children, warehouseNo, defaultZone, defaultD
   const boxs = boxData?.responseObject ? boxData.responseObject : []
 
   return (
-    <CalculateContext.Provider value={{ warehouseNo, showCalculateDialog, warehouse, warehouseId, setWarehouseId, setWarehouse, setShowCalculateDialog, zone, setZone, document, setDocument, zoneName, setZoneName, rack, shelf, boxs }}>
+    <CalculateContext.Provider value={{
+      warehouseNo, showCalculateDialog, warehouse, warehouseId,
+      setWarehouseId, setWarehouse, setShowCalculateDialog, zone, setZone, document, setDocument, zoneName, setZoneName, rack, shelf, boxs, documentId, setDocumentId
+    }}>
       {children}
     </CalculateContext.Provider>
   );

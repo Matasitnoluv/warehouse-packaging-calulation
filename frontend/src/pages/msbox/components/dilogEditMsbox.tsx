@@ -12,8 +12,8 @@ type DialogMsboxProps = {
     length: number;
     width: number;
     cubic_centimeter_box: number;
-    description: string;
-    image_path: string;
+    description?: string;
+    image_path?: string;
     onEditSuccess: () => void;
     buttonClassName?: string;
     buttonId?: string;
@@ -52,7 +52,7 @@ const DialogEdit = ({
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [selectedFileName, setSelectedFileName] = useState("");
-    const [upimage,setUpImage] = useState("");
+    const [upimage, setUpImage] = useState("");
 
     const validateForm = (): boolean => {
         const newErrors: ValidationErrors = {};
@@ -76,7 +76,7 @@ const DialogEdit = ({
                 alert("File size should not exceed 5MB");
                 return;
             }
-            
+
             setSelectedFile(file);
             setSelectedFileName(file.name);
             const reader = new FileReader();
@@ -106,7 +106,7 @@ const DialogEdit = ({
             formData.append('length', patchLength.toString());
             formData.append('width', patchWidth.toString());
             formData.append('cubic_centimeter_box', calculatedVolume.toString());
-            formData.append('description', patchDescription);
+            formData.append('description', patchDescription || '');
 
             if (selectedFile) {
                 formData.append('image', selectedFile);
@@ -200,7 +200,7 @@ const DialogEdit = ({
                     <div>
                         <Text className="font-semibold text-gray-700 mb-2 block text-sm">Dimensions (cm) *</Text>
                         <div className="grid grid-cols-3 gap-3">
-                        <div>
+                            <div>
                                 <TextField.Root
                                     defaultValue={width}
                                     placeholder="Width"
@@ -230,7 +230,7 @@ const DialogEdit = ({
                                         }`}
                                 />
                             </div>
-                           
+
                         </div>
                         {errors.dimensions && (
                             <div className="flex items-center gap-1 mt-1 text-red-500 text-xs">
@@ -244,7 +244,7 @@ const DialogEdit = ({
                     <div>
                         <Text className="font-semibold text-gray-700 mb-1 block text-sm">Volume (cm³)</Text>
                         <div className="p-2 bg-gray-50 rounded-lg border border-gray-200 font-mono text-sm">
-                            {(patchWidth * patchHeight *  patchLength).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                            {(patchWidth * patchHeight * patchLength).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                         </div>
                     </div>
 
@@ -263,7 +263,7 @@ const DialogEdit = ({
 
                     {/* Image Section */}
                     <div>
-                    {selectedFileName && (
+                        {selectedFileName && (
                             <p className="mt-1 text-xs text-gray-600">Selected: {selectedFileName}</p>
                         )}
                         {upimage && (
@@ -277,7 +277,7 @@ const DialogEdit = ({
                         )}
                         <Text className="font-semibold text-gray-700 mb-2 block text-sm">Box Image</Text>
                         {/* Current Image Preview */}
-                        
+
                         {/* Image Upload */}
                         <div className="flex items-center justify-center w-full">
                             <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all duration-200">

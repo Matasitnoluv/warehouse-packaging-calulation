@@ -2,6 +2,7 @@ import { Text, Dialog, Button, TextField, TextArea } from "@radix-ui/themes";
 import { patchMsproduct } from "@/services/msproduct.services"
 import { useState } from "react";
 import { AlertCircle } from "lucide-react";
+import { TypeMsproductAll } from "@/types/response/reponse.msproduct";
 
 type DialogMsproductProps = {
     getMsproductData: () => void;
@@ -12,8 +13,8 @@ type DialogMsproductProps = {
     length: number;
     width: number;
     cubic_centimeter_product: number;
-    description: string;
-    image_path: string;
+    description?: string;
+    image_path?: string;
     onEditSuccess: () => void;
 }
 
@@ -102,7 +103,7 @@ const DialogEdit = ({
             formData.append('length', patchLength.toString());
             formData.append('width', patchWidth.toString());
             formData.append('cubic_centimeter_product', calculatedVolume.toString());
-            formData.append('description', patchDescription);
+            formData.append('description', patchDescription || '');
             formData.append('sort_by', '0');
 
             // Handle image upload
@@ -110,7 +111,7 @@ const DialogEdit = ({
                 formData.append('image', selectedFile);
             }
 
-            const response = await patchMsproduct(formData);
+            const response = await patchMsproduct(formData as unknown as TypeMsproductAll);
 
             if (response.statusCode === 200) {
                 onEditSuccess();
@@ -198,7 +199,7 @@ const DialogEdit = ({
                     <div>
                         <Text className="font-semibold text-gray-700 mb-2 block text-sm">Dimensions (cm) *</Text>
                         <div className="grid grid-cols-3 gap-3">
-                        <div>
+                            <div>
                                 <TextField.Root
                                     defaultValue={width}
                                     placeholder="Width"

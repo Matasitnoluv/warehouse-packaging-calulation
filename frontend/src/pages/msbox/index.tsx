@@ -1,16 +1,16 @@
 import { Table, Card, AlertDialog } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { getMsbox } from "@/services/msbox.services";
-import { TypeMsboxAll } from "@/types/response/reponse.msbox";
+import { TypeMsbox, TypeMsboxAll } from "@/types/response/reponse.msbox";
 import DialogAdd from "./components/dilogAddMsbox";
 import DialogEdit from "./components/dilogEditMsbox";
 import AlertDialogDelete from "./components/alertdilogDeleteMsbox";
 import { Package, Search, Plus } from "lucide-react";
 
 export default function MsboxFeature() {
-    const [msbox, setMsbox] = useState<TypeMsboxAll[]>([]);
+    const [msbox, setMsbox] = useState<TypeMsbox[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [filteredBoxes, setFilteredBoxes] = useState<TypeMsboxAll[]>([]);
+    const [filteredBoxes, setFilteredBoxes] = useState<TypeMsbox[]>([]);
     const [showDeleteAlert, setShowDeleteAlert] = useState(false);
     const [showEditAlert, setShowEditAlert] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -196,9 +196,9 @@ export default function MsboxFeature() {
                                             </Table.Cell>
                                             <Table.Cell className="px-6 py-4">
                                                 <div className="flex items-center gap-2">
-                                                    <DialogEdit 
-                                                        {...box} 
-                                                        getMsboxData={loadMsboxData} 
+                                                    <DialogEdit
+                                                        {...box}
+                                                        getMsboxData={loadMsboxData}
                                                         onEditSuccess={handleEditSuccess}
                                                         buttonId="edit-box"
                                                     />

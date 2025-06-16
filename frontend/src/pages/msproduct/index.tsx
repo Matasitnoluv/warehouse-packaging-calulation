@@ -1,16 +1,16 @@
 import { Table, Card, AlertDialog } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { getMsproduct } from "@/services/msproduct.services";
-import { TypeMsproductAll } from "@/types/response/reponse.msproduct";
+import { TypeMsproduct, TypeMsproductAll } from "@/types/response/reponse.msproduct";
 import DialogAdd from "./components/dilogAddMsproduct";
 import DialogEdit from "./components/dilogEditMsproduct";
 import AlertDialogDelete from "./components/alertdilogDeleteMsproduct";
 import { Plus } from "lucide-react";
 
 export default function MsproductFeature() {
-    const [msproduct, setMsproduct] = useState<TypeMsproductAll[]>([]);
+    const [msproduct, setMsproduct] = useState<TypeMsproduct[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [filteredProducts, setFilteredProducts] = useState<TypeMsproductAll[]>([]);
+    const [filteredProducts, setFilteredProducts] = useState<TypeMsproduct[]>([]);
     const [showDeleteAlert, setShowDeleteAlert] = useState(false);
     const [showEditAlert, setShowEditAlert] = useState(false);
 
@@ -161,14 +161,14 @@ export default function MsproductFeature() {
                                                         {...product}
                                                         getMsproductData={() => getMsproduct()}
                                                         onEditSuccess={handleEditSuccess}
-                                                        buttonClassName="bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors"
+                                                    // buttonClassName="bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors"
                                                     />
                                                     <AlertDialogDelete
                                                         getMsproductData={() => getMsproduct()}
                                                         master_product_id={product.master_product_id}
                                                         master_product_name={product.master_product_name}
                                                         onDeleteSuccess={handleDeleteSuccess}
-                                                        buttonClassName="bg-red-400 hover:bg-red-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors"
+                                                    // buttonClassName="bg-red-400 hover:bg-red-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors"
                                                     />
                                                 </div>
                                             </Table.Cell>

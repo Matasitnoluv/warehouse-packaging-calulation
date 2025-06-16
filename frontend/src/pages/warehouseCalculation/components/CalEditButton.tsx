@@ -1,12 +1,12 @@
 // await shelfBoxStorageService.getStoredWareHouseDocumentNo(documentWarehouseNo);
 
 import { Button } from "@radix-ui/themes";
-import { TypeCalWarehouseAll } from "@/types/response/reponse.cal_warehouse";
+import { TypeCalWarehouse } from "@/types/response/reponse.cal_warehouse";
 import _ from "lodash";
 import { useNavigate } from "react-router-dom";
 
 
-const CalEditButton = ({ calWarehouse }: { calWarehouse: TypeCalWarehouseAll }) => {
+const CalEditButton = ({ calWarehouse }: { calWarehouse: TypeCalWarehouse }) => {
     const navigate = useNavigate();
 
     return (

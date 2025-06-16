@@ -5,6 +5,7 @@ import { AlertCircle, Upload, Plus } from "lucide-react";
 
 type DialogMsboxProps = {
     getMsboxData: () => void;
+    buttonId?: string;
 }
 
 interface ValidationErrors {
@@ -13,7 +14,7 @@ interface ValidationErrors {
     dimensions?: string;
 }
 
-const DialogAdd = ({ getMsboxData }: DialogMsboxProps) => {
+const DialogAdd = ({ getMsboxData, buttonId }: DialogMsboxProps) => {
     const [master_box_name, setMaster_box_name] = useState("");
     const [height, setHeight] = useState<number | "">("");
     const [length, setLength] = useState<number | "">("");
@@ -137,7 +138,7 @@ const DialogAdd = ({ getMsboxData }: DialogMsboxProps) => {
     return (
         <Dialog.Root>
             <Dialog.Trigger>
-                <Button size="3" className="bg-green-500 hover:bg-green-600 text-white font-bold px-5 rounded-lg shadow-md flex items-center">
+                <Button id="btn-add" className="bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors">
                     <Plus className="w-5 h-5 mr-2" />
                     Create Box
                 </Button>
@@ -286,6 +287,7 @@ const DialogAdd = ({ getMsboxData }: DialogMsboxProps) => {
                     <Button
                         onClick={handleCreateMsbox}
                         disabled={isSubmitting}
+                        id="btn-create"
                         className={`
                             inline-flex items-center gap-2 px-4 py-2 
                             bg-blue-500 hover:bg-blue-600 

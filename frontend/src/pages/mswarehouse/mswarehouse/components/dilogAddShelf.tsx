@@ -31,11 +31,22 @@ const DialogAddShelf = ({ rackId, rackName, rackVolume, onShelfAdded }: DialogAd
     const [remainingSpace, setRemainingSpace] = useState<number>(rackVolume);
     const [usedSpace, setUsedSpace] = useState<number>(0);
     const [existingShelves, setExistingShelves] = useState<any[]>([]);
+    const [isOpen, setIsOpen] = useState(false);
 
     // Calculate volume when dimensions change
     useEffect(() => {
-        setVolume(height * length * width);
-    }, [height, length, width]);
+        const newVolume = height * length * width;
+        setVolume(newVolume);
+        
+        // Validate dimensions
+        if (height > 0 && length > 0 && width > 0) {
+            if (newVolume > remainingSpace) {
+                setError(`Shelf volume (${newVolume.toLocaleString()} cm³) exceeds remaining rack space (${remainingSpace.toLocaleString()} cm³)`);
+            } else {
+                setError(null);
+            }
+        }
+    }, [height, length, width, remainingSpace]);
 
     // Calculate remaining space in rack and get existing shelf levels
     useEffect(() => {
@@ -59,25 +70,39 @@ const DialogAddShelf = ({ rackId, rackName, rackVolume, onShelfAdded }: DialogAd
                 }
             } catch (error) {
                 console.error("Error fetching shelves:", error);
+                setError("Failed to fetch existing shelves");
             }
         };
 
-        fetchShelves();
-    }, [rackId, rackVolume]);
+        if (isOpen) {
+            fetchShelves();
+        }
+    }, [rackId, rackVolume, isOpen]);
+
+    const resetForm = () => {
+        setShelfName("");
+        setShelfLevel(1);
+        setHeight(0);
+        setLength(0);
+        setWidth(0);
+        setDescription("");
+        setVolume(0);
+        setError(null);
+    };
 
     const handleSubmit = async (e?: React.MouseEvent) => {
-        // Prevent default behavior if event is provided
         if (e) {
             e.preventDefault();
         }
 
-        if (!shelfName) {
+        // Validate inputs
+        if (!shelfName.trim()) {
             setError("Shelf name is required");
             return;
         }
 
         if (height <= 0 || length <= 0 || width <= 0) {
-            setError("Dimensions must be greater than zero");
+            setError("All dimensions must be greater than zero");
             return;
         }
 
@@ -100,35 +125,22 @@ const DialogAddShelf = ({ rackId, rackName, rackVolume, onShelfAdded }: DialogAd
         try {
             const shelfData = {
                 master_shelf_id: generateUUID(),
-                master_shelf_name: shelfName,
+                master_shelf_name: shelfName.trim(),
                 shelf_level: shelfLevel,
                 height,
                 length,
                 width,
                 cubic_centimeter_shelf: volume,
-                description,
+                description: description.trim(),
                 master_rack_id: rackId
             };
 
             const response = await createMsshelf(shelfData);
             
             if (response.success) {
-                // Reset form
-                setShelfName("");
-                setShelfLevel(shelfLevel + 1);
-                setHeight(0);
-                setLength(0);
-                setWidth(0);
-                setDescription("");
-                setVolume(0);
-                
-                // Notify parent component
+                resetForm();
                 onShelfAdded();
-                
-                // Close the dialog manually
-                document.querySelector('.rt-DialogClose')?.dispatchEvent(
-                    new MouseEvent('click', { bubbles: true })
-                );
+                setIsOpen(false);
             } else {
                 setError(response.message || "Failed to create shelf");
             }
@@ -141,9 +153,9 @@ const DialogAddShelf = ({ rackId, rackName, rackVolume, onShelfAdded }: DialogAd
     };
 
     return (
-        <Dialog.Root>
+        <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
             <Dialog.Trigger>
-                <Button className="bg-green-500 hover:bg-green-600 text-white">
+                <Button id="btn-add-shelf" className="bg-green-500 hover:bg-green-600 text-white" data-testid={`add-shelf-btn-${rackId}`}>
                     Add Shelf
                 </Button>
             </Dialog.Trigger>
@@ -216,6 +228,25 @@ const DialogAddShelf = ({ rackId, rackName, rackVolume, onShelfAdded }: DialogAd
                         </div>
                     </div>
 
+                    <div className="flex gap-2 mb-4">
+                        <Button id="btn-auto-shelf" variant="soft" color="blue" onClick={() => {
+                            const maxDimension = Math.cbrt(remainingSpace);
+                            setWidth(Math.floor(maxDimension));
+                            setLength(Math.floor(maxDimension));
+                            setHeight(Math.floor(maxDimension));
+                        }}>
+                            Auto Calculate Size
+                        </Button>
+                        <Button id="btn-reset-shelf" variant="soft" color="gray" onClick={() => {
+                            setWidth(0);
+                            setLength(0);
+                            setHeight(0);
+                            setVolume(0);
+                        }}>
+                            Reset Dimensions
+                        </Button>
+                    </div>
+
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Volume (cm³)</label>
                         <div className="flex items-center">
@@ -244,16 +275,15 @@ const DialogAddShelf = ({ rackId, rackName, rackVolume, onShelfAdded }: DialogAd
                 </div>
 
                 <div className="mt-6 flex justify-end gap-3">
+                    <Button id="btn-resetform-shelf" variant="soft" color="gray" onClick={resetForm}>
+                        Reset Form
+                    </Button>
                     <Dialog.Close>
-                        <Button variant="soft" color="gray">
+                        <Button id="btn-cancel-shelf" variant="soft" color="gray">
                             Cancel
                         </Button>
                     </Dialog.Close>
-                    <Button 
-                        className="bg-green-500 hover:bg-green-600 text-white"
-                        disabled={isSubmitting || volume > remainingSpace}
-                        onClick={(e) => handleSubmit(e)}
-                    >
+                    <Button id="btn-create-shelf" className="bg-green-500 hover:bg-green-600 text-white" disabled={isSubmitting || volume > remainingSpace || !shelfName.trim()} onClick={(e) => handleSubmit(e)}>
                         {isSubmitting ? 'Creating...' : 'Create Shelf'}
                     </Button>
                 </div>

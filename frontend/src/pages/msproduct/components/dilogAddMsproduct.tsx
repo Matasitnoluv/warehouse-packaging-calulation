@@ -294,6 +294,7 @@ const DialogAdd = ({ getMsproductData }: DialogMsproductProps) => {
                             <Button
                                 onClick={handleCreateMsproduct}
                                 disabled={isSubmitting}
+                                id="btn-create"
                                 className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
                                     }`}
                             >

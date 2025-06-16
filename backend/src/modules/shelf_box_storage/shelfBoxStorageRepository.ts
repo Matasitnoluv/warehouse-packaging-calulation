@@ -57,39 +57,38 @@ export const shelfBoxStorageRepository = {
         });
     },
 
+    // findByShelfIdAsync: async (master_shelf_id: string) => {
+    //     return prisma.shelf_box_storage.findMany({
+    //         where: {
+    //             master_shelf_id,
+    //         },
+    //         select: {
+    //             storage_id: true,
+    //                 : true,
+    //             cal_box_id: true,
+    //             stored_date: true,
+    //             stored_by: true,
+    //             position: true,
+    //             status: true,
+    //             cubic_centimeter_box: true,
+    //             count: true,
+    //             total_volume: true,
+    //             document_product_no: true,
+    //         },
+    //     });
+    // },
     findByShelfIdAsync: async (master_shelf_id: string) => {
-        return prisma.shelf_box_storage.findMany({
+        return prisma.shelf_box_storage.groupBy({
+            by: ['master_shelf_id'],
             where: {
-                master_shelf_id,
+            master_shelf_id,
             },
-            select: {
-                storage_id: true,
-                master_shelf_id: true,
-                cal_box_id: true,
-                stored_date: true,
-                stored_by: true,
-                position: true,
-                status: true,
-                cubic_centimeter_box: true,
-                count: true,
-                total_volume: true,
-                document_product_no: true,
-                box: {
-                    select: {
-                        cal_box_id: true,
-                        box_no: true,
-                        master_box_name: true,
-                        code_box: true,
-                        master_product_name: true,
-                        code_product: true,
-                        cubic_centimeter_box: true,
-                        count: true,
-                        document_product_no: true,
-                    },
-                },
+            _sum: {
+            cubic_centimeter_box: true,
             },
         });
     },
+
 
     findByDocumentNoAsync: async (document_product_no: string) => {
         return prisma.shelf_box_storage.findMany({

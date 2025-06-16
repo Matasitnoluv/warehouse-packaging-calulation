@@ -60,7 +60,7 @@ const router = createBrowserRouter([
                 element: <SelectProductandBoxPage />
             },
             {
-                path: "/mswarahouse",
+                path: "/mswarehouse",
                 element: <MsWarehousePage />
             },
             {

@@ -99,6 +99,7 @@ interface RackSpaceSummary {
   usagePercentage: number;
   fittingBoxes: number;
   totalBoxes: number;
+  total: number;
 }
 
 interface StoredBoxType {
@@ -238,10 +239,21 @@ interface ApiResponse<T> {
 // Add new interface for box placement
 interface BoxPlacement {
   box: BoxType;
-  suggestedShelf: ShelfType;
-  suggestedRack: RackType;
+  suggestedShelf?: ShelfType;
+  suggestedRack?: RackType;
   volume: number;
   canFit: boolean;
+}
+
+interface StoreBoxPayload {
+  master_shelf_id: string;
+  cal_box_id: string;
+  cubic_centimeter_box: number;
+  count: number;
+  document_product_no: string;
+  stored_by: string;
+  total: number;
+  remaining: number;
 }
 
 const WarehouseCalculation = () => {
@@ -708,7 +720,8 @@ const WarehouseCalculation = () => {
       remainingVolume,
       usagePercentage,
       fittingBoxes: fittingBoxesCount,
-      totalBoxes: boxes.length
+      totalBoxes: boxes.length,
+      total: totalRackVolume
     };
 
     console.log("Shelf space summary:", shelfSummary);
@@ -978,57 +991,40 @@ const WarehouseCalculation = () => {
   }, [documentWarehouseNo]);
 
   // Add new function to calculate box placement
-  const calculateBoxPlacement = (boxes, racks, shelves) => {
-    const placements = [];
+  const calculateBoxPlacement = (boxes: BoxType[], racks: RackType[], shelves: ShelfType[]) => {
+    const placements: BoxPlacement[] = [];
     let rackIndex = 0;
-    let shelfIndex = 0;
-    let usedShelfVolume: { [shelfId: string]: number } = {};
-
-    // เตรียม shelves เรียงตาม rack, level
-    const sortedRacks = [...racks];
-    const sortedShelves = shelves
-      .slice()
-      .sort((a, b) => a.shelf_level - b.shelf_level);
 
     for (const box of boxes) {
+      const boxVolume = box.cubic_centimeter_box * box.count;
       let placed = false;
 
-      // ลองวางใน rack/shelf ทีละอัน
-      while (rackIndex < sortedRacks.length && !placed) {
-        const rack = sortedRacks[rackIndex];
-        const shelvesInRack = sortedShelves.filter(s => s.master_rack_id === rack.master_rack_id);
+      // Try to place in current rack
+      if (rackIndex < racks.length) {
+        const currentRack = racks[rackIndex];
+        const rackShelves = shelves.filter(s => s.master_rack_id === currentRack.master_rack_id);
 
-        while (shelfIndex < shelvesInRack.length && !placed) {
-          const shelf = shelvesInRack[shelfIndex];
-          const used = usedShelfVolume[shelf.master_shelf_id] || 0;
-          const boxVolume = box.cubic_centimeter_box * box.count;
-
-          if (used + boxVolume <= shelf.cubic_centimeter_shelf) {
-            // วางกล่องนี้ใน shelf นี้
+        for (const shelf of rackShelves) {
+          const shelfVolume = shelf.cubic_centimeter_shelf;
+          if (boxVolume <= shelfVolume) {
             placements.push({
               box,
               suggestedShelf: shelf,
-              suggestedRack: rack,
-              canFit: true,
+              suggestedRack: currentRack,
+              volume: boxVolume,
+              canFit: true
             });
-            usedShelfVolume[shelf.master_shelf_id] = used + boxVolume;
             placed = true;
-          } else {
-            shelfIndex++;
+            break;
           }
-        }
-
-        if (!placed) {
-          rackIndex++;
-          shelfIndex = 0;
         }
       }
 
       if (!placed) {
-        // วางไม่ได้
         placements.push({
           box,
-          canFit: false,
+          volume: boxVolume,
+          canFit: false
         });
       }
     }
@@ -1071,6 +1067,75 @@ const WarehouseCalculation = () => {
     const found = zones.find(z => z.master_zone_id === calculateSummary.zone);
     return found ? found.master_zone_name : calculateSummary.zone;
   }, [calculateSummary?.zone, zones]);
+
+  const handleSave = async () => {
+    if (!calculateSummary?.boxPlacements) return;
+
+    console.log('=== Starting Box Placement Save Process ===');
+    console.log('Total placements to save:', calculateSummary.boxPlacements.length);
+
+    // Prepare payload for boxes that can be placed
+    const payload: StoreBoxPayload[] = calculateSummary.boxPlacements
+      .filter((p): p is BoxPlacement & { suggestedShelf: ShelfType } => 
+        p.canFit && p.suggestedShelf !== undefined && p.box !== undefined
+      )
+      .map((p) => ({
+        master_shelf_id: p.suggestedShelf.master_shelf_id,
+        cal_box_id: p.box.cal_box_id,
+        cubic_centimeter_box: p.box.cubic_centimeter_box,
+        count: p.box.count,
+        document_product_no: p.box.document_product_no,
+        stored_by: 'system',
+        total: p.suggestedShelf.cubic_centimeter_shelf, // Add Total field
+        remaining: p.suggestedShelf.cubic_centimeter_shelf - p.volume // Calculate Remaining using volume
+      }));
+
+    console.log('Prepared payload:', payload);
+    console.log('Number of boxes to save:', payload.length);
+
+    // Log number of boxes per shelf
+    const shelfBoxCount: Record<string, number> = {};
+    calculateSummary.boxPlacements.forEach((p) => {
+      if (p.canFit && p.suggestedShelf) {
+        const shelfName = p.suggestedShelf.master_shelf_name;
+        shelfBoxCount[shelfName] = (shelfBoxCount[shelfName] || 0) + 1;
+      }
+    });
+
+    console.log('=== Box Distribution Summary ===');
+    Object.entries(shelfBoxCount).forEach(([shelf, count]) => {
+      console.log(`📦 Shelf "${shelf}": ${count} boxes`);
+    });
+
+    // Save to DB
+    try {
+      setLoading(true);
+      console.log('Sending request to save box placements...');
+      const res = await shelfBoxStorageService.storeMultipleBoxesInShelf(payload);
+      setLoading(false);
+
+      if (res.success) {
+        console.log('✅ Box placements saved successfully');
+        setShowCalculateDialog(false);
+        setShowSuccessDialog(true);
+      } else {
+        console.error('❌ Failed to save box placements:', res.message);
+        setErrorMessage(res.message || 'Failed to save box placements');
+        setShowErrorDialog(true);
+      }
+    } catch (err: any) {
+      console.error('❌ Error saving box placements:', err);
+      setLoading(false);
+      setErrorMessage('An unexpected error occurred while saving box placements');
+      setShowErrorDialog(true);
+    }
+  };
+
+  // เพิ่มฟังก์ชันสำหรับการจัดการเมื่อกดปุ่ม OK
+  const handleSuccessDialogClose = () => {
+    setShowSuccessDialog(false);
+    navigate('/calwarehouseTable');
+  };
 
   if (loading) {
     return (
@@ -1190,7 +1255,7 @@ const WarehouseCalculation = () => {
           </Dialog.Description>
           <Flex gap="3" mt="4" justify="end">
             <Button
-              onClick={() => setShowSuccessDialog(false)}
+              onClick={handleSuccessDialogClose}
               className="bg-green-500 hover:bg-green-600 text-white"
             >
               OK
@@ -1254,8 +1319,8 @@ const WarehouseCalculation = () => {
                                       <span className="inline-block w-2 h-2 bg-blue-400 rounded-full"></span>
                                       <span className="font-medium">Box No: {p.box.box_no}</span>
                                       <span className="font-medium">{p.box.master_box_name}</span>
-                                      <span className="text-gray-500">| ปริมาตร: {p.box.cubic_centimeter_box}</span>
-                                      <span className="text-gray-500">| จำนวน: {p.box.count}</span>
+                                      <span className="text-gray-500">| Volume: {p.box.cubic_centimeter_box}</span>
+                                      <span className="text-gray-500">| Amount: {p.box.count}</span>
                                     </li>
                                   ))}
                                 </ul>
@@ -1277,7 +1342,7 @@ const WarehouseCalculation = () => {
                         .filter(p => !p.canFit)
                         .map((p, idx) => (
                           <li key={p.box.cal_box_id + idx}>
-                            {p.box.master_box_name} | ปริมาตร: {p.box.cubic_centimeter_box} | จำนวน: {p.box.count}
+                            {p.box.master_box_name} | Volume: {p.box.cubic_centimeter_box} | Amount: {p.box.count}
                           </li>
                         ))}
                     </ul>
@@ -1292,64 +1357,7 @@ const WarehouseCalculation = () => {
               Close
             </Button>
             <Button
-              onClick={async () => {
-                if (!calculateSummary?.boxPlacements) return;
-
-                console.log('=== Starting Box Placement Save Process ===');
-                console.log('Total placements to save:', calculateSummary.boxPlacements.length);
-
-                // Prepare payload for boxes that can be placed
-                const payload = calculateSummary.boxPlacements
-                  .filter((p) => p.canFit && p.suggestedShelf && p.box)
-                  .map((p) => ({
-                    master_shelf_id: p.suggestedShelf.master_shelf_id,
-                    cal_box_id: p.box.cal_box_id,
-                    cubic_centimeter_box: p.box.cubic_centimeter_box,
-                    count: p.box.count,
-                    document_product_no: p.box.document_product_no,
-                    stored_by: 'system',
-                  }));
-
-                console.log('Prepared payload:', payload);
-                console.log('Number of boxes to save:', payload.length);
-
-                // Log number of boxes per shelf
-                const shelfBoxCount: Record<string, number> = {};
-                calculateSummary.boxPlacements.forEach((p) => {
-                  if (p.canFit && p.suggestedShelf) {
-                    const shelfName = p.suggestedShelf.master_shelf_name;
-                    shelfBoxCount[shelfName] = (shelfBoxCount[shelfName] || 0) + 1;
-                  }
-                });
-
-                console.log('=== Box Distribution Summary ===');
-                Object.entries(shelfBoxCount).forEach(([shelf, count]) => {
-                  console.log(`📦 Shelf "${shelf}": ${count} boxes`);
-                });
-
-                // Save to DB
-                try {
-                  setLoading(true);
-                  console.log('Sending request to save box placements...');
-                  const res = await shelfBoxStorageService.storeMultipleBoxesInShelf(payload);
-                  setLoading(false);
-
-                  if (res.success) {
-                    console.log('✅ Box placements saved successfully');
-                    setShowCalculateDialog(false);
-                    setShowSuccessDialog(true);
-                  } else {
-                    console.error('❌ Failed to save box placements:', res.message);
-                    setErrorMessage(res.message || 'Failed to save box placements');
-                    setShowErrorDialog(true);
-                  }
-                } catch (err) {
-                  console.error('❌ Error saving box placements:', err);
-                  setLoading(false);
-                  setErrorMessage('An unexpected error occurred while saving box placements');
-                  setShowErrorDialog(true);
-                }
-              }}
+              onClick={handleSave}
               className="w-28 bg-green-500 hover:bg-green-600"
               disabled={loading}
             >

@@ -15,6 +15,8 @@ type DialogMsboxProps = {
     description: string;
     image_path: string;
     onEditSuccess: () => void;
+    buttonClassName?: string;
+    buttonId?: string;
 }
 
 interface ValidationErrors {
@@ -35,6 +37,8 @@ const DialogEdit = ({
     description,
     image_path,
     onEditSuccess,
+    buttonClassName,
+    buttonId,
 }: DialogMsboxProps) => {
     const [patchMaster_box_name, setMaster_box_name] = useState(master_box_name);
     const [patchCode_box, setCode_box] = useState(code_box);
@@ -136,7 +140,7 @@ const DialogEdit = ({
     return (
         <Dialog.Root>
             <Dialog.Trigger>
-                <Button className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors">
+                <Button id="btn-edit" className={buttonClassName || "bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors"}>
                     Edit
                 </Button>
             </Dialog.Trigger>
@@ -308,6 +312,7 @@ const DialogEdit = ({
                         <Button
                             onClick={handleUpdateMsbox}
                             disabled={isSubmitting}
+                            id="btn-update"
                             className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
                                 }`}
                         >

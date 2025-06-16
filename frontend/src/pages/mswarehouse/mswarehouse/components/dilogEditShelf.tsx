@@ -38,9 +38,9 @@ const DialogEditShelf = ({ shelf, rackVolume, onShelfUpdated }: DialogEditShelfP
                     setExistingShelves(shelves);
                     
                     // Calculate total used space excluding the current shelf
-                    const otherShelves = shelves.filter(s => s.master_shelf_id !== shelf.master_shelf_id);
+                    const otherShelves = shelves.filter((s: any) => s.master_shelf_id !== shelf.master_shelf_id);
                     const otherShelvesUsedSpace = otherShelves.reduce(
-                        (total, s) => total + (s.cubic_centimeter_shelf || 0), 
+                        (total: any, s: any) => total + (s.cubic_centimeter_shelf || 0), 
                         0
                     );
                     
@@ -127,9 +127,7 @@ const DialogEditShelf = ({ shelf, rackVolume, onShelfUpdated }: DialogEditShelfP
     return (
         <Dialog.Root>
             <Dialog.Trigger>
-                <Button variant="soft" size="1">
-                    Edit
-                </Button>
+                <Button id={`btn-edit-shelf-${shelf.master_shelf_id}`} variant="soft" size="1" data-testid={`edit-shelf-btn-${shelf.master_shelf_id}`}>Edit</Button>
             </Dialog.Trigger>
 
             <Dialog.Content style={{ maxWidth: 560 }}>
@@ -229,15 +227,9 @@ const DialogEditShelf = ({ shelf, rackVolume, onShelfUpdated }: DialogEditShelfP
 
                 <div className="mt-6 flex justify-end gap-3">
                     <Dialog.Close>
-                        <Button variant="soft" color="gray">
-                            Cancel
-                        </Button>
+                        <Button id="btn-cancel-shelf" variant="soft" color="gray">Cancel</Button>
                     </Dialog.Close>
-                    <Button 
-                        className="bg-blue-500 hover:bg-blue-600 text-white"
-                        disabled={isSubmitting || volume > remainingSpace}
-                        onClick={(e) => handleSubmit(e)}
-                    >
+                    <Button id="btn-update-shelf" className="bg-blue-500 hover:bg-blue-600 text-white" disabled={isSubmitting || volume > remainingSpace} onClick={(e) => handleSubmit(e)}>
                         {isSubmitting ? 'Updating...' : 'Update Shelf'}
                     </Button>
                 </div>

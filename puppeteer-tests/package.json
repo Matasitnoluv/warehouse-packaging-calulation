@@ -1,0 +1,17 @@
+{
+  "name": "puppeteer-tests",
+  "version": "1.0.0",
+  "description": "E2E tests with Puppeteer",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test:product": "node product_management.js",
+    "test:box": "node box_management.js",
+    "test:warehouse": "node warehouse_management.js",
+    "test:zone": "node zone_management.js"
+  },
+  "dependencies": {
+    "puppeteer": "^24.8.2",
+    "dotenv": "^16.5.0"
+  }
+} 

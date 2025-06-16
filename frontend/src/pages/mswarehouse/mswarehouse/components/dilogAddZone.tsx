@@ -124,7 +124,7 @@ const DialogAddZone = ({ warehouseId, warehouseName, warehouseVolume, onZoneAdde
     return (
         <Dialog.Root>
             <Dialog.Trigger>
-                <Button size="2" className="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded-lg flex items-center gap-1">
+                <Button id="btn-add-zone" size="2" className="bg-green-500 hover:bg-green-600 text-white font-medium py-1 px-3 rounded-lg flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -239,6 +239,7 @@ const DialogAddZone = ({ warehouseId, warehouseName, warehouseVolume, onZoneAdde
                         </Button>
                     </Dialog.Close>
                     <Button 
+                        id="btn-create-zone"
                         className="bg-blue-500 hover:bg-blue-600 text-white"
                         disabled={isSubmitting || volume > remainingSpace}
                         onClick={(e) => handleSubmit(e)}

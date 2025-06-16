@@ -126,7 +126,7 @@ export default function MsboxFeature() {
                             </button>
                         </form>
                         {/* Create Button (Dialog) */}
-                        <DialogAdd getMsboxData={loadMsboxData} />
+                        <DialogAdd getMsboxData={loadMsboxData} buttonId="create-box" />
                     </div>
                 </div>
             </div>
@@ -196,12 +196,18 @@ export default function MsboxFeature() {
                                             </Table.Cell>
                                             <Table.Cell className="px-6 py-4">
                                                 <div className="flex items-center gap-2">
-                                                    <DialogEdit {...box} getMsboxData={loadMsboxData} onEditSuccess={handleEditSuccess} />
+                                                    <DialogEdit 
+                                                        {...box} 
+                                                        getMsboxData={loadMsboxData} 
+                                                        onEditSuccess={handleEditSuccess}
+                                                        buttonId="edit-box"
+                                                    />
                                                     <AlertDialogDelete
                                                         getMsboxData={loadMsboxData}
                                                         master_box_id={box.master_box_id}
                                                         master_box_name={box.master_box_name}
                                                         onDeleteSuccess={handleDeleteSuccess}
+                                                        buttonId="delete-box"
                                                     />
                                                 </div>
                                             </Table.Cell>

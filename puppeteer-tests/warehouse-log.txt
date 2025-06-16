@@ -1,0 +1,23 @@
+Page Reload Time: 3833 ms
+Login Time: 506 ms
+Create Warehouse Time: 1608 ms
+Edit Warehouse Time: 748 ms
+🗑️ Starting to delete Test Shelf 1 Edited...
+✅ Clicked Delete Shelf button
+Delete Shelf Time: 1543 ms
+🗑️ Starting to delete Test Rack 1 Edited...
+✅ Clicked Delete Rack button
+Delete Rack Time: 1537 ms
+🗑️ Starting to delete Test Zone 2 Edited...
+✅ Clicked Delete Zone button
+Delete Zone Time: 1543 ms
+🗑️ Starting to delete warehouse...
+✅ Clicked Delete Warehouse button
+✅ Clicked confirm delete button
+Delete Warehouse Time: 2137 ms
+Create Zone Time: 0 ms
+Edit Zone Time: 0 ms
+Create Rack Time: 0 ms
+Edit Rack Time: 0 ms
+Create Shelf Time: 0 ms
+Edit Shelf Time: 0 ms

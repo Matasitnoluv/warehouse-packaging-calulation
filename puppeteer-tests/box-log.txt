@@ -1,0 +1,1 @@
+❌ Error occurred: Protocol error (Page.navigate): Invalid parameters Failed to deserialize params.url - BINDINGS: mandatory field missing at position 50

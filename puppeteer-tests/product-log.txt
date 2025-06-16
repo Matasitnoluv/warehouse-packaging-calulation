@@ -1,0 +1,5 @@
+🔄 Page Reload Time: 1842 ms
+⏱️ Login Time: 195 ms
+⏱️ Create Product Time: 1180 ms
+✏️ Edit Product Time: 3494 ms
+🗑️ Delete Product Time: 2124 ms

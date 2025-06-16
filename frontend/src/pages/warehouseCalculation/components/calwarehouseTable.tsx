@@ -16,6 +16,7 @@ import { getMsshelf } from "@/services/msshelf.services";
 import { TypeMswarehouse } from "@/types/response/reponse.mswarehouse";
 import EditButton from "./CalEditButton";
 import CalEditButton from "./CalEditButton";
+import { shelfBoxStorageService } from "@/services/shelfBoxStorage.services";
 
 const CalWarehouseTable = () => {
     const navigate = useNavigate();

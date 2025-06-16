@@ -31,12 +31,14 @@ const path = require('path');
 
   try {
     // === Page Reload Step ===
+    console.log('🔄 Loading webpage...');
     const reloadStart = Date.now();
     await page.goto(process.env.APP_URL, { waitUntil: 'networkidle0' });
     const reloadTime = Date.now() - reloadStart;
     logLines.push(`🔄 Page Reload Time: ${reloadTime} ms`);
 
     // === Login Step ===
+    console.log('🔑 Starting login process...');
     const loginStart = Date.now();
     await page.type('#username', process.env.LOGIN_USERNAME);
     await page.type('#password', process.env.LOGIN_PASSWORD);
@@ -45,52 +47,40 @@ const path = require('path');
     const loginTime = Date.now() - loginStart;
     logLines.push(`⏱️ Login Time: ${loginTime} ms`);
 
-    // === Create Product ===
+    // === Navigate to Box Management Page ===
+    console.log('🔄 กำลังไปที่หน้า Box Management...');
+    await page.goto(`${process.env.APP_URL}/Msbox`, { waitUntil: 'networkidle0' });
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // === Create Box ===
+    console.log('📦Starting to create new box...');
     const createStart = Date.now();
+    await page.waitForSelector('#btn-add');
+    await page.click('#btn-add');
 
-    await page.waitForSelector('button');
-    const buttons = await page.$$('button');
-    let foundCreate = false;
-
-    for (const btn of buttons) {
-      const text = await page.evaluate(el => el.textContent, btn);
-      if (text?.trim() === 'Create Product') {
-        await btn.click();
-        foundCreate = true;
-        break;
-      }
-    }
-
-    if (!foundCreate) {
-      const errMsg = '❌ ไม่พบปุ่ม Create Product';
-      console.error(errMsg);
-      logLines.push(errMsg);
-      await browser.close();
-      return;
-    }
-
-    await page.waitForSelector('input[placeholder="Enter product code"]');
-    await page.type('input[placeholder="Enter product code"]', 'Sunsceen2');
-    await page.type('input[placeholder="Enter product name"]', 'small sunscreen');
+    await page.waitForSelector('input[placeholder="Enter box code"]');
+    await page.type('input[placeholder="Enter box code"]', 'BoxTest2');
+    await page.type('input[placeholder="Enter box name"]', 'Test Box 2');
     await page.type('input[placeholder="Width"]', '10');
     await page.type('input[placeholder="Height"]', '10');
     await page.type('input[placeholder="Length"]', '10');
-    await page.type('textarea[placeholder="Enter product description (optional)"]', 'small sunscreen');
+    await page.type('textarea[placeholder="Enter box description..."]', 'Test Box Description');
     await page.click('#btn-create');
 
     const createTime = Date.now() - createStart;
-    logLines.push(`⏱️ Create Product Time: ${createTime} ms`);
+    logLines.push(`⏱️ Create Box Time: ${createTime} ms`);
     await new Promise(resolve => setTimeout(resolve, 3000));
 
-    const productCode = 'Sunsceen2';
+    const boxCode = 'BoxTest2';
 
     // === Click Edit Button ===
+    console.log('✏️ Starting to edit box...');
     await page.waitForFunction(
       (code) => {
         return Array.from(document.querySelectorAll('th')).some(th => th.textContent.trim() === code);
       },
       {},
-      productCode
+      boxCode
     );
 
     const rows = await page.$$('tr');
@@ -100,15 +90,12 @@ const path = require('path');
       const header = await row.$('th');
       if (header) {
         const text = await page.evaluate(el => el.textContent.trim(), header);
-        if (text === productCode) {
-          const buttons = await row.$$('button');
-          for (const btn of buttons) {
-            const btnText = await page.evaluate(el => el.textContent.trim(), btn);
-            if (btnText === 'Edit') {
-              await btn.click();
-              clickedEdit = true;
-              break;
-            }
+        if (text === boxCode) {
+          const editButton = await row.$('#btn-edit');
+          if (editButton) {
+            await editButton.click();
+            clickedEdit = true;
+            break;
           }
         }
       }
@@ -116,20 +103,20 @@ const path = require('path');
     }
 
     if (!clickedEdit) {
-      const msg = '❌ ไม่พบปุ่ม Edit สำหรับสินค้าที่สร้าง';
+      const msg = '❌ Edit button not found for created box';
       console.error(msg);
       logLines.push(msg);
       throw new Error(msg);
     }
 
-    // === แก้ไขฟอร์ม ===
+    // === Edit Form ===
     const editStart = Date.now();
-    await page.waitForSelector('input[placeholder="Enter product code"]');
-    await page.click('input[placeholder="Enter product code"]', { clickCount: 3 });
-    await page.type('input[placeholder="Enter product code"]', 'DayCream');
+    await page.waitForSelector('input[placeholder="Enter box code"]');
+    await page.click('input[placeholder="Enter box code"]', { clickCount: 3 });
+    await page.type('input[placeholder="Enter box code"]', 'BoxEdit2');
 
-    await page.click('input[placeholder="Enter product name"]', { clickCount: 3 });
-    await page.type('input[placeholder="Enter product name"]', 'small DayCream');
+    await page.click('input[placeholder="Enter box name"]', { clickCount: 3 });
+    await page.type('input[placeholder="Enter box name"]', 'Edit Box 2');
 
     await page.click('input[placeholder="Width"]', { clickCount: 3 });
     await page.type('input[placeholder="Width"]', '20');
@@ -140,18 +127,18 @@ const path = require('path');
     await page.click('input[placeholder="Length"]', { clickCount: 3 });
     await page.type('input[placeholder="Length"]', '20');
 
-    await page.click('textarea[placeholder="Enter product description..."]', { clickCount: 3 });
-    await page.type('textarea[placeholder="Enter product description..."]', 'small DayCream');
+    await page.click('textarea[placeholder="Enter box description..."]', { clickCount: 3 });
+    await page.type('textarea[placeholder="Enter box description..."]', 'Edit Box Description');
 
     await page.click('#btn-update');
-    await new Promise(resolve => setTimeout(resolve, 3000));
     const editTime = Date.now() - editStart;
-    logLines.push(`✏️ Edit Product Time: ${editTime} ms`);
-    console.log('✅ แก้ไขสินค้าเรียบร้อยแล้ว');
+    logLines.push(`✏️ Edit Box Time: ${editTime} ms`);
+    console.log('✅ Box edited successfully');
 
-    // === Delete Product ===
+    // === Delete Box ===
+    console.log('🗑️ Starting to delete box...');
     const deleteStart = Date.now();
-    const editedCode = 'DayCream';
+    const editedCode = 'BoxEdit2';
 
     await page.waitForFunction(
       (code) => {
@@ -169,14 +156,11 @@ const path = require('path');
       if (header) {
         const text = await page.evaluate(el => el.textContent.trim(), header);
         if (text === editedCode) {
-          const buttons = await row.$$('button');
-          for (const btn of buttons) {
-            const btnText = await page.evaluate(el => el.textContent.trim(), btn);
-            if (btnText === 'Delete') {
-              await btn.click(); // Open dialog
-              clickedDelete = true;
-              break;
-            }
+          const deleteButton = await row.$('#delete-box');
+          if (deleteButton) {
+            await deleteButton.click();
+            clickedDelete = true;
+            break;
           }
         }
       }
@@ -184,32 +168,33 @@ const path = require('path');
     }
 
     if (!clickedDelete) {
-      const msg = `❌ ไม่พบปุ่ม Delete สำหรับสินค้า ${editedCode}`;
+      const msg = `❌ Delete button not found for box ${editedCode}`;
       console.error(msg);
       logLines.push(msg);
       throw new Error(msg);
     }
 
-    // กดยืนยันลบ
-    await page.waitForSelector('#btn-delete', { visible: true });
-    await page.click('#btn-delete');
-    await new Promise(resolve => setTimeout(resolve, 2000)); // รอให้ API ทำงาน
+    // Confirm delete
+    await page.waitForSelector('#btn-confirm-delete', { visible: true });
+    await page.click('#btn-confirm-delete');
 
     const deleteTime = Date.now() - deleteStart;
-    logLines.push(`🗑️ Delete Product Time: ${deleteTime} ms`);
-    console.log('✅ ลบสินค้าเรียบร้อยแล้ว');
+    logLines.push(`🗑️ Delete Box Time: ${deleteTime} ms`);
+    console.log('✅ Box deleted successfully');
 
   } catch (err) {
-    const errorMsg = `❌ เกิดข้อผิดพลาด: ${err.message}`;
+    const errorMsg = `❌ Error occurred: ${err.message}`;
     console.error(errorMsg);
     logLines.push(errorMsg);
-    await page.screenshot({ path: 'error-screenshot.png' });
+    try {
+      await page.screenshot({ path: 'error-screenshot.png' });
+    } catch (screenshotError) {
+      console.error('Failed to save screenshot:', screenshotError.message);
+    }
   } finally {
-    const logPath = path.join(__dirname, 'product-log.txt');
-
-
+    const logPath = path.join(__dirname, 'box-log.txt');
     fs.writeFileSync(logPath, logLines.join('\n'), 'utf-8');
-    console.log(`📄 บันทึก log ที่: ${logPath}`);
+    console.log(`📄 Log saved at: ${logPath}`);
     await browser.close();
   }
-})();
+})(); 

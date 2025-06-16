@@ -6,8 +6,9 @@
   "type": "commonjs",
   "scripts": {
     "test:product": "node product_management.js",
-    "test:box": "node box_management.test.js",
-    "test:warehouse": "node warehouse_management.test.js"
+    "test:box": "node box_management.js",
+    "test:warehouse": "node warehouse_management.js",
+    "test:zone": "node zone_management.js"
   },
   "dependencies": {
     "puppeteer": "^24.8.2",

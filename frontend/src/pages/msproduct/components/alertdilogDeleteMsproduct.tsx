@@ -56,7 +56,9 @@ const AlertDialogDelete = ({ getMsproductData, master_product_id, master_product
                         </Button>
                     </Dialog.Close>
                     <Dialog.Close>
-                        <Button onClick={handleDeleteMsproduct} className="bg-red-400 hover:bg-red-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors">Confirm</Button>
+                        <Button 
+                        id="btn-delete"
+                        onClick={handleDeleteMsproduct} className="bg-red-400 hover:bg-red-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors">Confirm</Button>
                     </Dialog.Close>
                 </Flex>
             </Dialog.Content>

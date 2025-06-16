@@ -95,7 +95,7 @@ const DialogEdit = ({
   return (
     <Dialog.Root>
       <Dialog.Trigger>
-        <Button className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors">
+        <Button id="btn-edit" className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors">
           Edit
         </Button>
       </Dialog.Trigger>
@@ -106,20 +106,20 @@ const DialogEdit = ({
         </div>
 
         <div className="space-y-5">
-          {/* Product ID Section */}
+          {/* Warehouse ID Section */}
           <div>
             <Text className="font-semibold text-gray-700 mb-1 block text-sm">Warehouse ID</Text>
             <div className="p-2 bg-gray-50 rounded-lg border border-gray-200 font-mono text-sm text-gray-600">
               {master_warehouse_id}
             </div>
           </div>
-          {/* Product Name Section */}
+          {/* Warehouse Name Section */}
           <div>
             <label className="block">
-              <Text className="font-semibold text-gray-700 mb-1 block text-sm">Product Name *</Text>
+              <Text className="font-semibold text-gray-700 mb-1 block text-sm">Warehouse Name *</Text>
               <TextField.Root
                 defaultValue={master_warehouse_name}
-                placeholder="Enter product name"
+                placeholder="Enter warehouse name"
                 onChange={(e) => setPatchMasterWarehouseName(e.target.value)}
                 className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400 transition-all duration-200 ${errors.master_warehouse_name ? 'border-red-500 bg-red-50' : 'border-gray-200'
                   }`}
@@ -190,7 +190,7 @@ const DialogEdit = ({
               <Text className="font-semibold text-gray-700 mb-1 block text-sm">Description</Text>
               <TextArea
                 defaultValue={description}
-                placeholder="Enter product description..."
+                placeholder="Enter warehouse description..."
                 onChange={(e) => setPatchDescription(e.target.value)}
                 className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 min-h-[80px] transition-all duration-200"
               />
@@ -209,8 +209,8 @@ const DialogEdit = ({
             <Button
               onClick={handleUpdateMswarehouse}
               disabled={isSubmitting}
-              className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
+              id="btn-update"
+              className={`bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {isSubmitting ? 'Updating...' : 'Update Warehouse'}
             </Button>

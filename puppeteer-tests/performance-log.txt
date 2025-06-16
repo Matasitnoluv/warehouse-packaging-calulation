@@ -1,2 +1,4 @@
-⏱️ Login Time: 2101 ms
-⏱️ Create Product Time: 1171 ms
+⏱️ Login Time: 4962 ms
+⏱️ Create Box Time: 456 ms
+✏️ Edit Box Time: 3432 ms
+🗑️ Delete Box Time: 3094 ms

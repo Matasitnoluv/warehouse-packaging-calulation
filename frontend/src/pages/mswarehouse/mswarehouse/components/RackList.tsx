@@ -127,11 +127,13 @@ const RackList = ({ zoneId, zoneName, zoneVolume }: RackListProps) => {
                                         rack={rack} 
                                         zoneVolume={zoneVolume}
                                         onRackUpdated={fetchRacks} 
+                                        data-testid={`edit-rack-${rack.master_rack_id}`}
                                     />
                                     <Button 
                                         color="red" 
                                         variant="soft" 
                                         size="1"
+                                        data-testid={`delete-rack-${rack.master_rack_id}`}
                                         onClick={() => handleDeleteRack(rack.master_rack_id)}
                                     >
                                         Delete

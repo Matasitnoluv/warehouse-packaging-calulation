@@ -73,7 +73,7 @@ const DialogAdd = ({ getMswarehouseData }: DialogMswarehouseProps) => {
     return (
         <Dialog.Root>
             <Dialog.Trigger>
-                <Button size="3" className="bg-green-500 hover:bg-green-600 text-white font-bold px-5 rounded-lg shadow-md flex items-center">
+                <Button id="btn-add" size="3" className="bg-green-500 hover:bg-green-600 text-white font-bold px-5 rounded-lg shadow-md flex items-center">
                     <Plus className="w-5 h-5 mr-2" />
                     Create Warehouse
                 </Button>
@@ -147,7 +147,7 @@ const DialogAdd = ({ getMswarehouseData }: DialogMswarehouseProps) => {
                         <label className="block">
                             <Text className="font-semibold text-gray-700 mb-1 block text-sm">Description</Text>
                             <TextArea
-                                placeholder="Enter zone description..."
+                                placeholder="Enter warehouse description..."
                                 value={description}
                                 onChange={(e) => setDescription(e.target.value)}
                                 className="w-full p-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-400 min-h-[80px] transition-all duration-200"
@@ -166,6 +166,7 @@ const DialogAdd = ({ getMswarehouseData }: DialogMswarehouseProps) => {
                     <Button
                         onClick={handleCreateMswarehouse}
                         disabled={isSubmitting}
+                        id="btn-create"
                         className={`inline-flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                         <Plus size={16} />

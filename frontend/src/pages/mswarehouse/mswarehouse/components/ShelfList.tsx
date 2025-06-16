@@ -131,12 +131,7 @@ const ShelfList = ({ rackId, rackName, rackVolume }: ShelfListProps) => {
                                         rackVolume={rackVolume}
                                         onShelfUpdated={fetchShelves}
                                     />
-                                    <Button
-                                        color="red"
-                                        variant="soft"
-                                        size="1"
-                                        onClick={() => handleDeleteShelf(shelf.master_shelf_id)}
-                                    >
+                                    <Button id={`btn-delete-shelf-${shelf.master_shelf_id}`} color="red" variant="soft" size="1" onClick={() => handleDeleteShelf(shelf.master_shelf_id)}>
                                         Delete
                                     </Button>
                                 </div>

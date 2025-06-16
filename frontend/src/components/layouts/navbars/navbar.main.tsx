@@ -86,7 +86,7 @@ const NavbarMain = () => {
           <TabNav.Link href="/msproduct" className="p-2">Product Management</TabNav.Link>
           <TabNav.Link href="/Msbox" className="p-2">Box Management</TabNav.Link>
           {isAdminOrManager && (
-            <TabNav.Link href="/mswarahouse" className="p-2">Warehouse Management</TabNav.Link>
+            <TabNav.Link href="/mswarehouse" className="p-2">Warehouse Management</TabNav.Link>
           )}
           <TabNav.Link href="/calculationproductbox" className="p-2">Calculation</TabNav.Link>
           <TabNav.Link href="/export" className="p-2">Export</TabNav.Link>

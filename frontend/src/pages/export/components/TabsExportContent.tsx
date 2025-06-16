@@ -16,8 +16,7 @@ export const TabsExportContent = ({ exportData, exportTabs = false }: { exportDa
         (r: any) => r.master_zone_id === exportData.zone.master_zone_id
     );
     const shelfBoxStorage = exportData.shelfBoxStorage.filter((doc) => doc.export === exportTabs)
-
-
+    console.log(shelfBoxStorage.length, "exportData");
     return <div className="mb-4">
         <h2 className="text-xl font-semibold mb-1">กล่องที่พร้อมส่งออก</h2>
 
@@ -39,7 +38,7 @@ export const TabsExportContent = ({ exportData, exportTabs = false }: { exportDa
                     </thead>
                     <tbody>
                         {shelfBoxStorage.map((doc) => (
-                            <tr key={doc.document_product_no} className="border-t hover:bg-gray-50 transition-colors duration-150">
+                            <tr key={doc.cal_box_id} className="border-t hover:bg-gray-50 transition-colors duration-150">
                                 <td className="p-3">{doc.document_product_no}</td>
                                 <td className="p-3">
                                     {doc.document_warehouse_no}

@@ -98,6 +98,7 @@ export async function saveShelfPayload(
         document_warehouse_no: string;
         master_zone_id: string;
         master_warehouse_id: string;
+        document_product_id: string;
     }
 ) {
 
@@ -113,6 +114,7 @@ export async function saveShelfPayload(
                 master_zone_id: meta.master_zone_id,
                 document_warehouse_no: meta.document_warehouse_no,
                 master_warehouse_id: meta.master_warehouse_id,
+                document_product_id: meta.document_product_id,
                 fitBoxes: validBoxes.map((box) => ({
                     cal_box_id: box.cal_box_id,
                     master_warehouse_id: meta.master_warehouse_id,
@@ -152,7 +154,7 @@ export async function saveShelfPayload(
 
 
 const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStorage[] | undefined }) => {
-    const { showCalculateDialog, setShowCalculateDialog, rack, shelf, boxs, zone, document, warehouseNo, zoneName, warehouseId } = useCalculateContext();
+    const { showCalculateDialog, setShowCalculateDialog, rack, shelf, boxs, zone, document, documentId, warehouseNo, zoneName, warehouseId } = useCalculateContext();
     const [tempShelfData, setTempShelfData] = useState<ShelfWithFitBoxes[]>([]);
     const [saveStatus, setSaveStatus] = useState<boolean>(true);
 
@@ -282,6 +284,7 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
             document_warehouse_no: warehouseNo,
             master_zone_id: zone,
             master_warehouse_id: warehouseId,
+            document_product_id: documentId,
         });
 
         if (response) {

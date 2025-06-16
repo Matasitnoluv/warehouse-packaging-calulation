@@ -56,23 +56,32 @@ export const SelectZone = ({ selectedZone, setSelectedZone, className, setZoneNa
 }
 
 
-export const SelectProducts = ({ document, setDocument, className, disabled }: { className?: string, document: string | undefined, setDocument: (document: string) => void, disabled?: boolean }) => {
+export const SelectProducts = ({ document, setDocument, className, disabled, setDocumentId: setIdDocument }: { className?: string, document: string | undefined, setDocument: (document: string) => void, disabled?: boolean, setDocumentId?: (documentId: string) => void }) => {
     const { data: products, status } = useCalMsProductQuery()
-    const [documentId, setDocumentId] = useState<string | undefined>("")
+    const [documentIdToNo, setDocumentIdToNo] = useState<string | undefined>("")
     const productsData = products?.responseObject;
     useLayoutEffect(() => {
         if (disabled) {
-            if (document && productsData && !documentId) {
-                setDocumentId(productsData?.find(product => product?.document_product_id === document)?.document_product_no!)
+            if (document && productsData && !documentIdToNo) {
+                const No = productsData?.find(product => product?.document_product_id === document)?.document_product_no
+                setDocumentIdToNo(No);
+
             }
         }
     }, [document, disabled, productsData, setDocument])
 
-    useEffect(() => {
-        if (documentId) {
-            setDocument(documentId)
+    useLayoutEffect(() => {
+        if (setIdDocument) {
+            console.log(productsData?.find(product => product?.document_product_no === document)?.document_product_id, document, "test")
+            const Id = productsData?.find(product => product?.document_product_no === document)?.document_product_id
+            setIdDocument(Id ?? '')
         }
-    }, [documentId, setDocument])
+    }, [setIdDocument, documentIdToNo, document, disabled])
+    useEffect(() => {
+        if (documentIdToNo) {
+            setDocument(documentIdToNo)
+        }
+    }, [documentIdToNo, setDocument])
 
 
     if (status === 'pending') return "load";
@@ -88,7 +97,7 @@ export const SelectProducts = ({ document, setDocument, className, disabled }: {
                 onChange={e => setDocument(e.target.value)}
                 disabled={disabled}
             >
-                {documentId ? <option value={documentId} key={documentId}>{documentId}</option> : <option value="" key={'select-products'}>-- Select products --</option>}
+                {documentIdToNo ? <option value={documentIdToNo} key={documentIdToNo}>{documentIdToNo}</option> : <option value="" key={'select-products'}>-- Select products --</option>}
                 {productsData?.filter(product => !product.status).map((product) => (
                     <option key={product.document_product_no} value={product.document_product_no}>
                         {product.document_product_no}
@@ -134,7 +143,7 @@ export const SelectWarehouse = ({ warehouseId, setWarehouse, className, setWareh
 const ZoneDocumentSelector = ({ setZone: setMainZone, disables }: { setZone: (zone: string) => void, disables?: { selectProduct?: boolean, selectZone?: boolean } }) => {
 
     //   const [zones, setZones] = useState<ZoneType[]>([]);
-    const { zone, setZone, document, setDocument, warehouse, setWarehouse, setZoneName, setWarehouseId, warehouseId } = useCalculateContext();
+    const { zone, setZone, document, setDocument, warehouse, setWarehouse, setDocumentId, documentId, setZoneName, setWarehouseId, warehouseId } = useCalculateContext();
     useEffect(() => {
         if (zone) {
             setMainZone(zone)
@@ -151,10 +160,8 @@ const ZoneDocumentSelector = ({ setZone: setMainZone, disables }: { setZone: (zo
             <SelectWarehouse warehouseId={warehouseId} setWarehouseId={setWarehouseId} />
             <hr className="my-4 border-gray-200" />
             <div className="space-y-4 mt-8">
-
                 {!disables?.selectZone && <SelectZone selectedZone={zone} setSelectedZone={setZone} setZoneName={setZoneName} />}
-
-                {<SelectProducts document={document} setDocument={setDocument} disabled={disables?.selectProduct} />}
+                {<SelectProducts document={document} setDocument={setDocument} disabled={disables?.selectProduct} setDocumentId={setDocumentId} />}
                 <div className="flex justify-end">
                     <ButtonCalculate disabled={!zone || !document || !warehouseId} />
                 </div>

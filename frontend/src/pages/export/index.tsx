@@ -1,6 +1,6 @@
-
 "use client"
-import { SelectWarehouse, SelectZone } from "../warehouseCalculation/components/ZoneDocumentSelector";
+import { SelectWarehouse } from "../warehouseCalculation/components/ZoneDocumentSelector";
+import { SelectZoneSingle } from "./components/SelectZoneSingle";
 import { TabsExport } from "./components/TabsExport";
 import { HeaderExport } from "./components/HeaderExport";
 import { ContainerExport } from "./components/ContainerExport";
@@ -15,7 +15,7 @@ const ExportPage = () => {
     <ContainerExport>
       <HeaderExport>
         <SelectWarehouse warehouseId={warehouseId} setWarehouseId={setWarehouseId} />
-        <SelectZone selectedZone={selectedZone} setSelectedZone={setZone} />
+        <SelectZoneSingle selectedZone={selectedZone} setSelectedZone={setZone} />
       </HeaderExport>
       <TabsExport wareHouse={warehouseId} zone={selectedZone} />
     </ContainerExport>

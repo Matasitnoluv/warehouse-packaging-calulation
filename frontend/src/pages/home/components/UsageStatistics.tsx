@@ -10,12 +10,12 @@ interface UsageStatisticsProps {
   boxData: any[];
 }
 
-const UsageStatistics: React.FC<UsageStatisticsProps> = ({ 
-  warehouseData, 
-  zoneData, 
-  rackData, 
-  shelfData, 
-  boxData 
+const UsageStatistics: React.FC<UsageStatisticsProps> = ({
+  warehouseData,
+  zoneData,
+  rackData,
+  shelfData,
+  boxData
 }) => {
   // Calculate usage statistics for pie chart
   const calculateUsageData = () => {
@@ -63,16 +63,16 @@ const UsageStatistics: React.FC<UsageStatisticsProps> = ({
   const generateTrendData = () => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const currentMonth = new Date().getMonth();
-    
+
     return months.map((month, index) => {
       // Create a realistic trend with some randomness
       const baseUsage = 30 + (index * 5); // Increasing trend
       const randomFactor = Math.random() * 10 - 5; // Random fluctuation
       const usage = Math.max(0, Math.min(100, baseUsage + randomFactor));
-      
+
       // Mark current month
       const isCurrent = index === currentMonth;
-      
+
       return {
         name: month,
         usage: usage,
@@ -87,7 +87,7 @@ const UsageStatistics: React.FC<UsageStatisticsProps> = ({
   return (
     <div className="space-y-6">
       <Text size="5" weight="bold">Space Utilization</Text>
-      
+
       <Flex direction={{ initial: 'column', md: 'row' }} gap="6">
         {/* Pie Chart */}
         <div className="w-full md:w-1/2 h-80">
@@ -101,7 +101,7 @@ const UsageStatistics: React.FC<UsageStatisticsProps> = ({
                 outerRadius={120}
                 fill="#8884d8"
                 dataKey="value"
-                label={({ name, percent }) => 
+                label={({ name, percent }) =>
                   percent > 0.05 ? `${name}: ${(percent * 100).toFixed(1)}%` : ''
                 }
               >
@@ -128,11 +128,11 @@ const UsageStatistics: React.FC<UsageStatisticsProps> = ({
               <YAxis domain={[0, 100]} />
               <Tooltip formatter={(value) => `${value.toFixed(1)}%`} />
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="usage" 
-                name="Space Usage (%)" 
-                stroke="#8884d8" 
+              <Line
+                type="monotone"
+                dataKey="usage"
+                name="Space Usage (%)"
+                stroke="#8884d8"
                 strokeWidth={2}
                 dot={(props) => {
                   const { cx, cy, payload } = props;

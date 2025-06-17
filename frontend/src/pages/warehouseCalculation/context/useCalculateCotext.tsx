@@ -35,7 +35,8 @@ export interface CalculateContextType {
   setDocument: (document: string) => void;
   setShowCalculateDialog: React.Dispatch<React.SetStateAction<boolean>>;
 
-
+  selectedZones: { id: string; name: string }[];
+  setSelectedZones: React.Dispatch<React.SetStateAction<{ id: string; name: string }[]>>;
 }
 
 // ✅ Context เริ่มต้น
@@ -50,7 +51,7 @@ export const CalculateProvider = ({ children, warehouseNo, defaultZone, defaultD
   const [warehouse, setWarehouse] = useState<TypeMswarehouse | null>(null);
   const [warehouseId, setWarehouseId] = useState<string>(defaultWarehouse);
   const [zoneName, setZoneName] = useState<string>("");
-
+  const [selectedZones, setSelectedZones] = useState<{ id: string; name: string }[]>([]);
 
   const { data: rackData } = useQuery({
     queryKey: ['rack', zone],
@@ -75,7 +76,8 @@ export const CalculateProvider = ({ children, warehouseNo, defaultZone, defaultD
   return (
     <CalculateContext.Provider value={{
       warehouseNo, showCalculateDialog, warehouse, warehouseId,
-      setWarehouseId, setWarehouse, setShowCalculateDialog, zone, setZone, document, setDocument, zoneName, setZoneName, rack, shelf, boxs, documentId, setDocumentId
+      setWarehouseId, setWarehouse, setShowCalculateDialog, zone, setZone, document, setDocument, zoneName, setZoneName, rack, shelf, boxs, documentId, setDocumentId,
+      selectedZones, setSelectedZones
     }}>
       {children}
     </CalculateContext.Provider>

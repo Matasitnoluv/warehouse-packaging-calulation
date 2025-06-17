@@ -1,16 +1,20 @@
-
 import { DocumentTypeCalculate } from "../type";
 import { useQuery } from "@tanstack/react-query";
 import { useCalculateContext } from "../context/useCalculateCotext";
 import { ButtonCalculate } from "../warehouseCalculation";
 import { getMswarehouse } from "@/services/mswarehouse.services";
 import { useCalMsProductQuery, useZoneQuery } from "@/services/queriesHook";
-import { Layers } from "lucide-react";
+import { Layers, Plus, X } from "lucide-react";
 import { useEffect, useLayoutEffect, useState } from "react";
 
 interface ZoneType {
     master_zone_id: string;
     master_zone_name: string;
+}
+
+interface SelectedZone {
+    id: string;
+    name: string;
 }
 
 interface ZoneDocumentSelectorProps {
@@ -23,38 +27,97 @@ interface ZoneDocumentSelectorProps {
     onCalculate: () => void;
 }
 
-export const SelectZone = ({ selectedZone, setSelectedZone, className, setZoneName }: { className?: string, setZoneName?: React.Dispatch<React.SetStateAction<string>>, selectedZone: string, setSelectedZone: (zoneId: string) => void }) => {
+export const SelectZone = ({
+    selectedZones,
+    setSelectedZones,
+    className,
+    setZoneNames
+}: {
+    className?: string,
+    setZoneNames?: React.Dispatch<React.SetStateAction<string[]>>,
+    selectedZones: SelectedZone[],
+    setSelectedZones: (zones: SelectedZone[]) => void
+}) => {
     const { data: zones, status } = useZoneQuery()
+    const [availableZones, setAvailableZones] = useState<ZoneType[]>([]);
+
     useEffect(() => {
-        if (selectedZone && setZoneName) {
-            const zoneName = zones?.responseObject?.find(zone => zone.master_zone_id === selectedZone)?.master_zone_name || ""
-            setZoneName(zoneName)
+        const zoneList = Array.isArray(zones?.responseObject) ? zones.responseObject : [];
+        const filteredZones = zoneList.filter(
+            zone => !selectedZones.some(selected => selected.id === zone.master_zone_id)
+        );
+        setAvailableZones(filteredZones);
+    }, [zones, selectedZones]);
+
+    useEffect(() => {
+        if (setZoneNames) {
+            const names = selectedZones.map(zone => zone.name);
+            setZoneNames(names);
         }
-    }, [selectedZone, setZoneName, zones])
+    }, [selectedZones, setZoneNames]);
+
+    const handleAddZone = (zoneId: string) => {
+        const zone = zones?.responseObject.find(z => z.master_zone_id === zoneId);
+        if (zone) {
+            setSelectedZones([
+                ...selectedZones,
+                { id: zone.master_zone_id, name: zone.master_zone_name }
+            ]);
+        }
+    };
+
+    const handleRemoveZone = (zoneId: string) => {
+        setSelectedZones(selectedZones.filter(zone => zone.id !== zoneId));
+    };
 
     if (status === 'pending') return "load";
-    const zonesData = zones?.responseObject;
+
     return (
         <div className={className}>
             <label className="block text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
-                <Layers className="text-blue-500 w-5 h-5" /> Select Zone
+                <Layers className="text-blue-500 w-5 h-5" /> เลือก Zone
             </label>
-            <select
-                className="w-full px-5 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none text-lg shadow-sm transition-all duration-200 hover:border-blue-400"
-                value={selectedZone}
-                onChange={e => setSelectedZone(e.target.value)}
-            >
-                <option value="">-- Select Zone --</option>
-                {zonesData?.map(zone => (
-                    <option key={zone.master_zone_id} value={zone.master_zone_id}>
-                        {zone.master_zone_name}
-                    </option>
+
+            {/* แสดง Zone ที่เลือกแล้ว */}
+            <div className="space-y-2 mb-4">
+                {selectedZones.map((zone, index) => (
+                    <div key={zone.id} className="flex items-center gap-2 bg-blue-50 p-2 rounded-lg">
+                        <span className="flex-1">{index + 1}. {zone.name}</span>
+                        <button
+                            onClick={() => handleRemoveZone(zone.id)}
+                            className="p-1 hover:bg-red-100 rounded-full"
+                        >
+                            <X size={16} className="text-red-500" />
+                        </button>
+                    </div>
                 ))}
-            </select>
+            </div>
+
+            {/* Dropdown สำหรับเลือก Zone เพิ่มเติม */}
+            <div className="flex gap-2">
+                <select
+                    className="flex-1 px-5 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none text-lg shadow-sm transition-all duration-200 hover:border-blue-400"
+                    value=""
+                    onChange={e => handleAddZone(e.target.value)}
+                >
+                    <option value="">-- เลือก Zone เพิ่มเติม --</option>
+                    {availableZones.map(zone => (
+                        <option key={zone.master_zone_id} value={zone.master_zone_id}>
+                            {zone.master_zone_name}
+                        </option>
+                    ))}
+                </select>
+                <button
+                    onClick={() => handleAddZone(availableZones[0]?.master_zone_id)}
+                    disabled={availableZones.length === 0}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
+                >
+                    <Plus size={20} />
+                </button>
+            </div>
         </div>
     )
 }
-
 
 export const SelectProducts = ({ document, setDocument, className, disabled, setDocumentId: setIdDocument }: { className?: string, document: string | undefined, setDocument: (document: string) => void, disabled?: boolean, setDocumentId?: (documentId: string) => void }) => {
     const { data: products, status } = useCalMsProductQuery()
@@ -137,36 +200,51 @@ export const SelectWarehouse = ({ warehouseId, setWarehouse, className, setWareh
     )
 }
 
-
-
-
 const ZoneDocumentSelector = ({ setZone: setMainZone, disables }: { setZone: (zone: string) => void, disables?: { selectProduct?: boolean, selectZone?: boolean } }) => {
+    const {
+        zone,
+        setZone,
+        document,
+        setDocument,
+        warehouse,
+        setWarehouse,
+        setDocumentId,
+        documentId,
+        setZoneName,
+        setWarehouseId,
+        warehouseId,
+        selectedZones,
+        setSelectedZones
+    } = useCalculateContext();
+    const [zoneNames, setZoneNames] = useState<string[]>([]);
 
-    //   const [zones, setZones] = useState<ZoneType[]>([]);
-    const { zone, setZone, document, setDocument, warehouse, setWarehouse, setDocumentId, documentId, setZoneName, setWarehouseId, warehouseId } = useCalculateContext();
     useEffect(() => {
-        if (zone) {
-            setMainZone(zone)
+        if (selectedZones.length > 0) {
+            // ส่ง zone แรกไปยัง context
+            setMainZone(selectedZones[0].id);
+            setZone(selectedZones[0].id);
         }
-    }, [zone, setMainZone])
+    }, [selectedZones, setMainZone, setZone]);
 
     return (
         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-10 mt-8 border border-gray-100">
-            {/* Select Zone */}
-
             <hr className="my-6 border-gray-200" />
-            {/* Document Box No */}
 
             <SelectWarehouse warehouseId={warehouseId} setWarehouseId={setWarehouseId} />
             <hr className="my-4 border-gray-200" />
             <div className="space-y-4 mt-8">
-                {!disables?.selectZone && <SelectZone selectedZone={zone} setSelectedZone={setZone} setZoneName={setZoneName} />}
+                {!disables?.selectZone && (
+                    <SelectZone
+                        selectedZones={selectedZones}
+                        setSelectedZones={setSelectedZones}
+                        setZoneNames={setZoneNames}
+                    />
+                )}
                 {<SelectProducts document={document} setDocument={setDocument} disabled={disables?.selectProduct} setDocumentId={setDocumentId} />}
                 <div className="flex justify-end">
-                    <ButtonCalculate disabled={!zone || !document || !warehouseId} />
+                    <ButtonCalculate disabled={selectedZones.length === 0 || !document || !warehouseId} />
                 </div>
             </div>
-
         </div>
     );
 };

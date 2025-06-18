@@ -1,0 +1,185 @@
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    margin: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+h1, h2, h3 {
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+h1 { text-align: center; }
+h2 .icon, h3 .icon { margin-right: 8px; }
+
+.container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); /* Responsive grid */
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+.input-section, .calculation-section, #results-section {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+form {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+form input[type="text"],
+form input[type="number"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%; /* Take full width within grid */
+    box-sizing: border-box; /* Include padding in width */
+}
+
+form .dimensions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+form .dimensions input[type="number"] {
+   flex: 1; /* Allow inputs to grow */
+}
+
+button {
+    padding: 10px 15px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+}
+
+button:hover {
+    background-color: #2980b9;
+}
+
+button[type="submit"] {
+     background-color: #2ecc71;
+}
+button[type="submit"]:hover {
+     background-color: #27ae60;
+}
+
+.remove-button {
+    background-color: #e74c3c;
+    font-size: 0.8em;
+    padding: 3px 8px;
+}
+.remove-button:hover {
+    background-color: #c0392b;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top; /* Align content to top for multi-line cells */
+}
+
+thead tr {
+    background-color: #ecf0f1;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.calculation-section {
+    text-align: center;
+    padding: 30px;
+}
+
+#calculate-button {
+    font-size: 1.2em;
+    padding: 12px 25px;
+    background-color: #e67e22;
+}
+#calculate-button:hover {
+     background-color: #d35400;
+}
+
+
+#results-section {
+    margin-top: 20px;
+}
+
+#results-summary {
+    background-color: #eafaf1;
+    border-left: 5px solid #2ecc71;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.table-container {
+    overflow-x: auto; /* Allows horizontal scrolling on small screens if table is wide */
+}
+
+.error {
+    color: #e74c3c;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.note {
+    font-size: 0.9em;
+    color: #7f8c8d;
+    margin-top: 15px;
+    font-style: italic;
+}
+
+/* เพิ่มเติมสำหรับตารางสรุปกลุ่ม */
+#results-summary-grouped-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+#results-summary-grouped-table th,
+#results-summary-grouped-table td {
+    padding: 10px 12px;
+}
+
+/* ซ่อนตารางรายละเอียดตอนเริ่มต้น */
+#results-detail-container {
+    margin-top: 20px;
+    border-top: 1px dashed #ccc;
+    padding-top: 20px;
+    /* display: none; ถูกกำหนดใน HTML inline แล้ว */
+}
+
+/* สไตล์ปุ่ม Toggle */
+#toggle-detail-button {
+    background-color: #95a5a6; /* สีเทาๆ */
+    padding: 8px 20px;
+}
+#toggle-detail-button:hover {
+    background-color: #7f8c8d;
+}
+
+#loading {
+    margin-top: 15px;
+    color: #3498db;
+    font-weight: bold;
+}

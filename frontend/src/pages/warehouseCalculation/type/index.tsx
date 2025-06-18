@@ -182,7 +182,7 @@ export type CalculateSummary = {
 
 
 export type DocumentWarehouseType = {
-    document_warehouse_id: string;
+    cal_warehouse_id: string;
     document_warehouse_no: string;
     master_warehouse_id: string;
     status: boolean;

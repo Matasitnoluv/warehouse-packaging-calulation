@@ -10,13 +10,14 @@ import CalculationProductAndBoxTableMixed from "@/pages/calculationproductbox/ca
 import SelectProductandBoxPage from "@/pages/calculationproductbox/selectProductAndBox";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import MsWarehousePage from "@/pages/mswarehouse/mswarehouse";
-import WarehouseCalculation from "@/pages/warehouseCalculation/warehouseCalculation";
+import WarehouseCalculation from "@/pages/warehouseCalculation";
 import ExportPage from "@/pages/export";
 import Dashboard from "@/pages/home/dashboard";
 
 import SelectWarehousePage from "@/pages/calculationproductbox/SelectWarehousePage";
 import UserManagement from "@/pages/user-management";
 import CalWarehouseTable from "@/pages/warehouseCalculation/components/calwarehouseTable";
+import NotFound from "@/pages/notFound";
 
 const router = createBrowserRouter([
     {
@@ -65,16 +66,12 @@ const router = createBrowserRouter([
                 element: <MsWarehousePage />
             },
             {
-                path: "/warehouse-calculation/:warehouseId",
+                path: "/warehouse-calculation/:warehouseId/:actions?",
                 element: <WarehouseCalculation />
             },
             {
                 path: "/export",
                 element: <ExportPage />
-            },
-            {
-                path: "/warehouse-calculation",
-                element: <WarehouseCalculation />
             },
             {
                 path: "/calwarehouseTable",
@@ -94,6 +91,12 @@ const router = createBrowserRouter([
             },
         ],
     },
+    {
+        path: "/404",
+        element: (
+            <NotFound />
+        ),
+    }
 ]);
 
 export default function Router() {

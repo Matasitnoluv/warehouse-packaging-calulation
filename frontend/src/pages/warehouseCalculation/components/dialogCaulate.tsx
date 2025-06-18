@@ -11,8 +11,6 @@ import { TypeMsrack } from "@/types/response/reponse.msrack";
 import { TypeCalBox } from "@/types/response/reponse.cal_box";
 import { TypeShelfBoxStorage } from "@/types/response/reponse.msproduct";
 import { useQueryClient } from "@tanstack/react-query";
-import { getMsrack } from "@/services/msrack.services";
-import { getMsshelf } from "@/services/msshelf.services";
 
 const calculateBoxPlacement = (
     boxes: TypeCalBox[],
@@ -155,134 +153,108 @@ export async function saveShelfPayload(
 
 
 
-const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStorage[] | undefined }) => {
-    const { showCalculateDialog, setShowCalculateDialog, boxs, document, documentId, warehouseNo, warehouseId, selectedZones } = useCalculateContext();
-    const [zoneResults, setZoneResults] = useState<any[]>([]); // [{zone, racks, shelves, placements, tempShelfData, saveStatus}]
-    const [boxesLeft, setBoxesLeft] = useState<TypeCalBox[]>([]);
-    const [loading, setLoading] = useState(false);
-    const queryClient = useQueryClient();
+const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStorage[] }) => {
+    const { showCalculateDialog, setShowCalculateDialog, rack, shelf, boxs, zone, document, documentId, warehouseNo, zoneName, warehouseId } = useCalculateContext();
+    const [tempShelfData, setTempShelfData] = useState<ShelfWithFitBoxes[]>([]);
+    const [saveStatus, setSaveStatus] = useState<boolean>(true);
+
+    const calculateSummary: CalculateSummary | undefined = useMemo(() => {
+
+        if (boxs && rack && shelf && zone && document && shelfBoxStorage) {
+
+            const normalizedStoredBoxes = shelfBoxStorage
+                .filter((box: TypeShelfBoxStorage) => box?.master_zone_id === zone)
+                .sort((a: TypeShelfBoxStorage, b: TypeShelfBoxStorage) => {
+                    const dateA = a.stored_date ? new Date(a.stored_date).getTime() : 0;
+                    const dateB = b.stored_date ? new Date(b.stored_date).getTime() : 0;
+                    if (dateA !== dateB) {
+                        return dateA - dateB;
+                    }
+                    return Number(a.cal_box.box_no) - Number(b.cal_box.box_no);
+                })
+
+            const movedBoxes = boxs.filter(box =>
+                shelfBoxStorage.some(stored =>
+                    stored.cal_box_id === box.cal_box_id && stored.master_zone_id !== zone
+                )
+            )
+
+            const newBoxes = boxs.filter(box =>
+                !shelfBoxStorage.some(stored => stored.cal_box_id === box.cal_box_id)
+            )
+
+
+            const allBoxesToCalculate = [
+                ...normalizedStoredBoxes,
+                ...movedBoxes,
+                ...newBoxes
+            ];
+            console.log("TEST", allBoxesToCalculate)
+            const calBox = calculateBoxPlacement(allBoxesToCalculate as unknown as TypeCalBox[], rack, shelf);
+            setSaveStatus(calBox.every((box) => box.canFit));
+            return {
+                boxPlacements: calBox,
+                racks: rack,
+                shelves: shelf,
+                zone,
+                document
+            };
+        }
+        return undefined;
+    }, [boxs, rack, shelf, zone, document, shelfBoxStorage]);
 
     useEffect(() => {
-        if (!selectedZones || selectedZones.length === 0 || !boxs || !document) return;
-        let boxesLeft = [...boxs];
-        let results: any[] = [];
-        let loadZoneData = async () => {
-            setLoading(true);
-            for (let i = 0; i < selectedZones.length && boxesLeft.length > 0; i++) {
-                const zone = selectedZones[i];
-                // โหลด rack/shelf ของ zone นี้
-                const rackRes = await getMsrack(zone.id);
-                const racks = rackRes.responseObject || [];
-                let shelves: TypeMsshelfAll[] = [];
-                for (const rack of racks) {
-                    const shelfRes = await getMsshelf(rack.master_rack_id);
-                    if (shelfRes.responseObject) shelves = shelves.concat(shelfRes.responseObject);
-                }
-                // วางกล่องใน zone นี้
-                let usedShelfVolume: { [shelfId: string]: number } = {};
-                let placements: BoxPlacement[] = [];
-                let tempShelfData: ShelfWithFitBoxes[] = [];
-                let rackIndex = 0;
-                let shelfIndex = 0;
-                const sortedRacks = [...racks];
-                const sortedShelves = shelves.slice();
-                let boxesToPlace = [...boxesLeft]; // ใช้เฉพาะกล่องที่ยังเหลือ
-                let placedBoxIds: string[] = [];
-                for (const box of boxesToPlace as TypeCalBox[]) {
-                    let placed = false;
-                    rackIndex = 0;
-                    shelfIndex = 0;
-                    while (rackIndex < sortedRacks.length && !placed) {
-                        const rack = sortedRacks[rackIndex];
-                        const shelvesInRack = sortedShelves.filter((s: TypeMsshelfAll) => s.master_rack_id === rack.master_rack_id);
-                        while (shelfIndex < shelvesInRack.length && !placed) {
-                            const shelf = shelvesInRack[shelfIndex];
-                            const used = usedShelfVolume[shelf.master_shelf_id] || 0;
-                            const boxVolume = box.cubic_centimeter_box;
-                            if (used + boxVolume <= shelf.cubic_centimeter_shelf) {
-                                placements.push({
-                                    box: { ...box },
-                                    suggestedShelf: shelf,
-                                    suggestedRack: rack,
-                                    volume: boxVolume,
-                                    canFit: true,
-                                });
-                                usedShelfVolume[shelf.master_shelf_id] = used + boxVolume;
-                                placed = true;
-                                placedBoxIds.push(box.cal_box_id);
-                            } else {
-                                shelfIndex++;
-                            }
-                        }
-                        if (!placed) {
-                            rackIndex++;
-                            shelfIndex = 0;
-                        }
-                    }
-                    if (!placed) {
-                        placements.push({
-                            box: { ...box },
-                            canFit: false,
-                            volume: box.cubic_centimeter_box * (box.count || 1),
-                        });
-                    }
-                }
-                // เตรียม tempShelfData สำหรับ UI เฉพาะกล่องที่ถูกจัดสรรใน zone นี้เท่านั้น
-                for (const rack of sortedRacks as TypeMsrack[]) {
-                    const shelvesInRack = sortedShelves.filter((shelf: TypeMsshelfAll) => shelf.master_rack_id === rack.master_rack_id);
-                    for (const shelf of shelvesInRack as TypeMsshelfAll[]) {
-                        const fitBoxes = placements.filter((bp: BoxPlacement) => bp.canFit && bp.suggestedShelf?.master_shelf_id === shelf.master_shelf_id).map((bp: BoxPlacement) => ({
-                            cal_box_id: bp.box.cal_box_id,
-                            document_product_no: bp.box.document_product_no,
-                            box_no: bp.box.box_no,
-                            cubic_centimeter_box: bp.box.cubic_centimeter_box,
-                            count: bp.box.count || 1,
-                            master_zone_id: zone.id,
-                        }));
-                        if (fitBoxes.length > 0) {
-                            tempShelfData.push({
-                                shelf_id: shelf.master_shelf_id,
-                                shelf_name: shelf.master_shelf_name,
-                                master_rack_id: shelf.master_rack_id,
-                                fitBoxes: fitBoxes as TypeCalBox[],
-                            });
-                        }
-                    }
-                }
-                // อัปเดต boxesLeft ให้เหลือเฉพาะกล่องที่ยังไม่ถูกจัดสรร (canFit: false)
-                boxesLeft = placements.filter((bp: BoxPlacement) => !bp.canFit).map((bp: BoxPlacement) => bp.box);
-                results.push({
-                    zone,
-                    racks: sortedRacks,
-                    shelves: sortedShelves,
-                    placements,
-                    tempShelfData, // tempShelfData นี้จะ save เฉพาะกล่องของ zone นี้
-                    saveStatus: placements.every(bp => bp.canFit),
-                });
-            }
-            setZoneResults(results);
-            setBoxesLeft(boxesLeft);
-            setLoading(false);
-        };
-        loadZoneData();
-    }, [selectedZones, boxs, document]);
+        if (!calculateSummary) return;
+        const newShelfData: ShelfWithFitBoxes[] = [];
+        for (const rack of calculateSummary.racks) {
+            const shelvesInRack = calculateSummary.shelves.filter(
+                (shelf) => shelf.master_rack_id === rack.master_rack_id
+            );
+            for (const shelf of shelvesInRack) {
+                const fitBoxes = (calculateSummary.boxPlacements || [])
+                    .filter(
+                        (bp) =>
+                            bp.canFit &&
+                            bp.suggestedShelf?.master_shelf_id === shelf.master_shelf_id
+                    )
+                    .map((bp) => ({
+                        cal_box_id: bp.box.cal_box_id,
+                        document_product_no: bp.box.document_product_no,
+                        box_no: bp.box.box_no,
+                        cubic_centimeter_box: bp.box.cubic_centimeter_box,
+                        count: bp.box.count || 1,
+                        master_zone_id: zone,
+                    }));
 
+                if (fitBoxes.length > 0) {
+                    newShelfData.push({
+                        shelf_id: shelf.master_shelf_id,
+                        shelf_name: shelf.master_shelf_name,
+                        master_rack_id: shelf.master_rack_id,
+                        fitBoxes: fitBoxes as TypeCalBox[],
+                    });
+                }
+            }
+        }
+
+        setTempShelfData(newShelfData);
+    }, [calculateSummary]);
+    const queryClient = useQueryClient();
     const handleSave = async () => {
-        if (!document || !warehouseId || !warehouseNo) {
+        if (!document || !zone || !warehouseId || !warehouseNo) {
             alert("Missing required data!");
             return;
         }
-        let allSuccess = true;
-        for (const result of zoneResults) {
-            const response = await saveShelfPayload(result.tempShelfData, {
-                document_warehouse_no: warehouseNo,
-                master_zone_id: result.zone.id,
-                master_warehouse_id: warehouseId,
-                document_product_id: documentId,
-            });
-            if (!response.success) allSuccess = false;
-        }
-        if (allSuccess) {
+
+        console.log("tempShelfData", tempShelfData);
+        const response = await saveShelfPayload(tempShelfData, {
+            document_warehouse_no: warehouseNo,
+            master_zone_id: zone,
+            master_warehouse_id: warehouseId,
+            document_product_id: documentId,
+        });
+
+        if (response) {
             alert("Successfully saved all shelf data!");
             await queryClient.invalidateQueries({ queryKey: ["cal_msproducts"] });
             setShowCalculateDialog(false);
@@ -290,75 +262,102 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
         } else {
             alert("Some shelves failed to save. Please check the console for details.");
         }
+
+
     };
 
+
     return <Dialog.Root open={showCalculateDialog} onOpenChange={setShowCalculateDialog}>
+
         <Dialog.Content className="max-w-4xl max-h-[80vh] flex flex-col">
             <div className="flex-none">
                 <Dialog.Title className="text-xl font-bold mb-4">
-                    Calculation Summary
+                    Calculation Summary {saveStatus ? '✅' : '❌'}
                 </Dialog.Title>
-                {boxesLeft.length > 0 && (
+
+
+                {calculateSummary && (
                     <div className="mb-4">
-                        <p className="text-red-500 font-bold">Some boxes cannot fit in the shelf</p>
-                        <p className="text-red-500">Number of boxes exceeding capacity: {boxesLeft.length} Box</p>
+                        <strong>Zone:</strong> {zoneName}
+                        <br />
+                        <strong>Document:</strong> {calculateSummary.document}
+
+                        {!saveStatus && (
+                            <div className="mt-2">
+                                <p className="text-red-500 font-bold">Some boxes cannot fit in the shelf</p>
+                                <p className="text-red-500">
+                                    Number of boxes exceeding capacity: {calculateSummary?.boxPlacements?.filter(box => !box.canFit).length} Box
+                                </p>
+                            </div>
+                        )}
                     </div>
                 )}
+
             </div>
+
             <div className="flex-1 overflow-y-auto pr-2">
-                {loading && <div className="text-center text-gray-500">Loading...</div>}
-                {!loading && zoneResults.map((result, idx) => (
-                    <div key={result.zone.id} className="mb-8 border-b pb-6">
-                        <div className="mb-4">
-                            <strong>Zone {idx + 1}:</strong> {result.zone.name}
-                            <br />
-                            <strong>Document:</strong> {document}
-                            {!result.saveStatus && (
-                                <div className="mt-2">
-                                    <p className="text-red-500 font-bold">Some boxes cannot fit in the shelf</p>
-                                    <p className="text-red-500">
-                                        Number of boxes exceeding capacity: {result.placements.filter(box => !box.canFit).length} Box
-                                    </p>
+                {tempShelfData.map((shelf) => {
+                    return (
+                        <div key={shelf.shelf_id} className="mb-4 p-4 bg-gray-50 rounded-lg">
+                            <div className="font-bold text-blue-800 mb-2">
+                                Rack: {rack?.find((rack) => rack.master_rack_id === shelf.master_rack_id)?.master_rack_name}
+                            </div>
+
+                            <div className="ml-4 mb-4">
+                                <div className="font-semibold text-gray-700">
+                                    Shelf: {shelf.shelf_name}
                                 </div>
-                            )}
-                        </div>
-                        {result.tempShelfData.map((shelf: ShelfWithFitBoxes) => (
-                            <div key={shelf.shelf_id} className="mb-4 p-4 bg-gray-50 rounded-lg">
-                                <div className="font-bold text-blue-800 mb-2">
-                                    Rack: {result.racks.find((rack: TypeMsrack) => rack.master_rack_id === shelf.master_rack_id)?.master_rack_name}
-                                </div>
-                                <div className="ml-4 mb-4">
-                                    <div className="font-semibold text-gray-700">
-                                        Shelf: {shelf.shelf_name}
+
+                                <div className="mt-3 p-3 bg-green-50 border border-green-300 rounded-md text-sm text-green-900">
+                                    <div className="font-semibold mb-1">
+                                        ✅ กล่องที่สามารถใส่ได้ใน{" "}
+                                        <span className="underline">{shelf.shelf_name}</span>:
                                     </div>
-                                    <div className="mt-3 p-3 bg-green-50 border border-green-300 rounded-md text-sm text-green-900">
-                                        <div className="font-semibold mb-1">
-                                            ✅ กล่องที่สามารถใส่ได้ใน{" "}
-                                            <span className="underline">{shelf.shelf_name}</span>:
-                                        </div>
-                                        <ul className="list-disc ml-5">
-                                            {shelf.fitBoxes.map((box: TypeCalBox, i: number) => (
-                                                <li key={i} className={'bg-yellow-100 p-1 rounded'}>
+                                    <ul className="list-disc ml-5">
+                                        {shelf.fitBoxes.map((box, i) => {
+                                            const isNewBox = !shelfBoxStorage?.some(
+                                                (storedBox) => storedBox.cal_box_id === box.cal_box_id
+                                            );
+                                            const isChangeZone = shelfBoxStorage?.some(
+                                                (storedBox) =>
+                                                    storedBox.cal_box_id === box.cal_box_id &&
+                                                    storedBox.master_zone_id !== box.master_zone_id
+                                            );
+                                            return (
+                                                <li
+                                                    key={i}
+                                                    className={`${isNewBox || isChangeZone ? 'bg-yellow-100 p-1 rounded' : ''}`}
+                                                >
                                                     Doc: {box.document_product_no}, Box No: {box.box_no} Volume: {box.cubic_centimeter_box}
-                                                    <span className="ml-2 text-yellow-700">(New)</span>
+                                                    {isChangeZone && (
+                                                        <span className="ml-2 text-yellow-700">(ChangeZone)</span>
+                                                    )}
+                                                    {!isChangeZone && isNewBox && (
+                                                        <span className="ml-2 text-yellow-700">(New)</span>
+                                                    )}
                                                 </li>
-                                            ))}
-                                        </ul>
-                                    </div>
+                                            );
+                                        })}
+                                    </ul>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                ))}
+                        </div>
+                    );
+                })}
+
             </div>
             <div className="flex-none mt-6 flex justify-end gap-4 border-t pt-4">
+
                 <Button
-                    disabled={boxesLeft.length > 0}
+                    disabled={!saveStatus}
                     onClick={handleSave}
                     color='green'
                 >
-                    {boxesLeft.length === 0 ? 'Save' : 'Not Save'}
+
+                    {saveStatus ? 'Save' : 'Not Save'}
+
                 </Button>
+
                 <Button
                     onClick={() => setShowCalculateDialog(false)}
                     color='gray'

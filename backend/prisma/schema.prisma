@@ -96,9 +96,45 @@ model masterzone {
   // Relation to racks
   racks masterrack[]
 
-  cal_warehouse     cal_warehouse[]
+
+  cal_warehouses MasterZoneOnCalWarehouse[]
   shelf_box_storage shelf_box_storage[]
 }
+
+model cal_warehouse {
+  cal_warehouse_id String    @id @default(uuid()) @db.Uuid
+  document_warehouse_no String    @unique
+  status                Boolean?  @default(false)
+  status_date           DateTime? @default(now())
+  status_by             String?
+  create_by             String?
+  create_date           DateTime? @default(now())
+  update_by             String?
+  update_date           DateTime? @updatedAt
+  sort_by               Int?
+  master_warehouse_id String? @db.Uuid
+  cal_msproduct_id    String? @db.Uuid
+
+  // 🔗 Relations
+  masterwarehouse masterwarehouse? @relation(fields: [master_warehouse_id], references: [master_warehouse_id])
+
+  masterzones MasterZoneOnCalWarehouse[]
+  cal_msproduct   cal_msproduct?   @relation(fields: [cal_msproduct_id], references: [document_product_id])
+
+  shelf_box_storage shelf_box_storage[]
+}
+
+model MasterZoneOnCalWarehouse {
+  cal_warehouse_id String  @db.Uuid
+  master_zone_id   String @db.Uuid
+
+  cal_warehouse cal_warehouse @relation(fields: [cal_warehouse_id], references: [cal_warehouse_id])
+  masterzone    masterzone    @relation(fields: [master_zone_id], references: [master_zone_id])
+
+  @@id([cal_warehouse_id, master_zone_id])
+}
+
+
 
 model masterrack {
   master_rack_id        String    @id @default(uuid()) @db.Uuid
@@ -172,29 +208,7 @@ model user {
   update_date DateTime? @updatedAt
 }
 
-model cal_warehouse {
-  document_warehouse_id String    @id @default(uuid()) @db.Uuid
-  document_warehouse_no String    @unique
-  status                Boolean?  @default(false)
-  status_date           DateTime? @default(now())
-  status_by             String?
-  create_by             String?
-  create_date           DateTime? @default(now())
-  update_by             String?
-  update_date           DateTime? @updatedAt
-  sort_by               Int?
 
-  master_warehouse_id String? @db.Uuid
-  master_zone_id      String? @db.Uuid
-  cal_msproduct_id    String? @db.Uuid
-
-  // 🔗 Relations
-  masterwarehouse masterwarehouse? @relation(fields: [master_warehouse_id], references: [master_warehouse_id])
-  masterzone      masterzone?      @relation(fields: [master_zone_id], references: [master_zone_id])
-  cal_msproduct   cal_msproduct?   @relation(fields: [cal_msproduct_id], references: [document_product_id])
-
-  shelf_box_storage shelf_box_storage[]
-}
 
 model cal_msproduct {
   document_product_id String    @id @default(uuid()) @db.Uuid
@@ -237,10 +251,11 @@ model cal_box {
   master_box_id       String?        @db.Uuid
   master_product_id   String?        @db.Uuid
   document_product_no String?
+    document_product_id String?    @db.Uuid
   // 🔹 Relations
   masterbox           masterbox?     @relation(fields: [master_box_id], references: [master_box_id])
   masterproduct       masterproduct? @relation(fields: [master_product_id], references: [master_product_id])
-  cal_msproduct       cal_msproduct? @relation(fields: [document_product_no], references: [document_product_no], onDelete: Cascade)
+  cal_msproduct       cal_msproduct? @relation(fields: [document_product_id], references: [document_product_id], onDelete: Cascade)
 
   // Relation to rack storage
   rack_storage rack_box_storage[]
@@ -287,7 +302,7 @@ model rack_box_storage {
 // Model to track boxes stored in shelves
 model shelf_box_storage {
   storage_id           String    @id @default(uuid()) @db.Uuid
-  master_shelf_id      String    @db.Uuid
+
   cal_box_id           String    @db.Uuid
   stored_date          DateTime  @default(now())
   stored_by            String?
@@ -304,6 +319,8 @@ model shelf_box_storage {
 
   master_warehouse_id String? @db.Uuid
   master_zone_id      String? @db.Uuid
+   master_shelf_id      String    @db.Uuid
+    
 
   // Relations
   mastershelf   mastershelf    @relation(fields: [master_shelf_id], references: [master_shelf_id])

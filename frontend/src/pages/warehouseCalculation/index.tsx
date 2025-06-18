@@ -4,10 +4,10 @@ import DialogCaulate from "./components/dialogCaulate";
 import BoxShow from "./components/BoxShow";
 import { CalculateProvider, useCalculateContext } from "./context/useCalculateCotext";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@radix-ui/themes";
 import { getCalWarehouseByDocumentWarehouseNo } from "@/services/calwarehouse.services";
 import { getShelfBoxStorageByDocumentWarehouseNoAndZone } from "@/services/shelfBoxStorage.services";
 import { useState } from "react";
+import MainEditCal from "./edit";
 // Update the calculateBoxPlacement function with proper types
 
 interface StoreBoxPayload {
@@ -20,6 +20,8 @@ interface StoreBoxPayload {
   total: number;
   remaining: number;
 }
+
+
 
 const WarehouseCalculation = () => {
   const { warehouseId: documentWarehouseNo } = useParams<{ warehouseId: string }>();
@@ -78,7 +80,8 @@ const WarehouseCalculation = () => {
               disables={{ selectProduct: !!calwarehouse.master_warehouse_id }}
             />
 
-            {<DialogCaulate shelfBoxStorage={shelfBoxStorageData?.responseObject!} />}
+
+            {<DialogCaulate shelfBoxStorage={shelfBoxStorageData?.responseObject ?? []} />}
 
 
           </div>
@@ -91,12 +94,16 @@ const WarehouseCalculation = () => {
 
 }
 
-export const ButtonCalculate = ({ disabled }: { disabled?: boolean }) => {
-  const { setShowCalculateDialog } = useCalculateContext();
-  return (
-    <Button onClick={() => setShowCalculateDialog(prev => !prev)} disabled={disabled}>
-      Calculate
-    </Button>
-  )
-}
-export default WarehouseCalculation;
+
+
+
+
+
+
+export default function MainCalculation() {
+  const slug = useParams<{ warehouseId: string, actions: string }>();
+
+  if (slug.actions === "edit") return <MainEditCal warehouseId={slug.warehouseId} />
+
+  return <WarehouseCalculation />
+};

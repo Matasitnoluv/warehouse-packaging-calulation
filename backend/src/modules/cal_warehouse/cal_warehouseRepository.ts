@@ -3,7 +3,7 @@ import { cal_warehouse } from "@prisma/client";
 import prisma from "@src/db";
 
 export const Keys = [
-    "document_warehouse_id",
+    "cal_warehouse_id",
     "document_warehouse_no",
     "status",
     "sort_by",
@@ -13,7 +13,7 @@ export const cal_warehouseRepository = {
     findAllAsync: async () => {
         return prisma.cal_warehouse.findMany({
             select: {
-                document_warehouse_id: true,
+                cal_warehouse_id: true,
                 document_warehouse_no: true,
                 status: true,
                 sort_by: true,
@@ -43,9 +43,18 @@ export const cal_warehouseRepository = {
     findByDocumentWarehouseNo: async (document_warehouse_no: string) => {
         return prisma.cal_warehouse.findMany({
             where: { document_warehouse_no: document_warehouse_no },
+            include: { masterwarehouse: true, masterzones: true }
         });
     },
 
+    findWarehoude: async (id: string) => {
+        try {
+            return await prisma.cal_warehouse.findUnique({ where: { cal_warehouse_id: id }, include: { masterwarehouse: true, masterzones: true } })
+        } catch {
+            return null
+        }
+
+    },
     create: async (payload: TypePayloadcal_warehouse) => {
         const document_warehouse_no = payload.document_warehouse_no.trim();
         const setPayload: any = {
@@ -59,26 +68,26 @@ export const cal_warehouseRepository = {
         });
     },
 
-    update: async (document_warehouse_id: string, payload: Partial<TypePayloadcal_warehouse>) => {
+    update: async (cal_warehouse_id: string, payload: Partial<TypePayloadcal_warehouse>) => {
         const updatedPayload = {
-            ...payload, document_warehouse_id: payload.document_warehouse_id ? String(payload.document_warehouse_id) : undefined,
+            ...payload, cal_warehouse_id: payload.cal_warehouse_id ? String(payload.cal_warehouse_id) : undefined,
         };
 
         return await prisma.cal_warehouse.update({
-            where: { document_warehouse_id: document_warehouse_id },
+            where: { cal_warehouse_id: cal_warehouse_id },
             data: updatedPayload,
         });
     },
 
-    delete: async (document_warehouse_id: string) => {
+    delete: async (cal_warehouse_id: string) => {
         const cal_warehouse = await prisma.cal_warehouse.findUnique({
             where: {
-                document_warehouse_id: document_warehouse_id,
+                cal_warehouse_id: cal_warehouse_id,
             },
         })
 
         if (!cal_warehouse) {
-            throw new Error(`Cal warehouse not found with id ${document_warehouse_id}`)
+            throw new Error(`Cal warehouse not found with id ${cal_warehouse_id}`)
         }
 
         if (cal_warehouse.document_warehouse_no) {
@@ -101,7 +110,7 @@ export const cal_warehouseRepository = {
         }
 
         return await prisma.cal_warehouse.delete({
-            where: { document_warehouse_id: document_warehouse_id },
+            where: { cal_warehouse_id: cal_warehouse_id },
         });
     },
 };

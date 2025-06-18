@@ -1,4 +1,4 @@
-import { GET_CAL_WAREHOUSE, CREATE_CAL_WAREHOUSE, UPDATE_CAL_WAREHOUSE, DELETE_CAL_WAREHOUSE } from "@/apis/endpoint.api";
+import { GET_CAL_WAREHOUSE, CREATE_CAL_WAREHOUSE, UPDATE_CAL_WAREHOUSE, DELETE_CAL_WAREHOUSE, GET_CAL_WAREHOUSE_EDIT } from "@/apis/endpoint.api";
 import { PayloadCreateCal_Warehouse, PayloadUpdateCal_Warehouse, PayloadDeleteCal_Warehouse } from "@/types/requests/request.cal_warehouse";
 import mainApi from "@/apis/main.api";
 import { CalWarehouseResponse, TypeCalWarehouse } from "@/types/response/reponse.cal_warehouse";
@@ -9,6 +9,13 @@ export const getCalWarehouse = async (): Promise<CalWarehouseResponse> => {
     );
     return response;
 };
+
+export const getCalWarehouseEdit = async (id: string): Promise<CalWarehouseResponse> => {
+    const endpoint = GET_CAL_WAREHOUSE_EDIT.replace(":id", id);
+    const { data: response } = await mainApi.get(endpoint);
+    return response;
+};
+
 
 export const getCalWarehouseByMasterWarehouseId = async (master_warehouse_id: string): Promise<CalWarehouseResponse> => {
     const { data: response } = await mainApi.get(
@@ -43,7 +50,7 @@ export const patchCalWarehouse = async (payload: PayloadUpdateCal_Warehouse) => 
 
 export const deleteCalWarehouse = async (payload: PayloadDeleteCal_Warehouse) => {
     const { data: response } = await mainApi.delete<CalWarehouseResponse>(
-        DELETE_CAL_WAREHOUSE + "/" + payload.document_warehouse_id
+        DELETE_CAL_WAREHOUSE + "/" + payload.cal_warehouse_id
     );
     return response;
 };

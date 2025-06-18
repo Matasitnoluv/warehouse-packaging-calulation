@@ -4,17 +4,15 @@ import { getCalWarehouse } from "@/services/calwarehouse.services";
 
 import { useNavigate } from "react-router-dom";
 import DilogAddCalwarehouse from "./dilogAddCalwarehouse";
-import DilogEditCalwarehouse from "./dilogEditCalwarehouse";
+
 import AlrtdilogDeleteDocument from "./alrtdilogDeleteDocument";
 import { FileSpreadsheet, ArrowLeft } from "lucide-react";
-import DialogSelectWarehouse from "@/pages/calculationproductbox/components/dialogSelectWarehouse";
 import { AlertDialog as RemainingSpaceDialog } from "@radix-ui/themes";
 import { getMswarehouse } from "@/services/mswarehouse.services";
 import { getMszone } from "@/services/mszone.services";
 import { getMsrack } from "@/services/msrack.services";
 import { getMsshelf } from "@/services/msshelf.services";
 import { TypeMswarehouse } from "@/types/response/reponse.mswarehouse";
-import EditButton from "./CalEditButton";
 import CalEditButton from "./CalEditButton";
 import { shelfBoxStorageService } from "@/services/shelfBoxStorage.services";
 
@@ -288,7 +286,7 @@ const CalWarehouseTable = () => {
                                                 <div className="flex justify-center">
                                                     <AlrtdilogDeleteDocument
                                                         getCalWarehouseData={getCalWarehouseData}
-                                                        document_warehouse_id={cal_warehouse.document_warehouse_id}
+                                                        cal_warehouse_id={cal_warehouse.cal_warehouse_id}
                                                         document_warehouse_no={cal_warehouse.document_warehouse_no}
                                                     />
                                                 </div>

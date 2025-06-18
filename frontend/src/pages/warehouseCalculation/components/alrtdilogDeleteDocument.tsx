@@ -4,16 +4,16 @@ import { Trash2, AlertTriangle } from "lucide-react";
 
 type DialogDeleteWarehouseProps = {
     getCalWarehouseData: Function;
-    document_warehouse_id: string;
+    cal_warehouse_id: string;
     document_warehouse_no: string;
 }
 
-const AlrtdilogDeleteDocument = ({ getCalWarehouseData, document_warehouse_id }: DialogDeleteWarehouseProps) => {
+const AlrtdilogDeleteDocument = ({ getCalWarehouseData, cal_warehouse_id }: DialogDeleteWarehouseProps) => {
     const handleDeleteCalWarehouse = async () => {
         try {
-            //console.log("Deleting document with ID:", document_warehouse_id);
+            //console.log("Deleting document with ID:", cal_warehouse_id);
             const response = await deleteCalWarehouse({
-                document_warehouse_id: document_warehouse_id,
+                cal_warehouse_id: cal_warehouse_id,
             });
 
             if (response.statusCode === 200) {
@@ -51,10 +51,10 @@ const AlrtdilogDeleteDocument = ({ getCalWarehouseData, document_warehouse_id }:
                         </Text>
                         <div className="mt-2 space-y-1">
                             <Text className="text-sm text-gray-600">
-                                ID: <Strong className="font-mono">{document_warehouse_id}</Strong>
+                                ID: <Strong className="font-mono">{cal_warehouse_id}</Strong>
                             </Text>
                             <Text className="text-sm text-gray-600">
-                                Document: <Strong>{document_warehouse_id}</Strong>
+                                Document: <Strong>{cal_warehouse_id}</Strong>
                             </Text>
                         </div>
                     </div>

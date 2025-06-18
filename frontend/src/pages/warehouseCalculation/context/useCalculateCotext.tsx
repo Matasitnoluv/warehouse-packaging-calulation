@@ -29,9 +29,9 @@ export interface CalculateContextType {
   setDocumentId: (documentId: string) => void;
 
   setWarehouseId: (warehouseId: string) => void;
-  setWarehouse: (warehouse: TypeMswarehouse) => void;
+  setWarehouse: React.Dispatch<React.SetStateAction<TypeMswarehouse | null>>;
   setZoneName: React.Dispatch<React.SetStateAction<string>>;
-  setZone: (zone: string) => void;
+  setZone: React.Dispatch<React.SetStateAction<string>>;
   setDocument: (document: string) => void;
   setShowCalculateDialog: React.Dispatch<React.SetStateAction<boolean>>;
 

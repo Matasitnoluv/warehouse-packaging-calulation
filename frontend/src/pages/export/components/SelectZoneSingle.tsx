@@ -15,7 +15,7 @@ export const SelectZoneSingle = ({
     const zonesData = Array.isArray(zones?.responseObject) ? zones.responseObject : [];
     return (
         <div className={className}>
-            <label className="block text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+            <label className="flex w-full text-xl font-bold text-gray-800 mb-2 items-center gap-2">
                 <Layers className="text-blue-500 w-5 h-5" /> เลือก Zone
             </label>
             <select

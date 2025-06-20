@@ -9,7 +9,11 @@ import { generateAccessToken } from "@common/utils/jwt"
 export const authService = {
     login: async (payload: TypePayloadUser, res: any, req: any) => {
         try {
+           
+           
             const checkUser = await userRepository.findByUsername(payload.username);
+           
+       
             if (!checkUser) {
                 return new ServiceResponse(
                     ResponseStatus.Failed,

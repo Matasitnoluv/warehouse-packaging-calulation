@@ -3,7 +3,7 @@ import { deleteCalWarehouse } from "@/services/calwarehouse.services";
 import { Trash2, AlertTriangle } from "lucide-react";
 
 type DialogDeleteWarehouseProps = {
-    getCalWarehouseData: Function;
+    getCalWarehouseData: () => void;
     cal_warehouse_id: string;
     document_warehouse_no: string;
 }
@@ -37,13 +37,11 @@ const AlrtdilogDeleteDocument = ({ getCalWarehouseData, cal_warehouse_id }: Dial
                     Delete
                 </Button>
             </Dialog.Trigger>
-
             <Dialog.Content className="max-w-md p-6 rounded-xl shadow-2xl bg-white">
                 <Dialog.Title className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <AlertTriangle className="text-red-500" size={24} />
                     Confirm Deletion
                 </Dialog.Title>
-
                 <div className="space-y-4">
                     <div className="bg-red-50 p-4 rounded-lg border border-red-100">
                         <Text className="text-sm text-gray-700">
@@ -58,12 +56,10 @@ const AlrtdilogDeleteDocument = ({ getCalWarehouseData, cal_warehouse_id }: Dial
                             </Text>
                         </div>
                     </div>
-
                     <Text className="text-sm text-red-600">
                         This action cannot be undone.
                     </Text>
                 </div>
-
                 <Flex gap="3" mt="6" justify="end">
                     <Dialog.Close>
                         <Button className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-4 py-2 rounded-lg transition-all duration-200">

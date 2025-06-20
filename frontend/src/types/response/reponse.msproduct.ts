@@ -65,18 +65,23 @@ export type TypeShelfBoxStorage = {
     stored_by?: string | null;
     status?: string;
     position?: number | null;
-    document_product_no?: string | null;
+    cal_warehouse_id: string;
     cubic_centimeter_box?: number | null;
     count?: number | null;
-    total_volume: number;
+    total_volume?: number;
     document_warehouse_no?: string | null;
     box_no?: number | null;
-    cal_box: TypeMsbox & { cal_box_id?: string } & TypeCalBox;
+    cal_box?: TypeCalBox;
     master_warehouse_id?: string | null;
     master_zone_id?: string | null;
+    master_rack_id?:string| null;
     export?: boolean;
     export_date?: Date;
+    modified?:boolean; 
 };
+
+
+
 
 export type TypeShelfExport = {
     warehouse: TypeMswarehouse;

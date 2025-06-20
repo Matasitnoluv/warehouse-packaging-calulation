@@ -57,6 +57,7 @@ export const cal_warehouseRepository = {
     },
     create: async (payload: TypePayloadcal_warehouse) => {
         const document_warehouse_no = payload.document_warehouse_no.trim();
+        console.log(payload)
         const setPayload: any = {
             document_warehouse_no: document_warehouse_no,
             status: payload.status,
@@ -78,39 +79,51 @@ export const cal_warehouseRepository = {
             data: updatedPayload,
         });
     },
-
-    delete: async (cal_warehouse_id: string) => {
-        const cal_warehouse = await prisma.cal_warehouse.findUnique({
-            where: {
-                cal_warehouse_id: cal_warehouse_id,
-            },
-        })
-
-        if (!cal_warehouse) {
-            throw new Error(`Cal warehouse not found with id ${cal_warehouse_id}`)
-        }
-
-        if (cal_warehouse.document_warehouse_no) {
-            const shelf_box_storage = await prisma.shelf_box_storage.findMany({
-                where: {
-                    document_warehouse_no: cal_warehouse.document_warehouse_no,
-                },
-            })
-
-            const document_product_nos = shelf_box_storage.map((storage) => storage.document_product_no).filter((no) => no !== null)
-
-            await prisma.cal_msproduct.updateMany({
-                where: {
-                    document_product_no: { in: document_product_nos },
-                },
-                data: {
-                    status: false,
-                }
-            })
-        }
-
-        return await prisma.cal_warehouse.delete({
-            where: { cal_warehouse_id: cal_warehouse_id },
-        });
+delete: async (cal_warehouse_id: string) => {
+  const cal_warehouse = await prisma.cal_warehouse.findUnique({
+    where: {
+      cal_warehouse_id: cal_warehouse_id,
     },
+  });
+
+  if (!cal_warehouse) {
+    throw new Error(`Cal warehouse not found with id ${cal_warehouse_id}`);
+  }
+
+  // ✅ ดึงกล่องทั้งหมดที่อยู่ใน warehouse นี้ พร้อมข้อมูล cal_box ที่เชื่อมโยง
+  const shelf_box_storage = await prisma.shelf_box_storage.findMany({
+    where: {
+      cal_warehouse_id: cal_warehouse.cal_warehouse_id,
+    },
+    include: {
+      cal_box: {
+        select: {
+          document_product_id: true, // หรือเปลี่ยนเป็น document_product_no ถ้าใช้ตัวนั้นเป็น ref
+        },
+      },
+    },
+  });
+
+  // ✅ ดึงเฉพาะ document_product_id ที่มีข้อมูลจริง
+  const document_product_ids = shelf_box_storage
+    .map((storage) => storage.cal_box?.document_product_id)
+    .filter((id): id is string => !!id); // remove null/undefined
+
+  if (document_product_ids.length > 0) {
+    await prisma.cal_msproduct.updateMany({
+      where: {
+        document_product_id: { in: document_product_ids },
+      },
+      data: {
+        status: false,
+      },
+    });
+  }
+
+  // ✅ ลบ warehouse
+  return await prisma.cal_warehouse.delete({
+    where: { cal_warehouse_id: cal_warehouse_id },
+  });
+}
+
 };

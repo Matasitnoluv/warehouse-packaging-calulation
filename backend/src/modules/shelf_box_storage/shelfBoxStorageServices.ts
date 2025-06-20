@@ -4,7 +4,13 @@ import { msshelfRepository } from "../msshelf/msshelfRepository";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
+const omitKeys = ['cal_box', 'modified', 'box_no'];
 
+function cleanPayload(obj: any) {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([key]) => !omitKeys.includes(key))
+  );
+}
 export const shelfBoxStorageServices = {
     getAllAsync: async () => {
         try {
@@ -57,26 +63,16 @@ export const shelfBoxStorageServices = {
                 where: {
                     master_warehouse_id: master_warehouse_id,
                     master_zone_id: master_zone_id,
-                }
+                },include:{cal_box:true}
             });
-            const cal_box = await prisma.cal_box.findMany({
-                where: {
-                    cal_box_id: {
-                        in: shelfBoxStorage.map(storage => storage.cal_box_id),
-                    },
-                },
-            });
-
-            const shelfBoxStorageWithCalBox = shelfBoxStorage.map(storage => ({
-                ...storage,
-                cal_box: cal_box.find(box => box.cal_box_id === storage.cal_box_id),
-            }));
+        
+           
             const data = {
                 warehouse,
                 zone,
                 racks,
                 shelfs,
-                shelfBoxStorage: shelfBoxStorageWithCalBox,
+                shelfBoxStorage,
             }
             return {
                 success: true,
@@ -92,9 +88,11 @@ export const shelfBoxStorageServices = {
         }
     },
 
-    getShelfEditAsync: async () => {
 
-
+  
+    getShelfCompileAsync: async (master_warehouse_id:string) => {
+  const storage = await prisma.masterwarehouse.findUnique({where:{master_warehouse_id:master_warehouse_id},include:{masterzone:{include:{racks:{include:{shelves:{include:{stored_boxes:{include:{cal_box:true}}}}}}}}}})
+  return storage
     },
 
     getByDocumentWarehouseNoAsync: async (document_warehouse_no: string, master_zone_id: string) => {
@@ -166,66 +164,116 @@ export const shelfBoxStorageServices = {
             };
         }
     },
-    createAsync: async (payload: any) => {
-        try {
-            //console.log('CreateAsync payload:', payload);
-            // Check if the shelf exists
-            const shelf = await msshelfRepository.findByIdAsync(payload.master_shelf_id);
-            if (!shelf) {
-                return {
-                    success: false,
-                    responseObject: null,
-                    message: "Shelf not found",
-                };
-            }
+createAsync: async (payload: any[]) => {
+  // เอา cal_box ออกไว้ใช้ later
+ const boxWithProductId = payload
+  .filter((item) => item.cal_box?.document_product_no)
+  .map((item) =>  item.cal_box?.document_product_no);
+  // เคลียร์ field ที่ไม่ต้องส่ง
+  const cleanedPayload: { storage_id?: string }[] = payload.map(({ cal_box,modified, box_no, ...rest }) => {
+    const cleanRest = Object.fromEntries(
+      Object.entries(rest).filter(
+        ([key, value]) => !(key.includes('id') && (value === '' || value === null))
+      )
+    );
+    return cleanRest;
+  });
 
-            // Check if there's enough space in the shelf
-            const currentUsedVolume = await shelfBoxStorageRepository.getTotalVolumeByShelfIdAsync(payload.master_shelf_id);
-            const totalVolumeToAdd = payload.cubic_centimeter_box;
-
-            // Set the total volume in the payload
-            payload.total_volume = totalVolumeToAdd;
-
-            if (!shelf.cubic_centimeter_shelf) {
-                return {
-                    success: false,
-                    responseObject: null,
-                    message: "Shelf capacity is not available",
-                };
-            }
-
-            if (currentUsedVolume + totalVolumeToAdd > shelf.cubic_centimeter_shelf) {
-                return {
-                    success: false,
-                    responseObject: null,
-                    message: "Not enough space in the shelf",
-                };
-            }
-
-            // Generate a new UUID for the storage
-            const storage_id = uuidv4();
-            const newPayload = {
-                ...payload,
-                storage_id,
-            };
-
-            const data = await shelfBoxStorageRepository.createAsync(newPayload);
-            return {
-                success: true,
-                responseObject: data,
-                message: "Create shelf box storage successful",
-            };
-        } catch (error: any) {
-            console.error('CreateAsync error:', error);
-            return {
-                success: false,
-                responseObject: null,
-                message: error.message,
-            };
-        }
+  // หาว่า storage_id ไหนมีอยู่แล้ว
+  const existing = await prisma.shelf_box_storage.findMany({
+    where: {
+      storage_id: {
+        in: cleanedPayload
+          .map((item) => item.storage_id)
+          .filter((id): id is string => typeof id === 'string'),
+      },
     },
+    select: { storage_id: true },
+  });
 
-    updateAsync: async (storage_id: string, payload: any) => {
+  const existingIds = new Set(existing.map((e) => e.storage_id));
+
+  const filteredPayload = cleanedPayload.filter(
+    (item) => !item.storage_id || !existingIds.has(item.storage_id)
+  );
+
+  if (filteredPayload.length === 0) {
+    return { success: true, message: "No new items to insert." };
+  }
+
+  // ทำการ create
+  const result = await prisma.shelf_box_storage.createMany({
+    data: filteredPayload as any[],
+    skipDuplicates: true,
+  });
+
+
+
+if (result.count > 0 && boxWithProductId.length > 0) {
+  const uniqueProductOn = [...new Set(boxWithProductId)];
+  await prisma.cal_msproduct.updateMany({
+    where: {
+      document_product_no: {
+        in: uniqueProductOn,
+      },
+    },
+    data: {
+      status: true,
+    },
+  });
+  const warehouseUpdates = payload
+  .filter(item => item.cal_warehouse_id && item.master_warehouse_id) // เอาเฉพาะที่มี id ครบ
+  .map(item => ({
+    cal_warehouse_id: item.cal_warehouse_id,
+    master_warehouse_id: item.master_warehouse_id
+  }));
+const uniqueUpdates = Array.from(
+  new Map(warehouseUpdates.map(item => [item.cal_warehouse_id, item])).values()
+);
+
+await Promise.all(
+  uniqueUpdates.map(({ cal_warehouse_id, master_warehouse_id }) =>
+    prisma.cal_warehouse.update({
+      where: { cal_warehouse_id },
+      data: { master_warehouse_id },
+    })
+  )
+);
+}
+
+  return { success: true, message: "Inserted successfully.", count: result.count };
+},
+ updateMany: async (payload: any[]) => {
+    try {
+      const results = await Promise.all(
+        payload.map(async (item) => {
+          const { storage_id, ...rest } = item;
+          if (!storage_id) return null;
+
+          const cleanedData = cleanPayload(rest);
+
+          return await prisma.shelf_box_storage.updateMany({
+            where: { storage_id },
+            data: cleanedData,
+          });
+        })
+      );
+
+      return {
+        success: true,
+        responseObject: results,
+        message: 'Update shelf box storage successful',
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        responseObject: null,
+        message: error.message,
+      };
+    }
+  }
+
+   , updateAsync: async (storage_id: string, payload: any) => {
         try {
             const data = await shelfBoxStorageRepository.updateAsync(storage_id, payload);
             return {
@@ -241,6 +289,8 @@ export const shelfBoxStorageServices = {
             };
         }
     },
+
+
 
     deleteAsync: async (storage_id: string) => {
         try {
@@ -334,24 +384,5 @@ export const shelfBoxStorageServices = {
         }
     },
 
-    getStoredBoxesByDocument: async (documentProductNo: string) => {
-        try {
-            const storedBoxes = await prisma.shelf_box_storage.findMany({
-                where: { document_product_no: documentProductNo },
-                include: { mastershelf: true, cal_box: true }
-            });
-
-            return {
-                success: true,
-                responseObject: storedBoxes,
-                message: "Get stored boxes by document number successful",
-            };
-        } catch (error: any) {
-            return {
-                success: false,
-                responseObject: null,
-                message: error.message,
-            };
-        }
-    },
+  
 };

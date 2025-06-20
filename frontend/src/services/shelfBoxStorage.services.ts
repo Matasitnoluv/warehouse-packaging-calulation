@@ -5,6 +5,7 @@ import { RackBoxStorage } from "./rackBoxStorage.services";
 import { TypeShelfBoxStorage, TypeShelfExport } from "@/types/response/reponse.msproduct";
 import mainApi from "@/apis/main.api";
 import { ApiResponse } from "@/pages/warehouseCalculation/type";
+import { TypeWarehouseCompile } from "@/types/response/reponse.mswarehouse";
 
 // Define the payload type for storing a box in a shelf
 export interface StoreBoxPayload {
@@ -34,6 +35,20 @@ export const getAllStoredBoxes = async () => {
     };
   }
 };
+
+
+
+export const postShelfBoxStorage = async (payload: TypeShelfBoxStorage[]) => {
+    try {
+        const response = await mainApi.post(`${API_ENDPOINTS.SHELF_BOX_STORAGE.POST}`, payload);
+        return response.data;
+    } catch (error: any) {
+        throw new Error(error.response?.data?.message || "Failed to create box in shelf");
+    }
+};
+
+
+
 
 // Get stored boxes by shelf ID
 export const getStoredBoxesByShelfId = async (master_shelf_id: string) => {
@@ -209,6 +224,24 @@ export const updateStoredBox = async (storage_id: string, payload: Partial<Store
   }
 };
 
+
+export const updateManyStoredBox = async (payload: TypeShelfBoxStorage[]) => {
+  try {
+    const response = await axios.put(
+      `${API_URL}/v1/shelf_box_storage/update_many`,
+      payload
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating stored box:", error);
+    return {
+      success: false,
+      responseObject: null,
+      message: "Failed to update stored box",
+    };
+  }
+};
+
 // Delete a stored box
 export const deleteStoredBox = async (storage_id: string) => {
   try {
@@ -265,6 +298,22 @@ export const getShelfBoxStorage = async (document_product_no: string) => {
     throw error;
   }
 };
+
+
+
+export const getStorageShelfBox = async (master_warehouse_id: string):Promise<ApiResponse<TypeWarehouseCompile>> => {
+  try {
+    const response = await mainApi.get(`${API_ENDPOINTS.SHELF_BOX_STORAGE.GET_STORAGE}/${master_warehouse_id}`);
+    console.log(response.data)
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching shelf box storage:", error);
+    throw error;
+  }
+};
+
+
+
 
 
 export const getShelfBoxStorageByDocumentWarehouseNoAndZone = async (master_warehouse_id: string, master_zone_id: string): Promise<ApiResponse<TypeShelfBoxStorage[]>> => {

@@ -15,4 +15,9 @@ export type CalWarehouseResponse = {
     message: string;
     responseObject: TypeCalWarehouse[];
     statusCode: number;
+    
 };
+
+
+
+

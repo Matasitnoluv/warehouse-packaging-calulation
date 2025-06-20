@@ -51,10 +51,8 @@ const DilogAddCalwarehouse = ({ getCalwarehouseData }: DialogCalwarehouseProps) 
     const [isLoading, setIsLoading] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const navigate = useNavigate();
-
     useEffect(() => {
         const controller = new AbortController();
-
         const initializeDocumentNumber = async () => {
             try {
                 const nextNumber = await getNextDocumentNumber();
@@ -69,9 +67,7 @@ const DilogAddCalwarehouse = ({ getCalwarehouseData }: DialogCalwarehouseProps) 
                 }
             }
         };
-
         initializeDocumentNumber();
-
         return () => {
             controller.abort();
         };

@@ -43,7 +43,9 @@ export const msboxRouter = (() => {
   });
 
   router.post("/create", authenticateJWT, checkAllowedRoles, upload.single('image'),
+
     async (req: Request, res: Response) => {
+
       const payload = {
         ...req.body,
         image_path: req.file ? `/uploads/${req.file.filename}` : ''

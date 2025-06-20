@@ -51,16 +51,8 @@ export const cal_boxService = {
 
     create: async (payload: TypePayloadcal_box) => {
         try {
-            const checkCal_box = await cal_boxRepository.findByName(payload.master_box_name);
-            // if (!checkCal_box) {
-            //     return new ServiceResponse(
-            //         ResponseStatus.Failed,
-            //         "Cal_box already taken",
-            //         null,
-            //         StatusCodes.BAD_REQUEST
-            //     );
-            // }
-            const cal_box = await cal_boxRepository.create(payload);
+
+    const cal_box = await cal_boxRepository.create(payload);
             return new ServiceResponse<cal_box>(
                 ResponseStatus.Success,
                 "Create cal_box success",

@@ -1,12 +1,10 @@
-import { DocumentTypeCalculate } from "../type";
 import { useQuery } from "@tanstack/react-query";
 import { useCalculateContext } from "../context/useCalculateCotext";
 import { ButtonCalculate } from "./ButtonCalculate";
 import { getMswarehouse } from "@/services/mswarehouse.services";
 import { useCalMsProductQuery, useZoneQuery } from "@/services/queriesHook";
-import { Layers, Plus, X } from "lucide-react";
-import { useEffect, useLayoutEffect, useState } from "react";
-import { TypeCalWarehouse } from "@/types/response/reponse.cal_warehouse";
+import { Layers } from "lucide-react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { TypeMswarehouse } from "@/types/response/reponse.mswarehouse";
 
 interface ZoneType {
@@ -162,15 +160,14 @@ export const SelectProducts = ({ document, setDocument, className, disabled, set
 
             }
         }
-    }, [document, disabled, productsData, setDocument])
+    }, [document, disabled, productsData, setDocument, documentIdToNo])
 
     useLayoutEffect(() => {
         if (setIdDocument) {
-            console.log(productsData?.find(product => product?.document_product_no === document)?.document_product_id, document, "test")
             const Id = productsData?.find(product => product?.document_product_no === document)?.document_product_id
             setIdDocument(Id ?? '')
         }
-    }, [setIdDocument, documentIdToNo, document, disabled])
+    }, [setIdDocument, documentIdToNo, document, disabled, productsData])
     useEffect(() => {
         if (documentIdToNo) {
             setDocument(documentIdToNo)
@@ -202,26 +199,25 @@ export const SelectProducts = ({ document, setDocument, className, disabled, set
     )
 }
 
-export const SelectWarehouse = ({ warehouseId, className, setWarehouseId, setWarehouse }: { setWarehouse?: React.Dispatch<React.SetStateAction<TypeMswarehouse | null>>, className?: string, warehouseId: string, setWarehouseId: (warehouseId: string) => void }) => {
+export const SelectWarehouse = ({ warehouseId, className, setWarehouseId, setWarehouse,master_zone_id }: { master_zone_id?:string,setWarehouse?: React.Dispatch<React.SetStateAction<TypeMswarehouse | null>>, className?: string, warehouseId: string, setWarehouseId: (warehouseId: string) => void }) => {
     const { data: warehouses, status } = useQuery({
         queryKey: ["warehouses"],
         queryFn: () => getMswarehouse(),
     });
-
-    const warehousesData = warehouses?.responseObject || [];
-
+    const warehousesData = useMemo(()=>{
+        return warehouses?.responseObject || []
+    },[warehouses?.responseObject]);
     useEffect(() => {
         if (warehousesData.length > 0 && warehouseId) {
             const foundWarehouse = warehousesData.find(
                 (m) => m.master_warehouse_id === warehouseId
             );
-            setWarehouse && foundWarehouse && setWarehouse(foundWarehouse);
+              setWarehouse?.(foundWarehouse!);
         }
-    }, [warehouseId, warehousesData]);
+    }, [setWarehouse, warehouseId, warehousesData]);
+
 
     if (status === "pending") return "load";
-
-
     return (
         <div className={className}>
             <label className="block text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
@@ -243,30 +239,16 @@ export const SelectWarehouse = ({ warehouseId, className, setWarehouseId, setWar
     )
 }
 
-const ZoneDocumentSelector = ({ setZone: setMainZone, disables }: { setZone: (zone: string) => void, disables?: { selectProduct?: boolean, selectZone?: boolean } }) => {
+const ZoneDocumentSelector = ({  disables }: {  disables?: { selectProduct?: boolean, selectZone?: boolean } }) => {
     const {
-        zone,
-        setZone,
         document,
         setDocument,
-        warehouse,
         setWarehouse,
         setDocumentId,
-        documentId,
-        setZoneName,
         setWarehouseId,
         warehouseId,
-        selectedZones,
-        setSelectedZones
     } = useCalculateContext();
 
-    useEffect(() => {
-        if (selectedZones.length > 0) {
-            // ส่ง zone แรกไปยัง context
-            setMainZone(selectedZones[0].id);
-            setZone(selectedZones[0].id);
-        }
-    }, [selectedZones, setMainZone, setZone]);
 
     return (
         <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-2xl p-10 mt-8 border border-gray-100">
@@ -274,18 +256,9 @@ const ZoneDocumentSelector = ({ setZone: setMainZone, disables }: { setZone: (zo
             <SelectWarehouse warehouseId={warehouseId} setWarehouseId={setWarehouseId} setWarehouse={setWarehouse} />
             <hr className="my-4 border-gray-200" />
             <div className="space-y-4 mt-8">
-                {!disables?.selectZone && (
-                    <SelectZone
-                        selectedZone={zone}
-                        setSelectedZone={setZone}
-                        setZoneNames={setZoneName}
-                        master_warehouse_id={warehouse?.master_warehouse_id}
-                    // setZoneName={setZoneNames}
-                    />
-                )}
                 {<SelectProducts document={document} setDocument={setDocument} disabled={disables?.selectProduct} setDocumentId={setDocumentId} />}
                 <div className="flex justify-end">
-                    <ButtonCalculate disabled={!zone || !document || !warehouseId} />
+                    <ButtonCalculate disabled={ !document || !warehouseId} />
                 </div>
             </div>
         </div>

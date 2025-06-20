@@ -48,8 +48,8 @@ export default function MainEditCal({ warehouseId }: { warehouseId?: string }) {
 
 const PreviewWarehouseEdit = () => {
 
-    return
-    return <>{JSON.stringify(data)}</>
+    return <></>
+ 
 }
 
 

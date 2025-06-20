@@ -1,6 +1,9 @@
 import { TypeCalBox } from "@/types/response/reponse.cal_box";
+import { TypeCalWarehouse } from "@/types/response/reponse.cal_warehouse";
+import { TypeShelfBoxStorage } from "@/types/response/reponse.msproduct";
 import { TypeMsrack } from "@/types/response/reponse.msrack";
 import { TypeMsshelfAll } from "@/types/response/reponse.msshelf";
+import { TypeWarehouseCompile } from "@/types/response/reponse.mswarehouse";
 
 // Define types
 export interface WarehouseType {
@@ -80,6 +83,31 @@ export interface StoredBoxType {
     master_product_name?: string;
     code_product?: string;
 };
+
+
+
+
+export type ShelfWithBoxes = TypeMsshelfAll & {
+  stored_boxes: TypeShelfBoxStorage[];
+  remainingVolume: number;
+  totalVolume:number;
+};
+
+export type ShelfMap = Record<
+  string,
+  ShelfWithBoxes & { zoneId: string; rackId: string }
+>;
+
+export type CalculateManageProps  = Partial<TypeCalWarehouse> & {
+  storage: TypeWarehouseCompile;
+  boxs: TypeCalBox[];
+  storageBoxs?:TypeShelfBoxStorage[];
+  onCompiles?:React.Dispatch<React.SetStateAction<TypeShelfBoxStorage[]>>;
+} 
+
+
+
+
 
 export interface ShelfStoredBoxType {
     storage_id: string;

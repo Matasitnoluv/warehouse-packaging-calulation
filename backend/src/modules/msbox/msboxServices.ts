@@ -25,6 +25,7 @@ export const msboxService = {
           StatusCodes.BAD_REQUEST
         );
       }
+   
       const masterbox = await msboxRepository.create(payload);
       return new ServiceResponse<masterbox>(
         ResponseStatus.Success,

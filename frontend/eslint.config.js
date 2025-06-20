@@ -20,7 +20,8 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.recommended.rules,
       '@typescript-eslint/no-unused-vars': "warn",
-      "@typescript-eslint/no-non-null-asserted-optional-chain": false,
+      '@typescript-eslint/no-explicit-any':'off',
+      "@typescript-eslint/no-non-null-asserted-optional-chain":'warn',
       "no-unused-vars": "warn",
       'react-refresh/only-export-components': [
         'warn',

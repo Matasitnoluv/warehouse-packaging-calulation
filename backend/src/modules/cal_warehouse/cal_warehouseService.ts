@@ -94,9 +94,6 @@ export const cal_warehouseService = {
     delete: async (cal_warehouse_id: string) => {
         try {
             await cal_warehouseRepository.delete(cal_warehouse_id);
-
-
-
             return new ServiceResponse(
                 ResponseStatus.Success,
                 "Delete warehouse success",

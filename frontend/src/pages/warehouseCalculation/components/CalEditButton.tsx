@@ -8,13 +8,10 @@ import { useNavigate } from "react-router-dom";
 
 const CalEditButton = ({ calWarehouse }: { calWarehouse: TypeCalWarehouse }) => {
     const navigate = useNavigate();
-    const pathClick = !calWarehouse?.master_warehouse_id ? calWarehouse.document_warehouse_no : `${calWarehouse.cal_warehouse_id}/edit`
+    const pathClick = `${calWarehouse.document_warehouse_no}`
     return (
         <Button onClick={() => navigate(`/warehouse-calculation/${pathClick}`)}>
-
-
             {calWarehouse?.master_warehouse_id ? "Edit" : "Calculation"}
-
         </Button>
     )
 }

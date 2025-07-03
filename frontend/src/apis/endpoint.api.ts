@@ -89,10 +89,12 @@ export const API_ENDPOINTS = {
     GET_ALL: "/v1/shelf_box_storage",
     GET_BY_SHELF_ID: "/v1/shelf_box_storage/shelf/:master_shelf_id",
     GET_BY_DOCUMENT: "/v1/shelf_box_storage/document",
+    GET_STORAGE: "/v1/shelf_box_storage/storage",
     GET_BY_DOCUMENT_WAREHOUSE: "/v1/shelf_box_storage/document-warehouse",
     STORE: "/v1/shelf_box_storage",
     STORE_MULTIPLE: "/v1/shelf_box_storage/store-multiple",
     GET_SHELF_EXPORT: "/v1/shelf_box_storage/get_export",
+    POST: "/v1/shelf_box_storage",
     UPDATE: "/v1/shelf_box_storage/:storage_id",
     DELETE: "/v1/shelf_box_storage/:storage_id"
   }

@@ -1,0 +1,278 @@
+[33mcommit 9dc14bd06f5fc8d1a06224385949727228c38146[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Merge: fcca18f 9dbee55
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Sat Jun 21 00:06:29 2025 +0700
+
+    merge develop
+
+[33mcommit 9dbee5581dfd508623a43245c866ab0d1246928a[m[33m ([m[1;31mdevelop/main[m[33m, [m[1;31mdevelop-thynne/main[m[33m)[m
+Author: Thynne <khunthynne@gmail.com>
+Date:   Fri Jun 20 23:46:44 2025 +0700
+
+    Update cal sections
+
+[33mcommit ba27e8d3b26826a64578e73bb8ee5fb2b1b33ce4[m
+Author: __THYNNE__ <88494232+KhunThynne@users.noreply.github.com>
+Date:   Wed Jun 18 08:15:35 2025 +0700
+
+    Update README.md
+
+[33mcommit d95c31a46cdf774ddcfface0eff387eef8013ac6[m
+Author: Thynne <khunthynne@gmail.com>
+Date:   Wed Jun 18 08:13:26 2025 +0700
+
+    Update
+
+[33mcommit 365e2cebc4575b0862d81d1c08c9720ad60b18d7[m
+Author: Thynne <khunthynne@gmail.com>
+Date:   Wed Jun 18 07:58:52 2025 +0700
+
+    Initial commit
+
+[33mcommit ddebcd7e4caa6fe665b93517e71602f5f8a2a7d4[m
+Author: __THYNNE__ <88494232+KhunThynne@users.noreply.github.com>
+Date:   Wed Jun 18 07:57:17 2025 +0700
+
+    Initial commit
+
+[33mcommit fcca18fb641ab5b1a6d5bf7226aa7311d8460e4d[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Wed Jun 18 07:50:05 2025 +0700
+
+    backup
+
+[33mcommit 6b64a60e0456cbc296b1f98953058dee71809271[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Tue Jun 17 13:35:11 2025 +0700
+
+    selectzonemulti
+
+[33mcommit 856ab4e60b4305c4003f4be3bb1e1bfc49bc7fd6[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Tue Jun 17 01:01:01 2025 +0700
+
+    Fixed
+
+[33mcommit 2c65cb516c3eecca48fba3c8c11db80798bf819d[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Tue Jun 17 00:42:09 2025 +0700
+
+    Merge backup
+
+[33mcommit ef4b5fda8b5e1d482ff75376e393444063caeb4f[m
+Merge: 8990903 e5bf5cc
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Tue Jun 17 00:37:08 2025 +0700
+
+    Merge
+
+[33mcommit e5bf5cc067baa4255347c5b269c417ace080926b[m[33m ([m[1;31morigin/editcalwarehouse[m[33m, [m[1;32meditcalwarehouse[m[33m)[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Tue Jun 17 00:24:59 2025 +0700
+
+    update
+
+[33mcommit 8990903de90350e63686081922ba7dee5f64c30c[m
+Merge: 34f4e0a 13c5bf7
+Author: natnicha46 <89983033+natnicha46@users.noreply.github.com>
+Date:   Mon Jun 16 21:17:49 2025 +0700
+
+    Merge pull request #7 from Matasitnoluv/Test1
+    
+    Test1
+
+[33mcommit 13c5bf72eb3ed2c0867e6b7ddf3bcaf608afff01[m[33m ([m[1;31morigin/Test1[m[33m)[m
+Author: Matasitnoluv <89983033+natnicha46@users.noreply.github.com>
+Date:   Mon Jun 16 21:11:23 2025 +0700
+
+    Test1Warehouse
+
+[33mcommit d6b24955e14fed5a5afc83abb2675b081be1e5f3[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Sun Jun 15 03:25:05 2025 +0700
+
+    Upddate Success
+
+[33mcommit f343297d6f38d2c4726208e6c4d8fa07bfd1efed[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Fri Jun 13 00:23:57 2025 +0700
+
+    update
+
+[33mcommit 113acd986b3d085328049c7a36f02486b7b30e45[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Tue Jun 10 13:18:40 2025 +0700
+
+    ีupdatelate
+
+[33mcommit 066405347da94bcb0c924a259f6c3f31171573c5[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Tue Jun 10 12:41:29 2025 +0700
+
+    udpate
+
+[33mcommit 37c04b10bd3793ec2ba10f048a0c539598aa0f9b[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Tue Jun 10 12:30:03 2025 +0700
+
+    update
+
+[33mcommit 987b1cd402e4a59061e5fc61b306a6d9aa45e37a[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Mon Jun 9 17:13:52 2025 +0700
+
+    Update selectProductAndBox.tsx
+
+[33mcommit cf7852880dc9038881019d31657a2b5fd28bf789[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Mon Jun 9 17:01:27 2025 +0700
+
+    update
+
+[33mcommit e7a7a796b8f46847d01f2e793e83050d5c778a88[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Sun Jun 8 22:18:24 2025 +0700
+
+    Fixds
+
+[33mcommit 440440281a6c527d505865bde45666add7c222dd[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Thu Jun 5 12:32:45 2025 +0700
+
+    Backup
+
+[33mcommit ff8958e0d825b060794b03c8d558d8f093649544[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Thu Jun 5 04:02:31 2025 +0700
+
+    Backup system
+
+[33mcommit a8210bad06404f5b3aaf6a6e10fe1e56165b2920[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Sun May 25 18:05:04 2025 +0700
+
+    savecalwarehouse
+
+[33mcommit d739669b500cca772991195227de38a597861a11[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Fri May 23 21:09:17 2025 +0700
+
+    update
+
+[33mcommit 97222f7dcc0952a185a4b93e1184d7edb97e8f77[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Wed May 21 04:52:00 2025 +0700
+
+    cal1shelf
+
+[33mcommit af9a2431af28ecb6ff811bbaf79b541c30b0a207[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Wed May 21 01:32:47 2025 +0700
+
+    logiccalwarehouse
+
+[33mcommit c1e2e7e6ef7a9816461a570b877cd64ab83695b5[m
+Author: Matasitnoluv <89983033+natnicha46@users.noreply.github.com>
+Date:   Tue May 20 20:02:47 2025 +0700
+
+    TestProduct
+
+[33mcommit dcf18f0e4060dbf389ad97393207d585f64ceb8a[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Tue May 20 18:52:53 2025 +0700
+
+    updatecalbox
+
+[33mcommit 9fb805028539503a4e3ee0dab8d8b3eb6d732e7e[m
+Author: Matasitnoluv <89983033+natnicha46@users.noreply.github.com>
+Date:   Tue May 20 16:08:30 2025 +0700
+
+    first test
+
+[33mcommit 34f4e0afcbc5b9a404159bbcd95e91e62faf7603[m[33m ([m[1;31morigin/CreateOverAll[m[33m)[m
+Merge: 79152ce e6bbdaa
+Author: Matasitnoluv <89983033+natnicha46@users.noreply.github.com>
+Date:   Mon May 19 14:41:29 2025 +0700
+
+    Merge branch 'main' of https://github.com/Matasitnoluv/warehouse-packaging-calulation
+
+[33mcommit 79152ce0a4a4ad2e678ca7c69804fa66e1d03180[m
+Merge: 32b0592 fb30596
+Author: Matasitnoluv <89983033+natnicha46@users.noreply.github.com>
+Date:   Mon May 19 14:41:11 2025 +0700
+
+    Merge branch 'CreateOverAll'
+
+[33mcommit e6bbdaaf6d8ba2d730e4185048bd764729abc991[m
+Merge: 32b0592 fb30596
+Author: natnicha46 <89983033+natnicha46@users.noreply.github.com>
+Date:   Mon May 19 14:39:37 2025 +0700
+
+    Merge pull request #6 from Matasitnoluv/CreateOverAll
+    
+    createOverAll
+
+[33mcommit fb30596d85a0b31c36166a6bf16923b7f7007c37[m
+Author: Matasitnoluv <89983033+natnicha46@users.noreply.github.com>
+Date:   Mon May 19 14:39:08 2025 +0700
+
+    createOverAll
+
+[33mcommit 32b059217309f14fc8559b804436ddf7aa290346[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Mon May 19 14:26:34 2025 +0700
+
+    updateschema
+
+[33mcommit 872c0c9295fba6da67795d5331f5cb9c6140f9e0[m
+Merge: 25dff47 36e48b6
+Author: natnicha46 <89983033+natnicha46@users.noreply.github.com>
+Date:   Sun May 18 06:47:25 2025 +0700
+
+    Merge pull request #5 from Matasitnoluv/editUI
+    
+    updateUI2
+
+[33mcommit 36e48b645a25d65f4f371c352d01e06441a8aa12[m[33m ([m[1;31morigin/editUI[m[33m)[m
+Author: Matasitnoluv <89983033+natnicha46@users.noreply.github.com>
+Date:   Sun May 18 06:46:07 2025 +0700
+
+    updateUI2
+
+[33mcommit 25dff47dfe26ce6ec9b178205b212be92c64bc27[m
+Merge: c923c06 c84d949
+Author: natnicha46 <89983033+natnicha46@users.noreply.github.com>
+Date:   Sun May 18 06:24:46 2025 +0700
+
+    Merge pull request #4 from Matasitnoluv/editUI
+    
+    updateUI
+
+[33mcommit c84d9495407fdb7aea4d5cf84ee1788f46e53c81[m
+Author: Matasitnoluv <89983033+natnicha46@users.noreply.github.com>
+Date:   Sun May 18 06:12:05 2025 +0700
+
+    updateUI
+
+[33mcommit c923c06d351b37647b38518d458a8d17f18f000c[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Sun May 18 04:25:13 2025 +0700
+
+    Update ZoneList.tsx
+
+[33mcommit cb9f213056481d8e464a45a2edf32e472932be56[m
+Author: Matasitnoluv <matasitchamp@gmail.com>
+Date:   Sun May 18 04:01:45 2025 +0700
+
+    Update navbar.main.tsx
+
+[33mcommit 0233ebffb3fc71ad0d0aab8a552d1e370c86bedc[m
+Merge: 99b1877 9a05064
+Author: natnicha46 <89983033+natnicha46@users.noreply.github.com>
+Date:   Sun May 18 03:59:00 2025 +0700
+
+    Merge pull request #3 from Matasitnoluv/natnicha
+    
+    Natnicha
+
+[33mcommit 9a05064d7de1f206bc82eb1b195df6f35

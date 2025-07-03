@@ -13,7 +13,7 @@ export const ExportButtonDialog = ({ storage_id, wareHouse, zone }: { storage_id
                 export_date: new Date().toISOString(),
             });
             setOpen(false);
-            queryClient.invalidateQueries({ queryKey: ["export", wareHouse, zone], });
+            queryClient.invalidateQueries({ queryKey: ["export", wareHouse, zone] });
         } catch (error) {
             console.log(error);
         }

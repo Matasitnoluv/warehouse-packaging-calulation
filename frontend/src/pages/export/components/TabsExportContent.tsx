@@ -28,7 +28,6 @@ export const TabsExportContent = ({ exportData, exportTabs = false }: { exportDa
                         <tr className="bg-gray-50">
                             <th className="p-3 text-left font-semibold text-gray-900">เลขที่เอกสารโปรดัก</th>
                             <th className="p-3 text-left font-semibold text-gray-900">เลขที่เอกสาร</th>
-                            {/* <th className="p-3 text-left font-semibold text-gray-900">จำนวนกล่อง</th> */}
                             <th className="p-3 text-left font-semibold text-gray-900">ชั้นวาง</th>
                             <th className="p-3 text-left font-semibold text-gray-900">เลขที่กล่อง</th>
                             <th className="p-3 text-left font-semibold text-gray-900">รหัสสินค้า</th>
@@ -40,17 +39,16 @@ export const TabsExportContent = ({ exportData, exportTabs = false }: { exportDa
                     <tbody>
                         {shelfBoxStorage.map((doc) => (
                             <tr key={doc.cal_box_id} className="border-t hover:bg-gray-50 transition-colors duration-150">
-                                <td className="p-3">{doc.document_product_no}</td>
+                                <td className="p-3">{doc?.cal_box?.document_product_no}</td>
                                 <td className="p-3">
-                                    {doc.document_warehouse_no}
+                                    {doc?.cal_box?.code_box}
                                     {/* {doc.cal_box.count} */}
                                 </td>
-                                {/* <td className="p-3">{doc.boxCount}</td> */}
 
                                 <td className="p-3">{rack?.master_rack_name}</td>
-                                <td className="p-3">{doc.cal_box.box_no}</td>
-                                <td className="p-3">{doc.cal_box.code_product}</td>
-                                <td className="p-3">{doc.cal_box.count}</td>
+                                <td className="p-3">{doc?.cal_box?.box_no}</td>
+                                <td className="p-3">{doc?.cal_box?.code_product}</td>
+                                <td className="p-3">{doc?.cal_box?.count}</td>
                                 <td className="p-3">{exportTabs ? formatDate(doc.export_date) : formatDate(doc.stored_date)}</td>
                                 <td className="p-3 flex gap-2">
                                     {/* <button

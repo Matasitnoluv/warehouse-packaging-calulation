@@ -3,9 +3,6 @@ import { useEffect, useState } from "react";
 import { getCalWarehouse } from "@/services/calwarehouse.services";
 
 import { useNavigate } from "react-router-dom";
-import DilogAddCalwarehouse from "./dilogAddCalwarehouse";
-
-import AlrtdilogDeleteDocument from "./alrtdilogDeleteDocument";
 import { FileSpreadsheet, ArrowLeft } from "lucide-react";
 import { AlertDialog as RemainingSpaceDialog } from "@radix-ui/themes";
 import { getMswarehouse } from "@/services/mswarehouse.services";
@@ -15,6 +12,8 @@ import { getMsshelf } from "@/services/msshelf.services";
 import { TypeMswarehouse } from "@/types/response/reponse.mswarehouse";
 import CalEditButton from "./CalEditButton";
 import { shelfBoxStorageService } from "@/services/shelfBoxStorage.services";
+import AlrtdilogDeleteDocument from "./modals/alrtdilogDeleteDocument";
+import DilogAddCalwarehouse from "./modals/dilogAddCalwarehouse";
 
 const CalWarehouseTable = () => {
     const navigate = useNavigate();
@@ -105,7 +104,7 @@ const CalWarehouseTable = () => {
             let warehouseTotal = msWarehouse.cubic_centimeter_warehouse || 0;
             let warehouseUsed = 0;
             let warehouseRemaining = 0;
-            let zoneSummaries: any[] = [];
+            const zoneSummaries: any[] = [];
 
             await Promise.all(zones.map(async (zone: any) => {
                 const msRackRes = await getMsrack(zone.master_zone_id);
@@ -115,7 +114,7 @@ const CalWarehouseTable = () => {
                 let zoneTotal = racks.reduce((sum: number, rack: any) => sum + sumShelf(rack.shelves, 'total'), 0);
                 let zoneUsed = racks.reduce((sum: number, rack: any) => sum + sumShelf(rack.shelves, 'used'), 0);
                 let zoneRemaining = racks.reduce((sum: number, rack: any) => sum + sumShelf(rack.shelves, 'remaining'), 0);
-                let rackSummaries: any[] = [];
+                const rackSummaries: any[] = [];
                 await Promise.all(racks.map(async (rack: any) => {
                     const msShelfRes = await getMsshelf(rack.master_rack_id);
                     const shelves = msShelfRes.responseObject || [];
@@ -123,7 +122,7 @@ const CalWarehouseTable = () => {
                     let rackTotal = rack.cubic_centimeter_rack || 0;
                     let rackUsed = 0;
                     let rackRemaining = 0;
-                    let shelfSummaries: any[] = [];
+                    const shelfSummaries: any[] = [];
                     await Promise.all(shelves.map(async (shelf: any) => {
                         // ดึงกล่องที่ถูกจัดเก็บใน shelf นี้
                         let used = 0;

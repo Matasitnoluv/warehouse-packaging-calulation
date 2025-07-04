@@ -51,7 +51,7 @@ const CalculationSummary: React.FC<CalculationSummaryProps> = ({
 
             // Calculate placements
             const placements: BoxPlacement[] = [];
-            let remainingBoxes = [...boxes];
+            const remainingBoxes = [...boxes];
 
             for (const shelf of shelves) {
                 const shelfVolume = shelf.cubic_centimeter_shelf || 0;

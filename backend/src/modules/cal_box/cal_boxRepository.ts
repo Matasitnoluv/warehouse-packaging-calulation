@@ -42,7 +42,7 @@ export const cal_boxRepository = {
 
         const result = await prisma.cal_box.findFirst({
             where: { master_box_name: master_box_name },
-            select: selectedFields,
+            // select: selectedFields,
         });
 
         return result as Pick<cal_box, Key> | null;
@@ -70,6 +70,7 @@ export const cal_boxRepository = {
     },
 
     create: async (payload: TypePayloadcal_box) => {
+        const documentProduct = await prisma?.cal_msproduct.findFirst({ where: { document_product_no: payload.document_product_no } });
         const master_box_name = payload.master_box_name.trim();
         const setPayload: any = {
             master_box_name: master_box_name,
@@ -80,6 +81,8 @@ export const cal_boxRepository = {
             code_product: payload.code_product,
             cubic_centimeter_box: payload.cubic_centimeter_box,
             count: payload.count,
+
+            document_product_id: documentProduct?.document_product_id || null
         };
 
         return await prisma.cal_box.create({

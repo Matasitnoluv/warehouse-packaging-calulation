@@ -1,18 +1,32 @@
 import { useZoneQuery } from "@/services/queriesHook";
 import { Layers } from "lucide-react";
+import { useEffect, useMemo } from "react";
 
 export const SelectZoneSingle = ({
     selectedZone,
     setSelectedZone,
     className,
+    master_warehouse_id,
+    setMasterWarehouseId
 }: {
     className?: string;
     selectedZone: string;
-    setSelectedZone: (zoneId: string) => void;
+    master_warehouse_id?: string;
+    setSelectedZone: React.Dispatch<React.SetStateAction<string>>;
+    setMasterWarehouseId?: React.Dispatch<React.SetStateAction<string>>
 }) => {
     const { data: zones, status } = useZoneQuery();
+    const zonesData = useMemo(() => Array.isArray(zones?.responseObject) ? zones.responseObject : [], [zones?.responseObject]);
+
+    useEffect(() => {
+
+        if (setMasterWarehouseId && selectedZone) {
+            const master_warehouse_id = zonesData.find((z) => z.master_zone_id === selectedZone)?.master_warehouse_id
+            if (master_warehouse_id) setMasterWarehouseId(master_warehouse_id);
+        }
+    }, [setMasterWarehouseId, selectedZone, zonesData])
     if (status === "pending") return "load";
-    const zonesData = Array.isArray(zones?.responseObject) ? zones.responseObject : [];
+
     return (
         <div className={className}>
             <label className="flex w-full text-xl font-bold text-gray-800 mb-2 items-center gap-2">
@@ -24,7 +38,10 @@ export const SelectZoneSingle = ({
                 onChange={e => setSelectedZone(e.target.value)}
             >
                 <option value="">-- เลือก Zone --</option>
-                {zonesData.map(zone => (
+                {(master_warehouse_id
+                    ? zonesData.filter(z => z.master_warehouse_id === master_warehouse_id)
+                    : zonesData
+                ).map(zone => (
                     <option key={zone.master_zone_id} value={zone.master_zone_id}>
                         {zone.master_zone_name}
                     </option>

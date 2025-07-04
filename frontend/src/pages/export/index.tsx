@@ -15,7 +15,7 @@ const ExportPage = () => {
     <ContainerExport>
       <HeaderExport>
         <SelectWarehouse warehouseId={warehouseId} setWarehouseId={setWarehouseId} />
-        <SelectZoneSingle selectedZone={selectedZone} setSelectedZone={setZone} />
+        <SelectZoneSingle selectedZone={selectedZone} setMasterWarehouseId={setWarehouseId} setSelectedZone={setZone} master_warehouse_id={warehouseId} />
       </HeaderExport>
       <TabsExport wareHouse={warehouseId} zone={selectedZone} />
     </ContainerExport>

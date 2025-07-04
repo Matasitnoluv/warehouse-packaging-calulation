@@ -10,7 +10,8 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 
 import { getCalBox } from '@/services/calbox.servicers';
 import { TypeCalBox } from '@/types/response/reponse.cal_box';
-import { TypeMswarehouse } from '@/types/response/reponse.mswarehouse';
+import { TypeMswarehouse, TypeWarehouseCompile } from '@/types/response/reponse.mswarehouse';
+import { getShelfBoxStorage, getStorageShelfBox } from '@/services/shelfBoxStorage.services';
 
 export interface CalculateContextType {
   zone: string;
@@ -25,7 +26,7 @@ export interface CalculateContextType {
   warehouseId: string;
   warehouseNo: string;
   documentId: string;
-
+  dataCompile?: TypeWarehouseCompile | null
   setDocumentId: (documentId: string) => void;
 
   setWarehouseId: (warehouseId: string) => void;
@@ -47,36 +48,27 @@ export const CalculateProvider = ({ children, warehouseNo, defaultZone, defaultD
   const [zone, setZone] = useState<string>(defaultZone);
   const [document, setDocument] = useState<CalculateContextType['document']>(defaultDocument);
   const [documentId, setDocumentId] = useState<string>("");
-  const [showCalculateDialog, setShowCalculateDialog] = useState<boolean>(false);
+  const [showCalculateDialog, setShowCalculateDialog] = useState<boolean>(!defaultWarehouse ? false : true);
   const [warehouse, setWarehouse] = useState<TypeMswarehouse | null>(null);
   const [warehouseId, setWarehouseId] = useState<string>(defaultWarehouse);
   const [zoneName, setZoneName] = useState<string>("");
   const [selectedZones, setSelectedZones] = useState<{ id: string; name: string }[]>([]);
-
-  const { data: rackData } = useQuery({
-    queryKey: ['rack', zone],
-    queryFn: () => getMsrack(zone!),
-    enabled: !!zone,
+  const { data: dataCompile } = useQuery({
+    queryKey: ['storage', warehouseId],
+    queryFn: () => getStorageShelfBox(warehouseId),
+    enabled: !!warehouseId,
   });
-  const rack = rackData?.responseObject
-  const { data: shelfData } = useQuery({
-    queryKey: ['shelf', rack?.[0]?.master_rack_id],
-    queryFn: () => getMsshelf(rack?.[0]?.master_rack_id),
-    enabled: !!rack?.[0]?.master_rack_id,
-  });
-  const shelf = shelfData?.responseObject ? shelfData.responseObject : [];
-
   const { data: boxData } = useQuery({
     queryKey: ['box', document],
     queryFn: () => getCalBox(document),
     enabled: !!document,
   });
   const boxs = boxData?.responseObject ? boxData.responseObject : []
-
   return (
     <CalculateContext.Provider value={{
+      dataCompile: dataCompile?.responseObject,
       warehouseNo, showCalculateDialog, warehouse, warehouseId,
-      setWarehouseId, setWarehouse, setShowCalculateDialog, zone, setZone, document, setDocument, zoneName, setZoneName, rack, shelf, boxs, documentId, setDocumentId,
+      setWarehouseId, setWarehouse, setShowCalculateDialog, zone, setZone, document, setDocument, zoneName, setZoneName, boxs, documentId, setDocumentId,
       selectedZones, setSelectedZones
     }}>
       {children}

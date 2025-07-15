@@ -745,7 +745,7 @@ const CalculationProductAndBox = () => {
                     {calculationResults.length > 0 && (
                         <div className="mt-6 flex justify-end">
                             <Button
-                                className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md"
+                                className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 fixed bottom-5 rounded-lg transition-all duration-200 flex items-center gap-2 shadow-md"
                                 onClick={() => {
                                     setConfirmDialog({
                                         isOpen: true,

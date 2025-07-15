@@ -17,7 +17,7 @@ const DialogSaveCalwarehouse = (props: DialogSaveCalwarehouseProps) => {
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Button {...buttonProps}  onClick={() => setOpen(true)}>
+      <Button {...buttonProps} onClick={() => setOpen(true)}>
         {children}
       </Button>
 

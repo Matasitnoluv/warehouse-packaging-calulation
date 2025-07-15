@@ -116,6 +116,62 @@ router.get("/document-warehouse/:docNo/:master_zone_id", async (req: Request, re
     }
 });
 
+// Get shelf used space
+router.get("/used-space/shelf/:shelfId", async (req: Request, res: Response) => {
+    try {
+        const shelfId = req.params.shelfId;
+        const result = await shelfBoxStorageServices.getShelfUsedSpaceAsync(shelfId);
+        res.json(result);
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Failed to get shelf used space",
+        });
+    }
+});
+
+// Get rack used space
+router.get("/used-space/rack/:rackId", async (req: Request, res: Response) => {
+    try {
+        const rackId = req.params.rackId;
+        const result = await shelfBoxStorageServices.getRackUsedSpaceAsync(rackId);
+        res.json(result);
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Failed to get rack used space",
+        });
+    }
+});
+
+// Get zone used space
+router.get("/used-space/zone/:zoneId", async (req: Request, res: Response) => {
+    try {
+        const zoneId = req.params.zoneId;
+        const result = await shelfBoxStorageServices.getZoneUsedSpaceAsync(zoneId);
+        res.json(result);
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Failed to get zone used space",
+        });
+    }
+});
+
+// Get warehouse used space
+router.get("/used-space/warehouse/:warehouseId", async (req: Request, res: Response) => {
+    try {
+        const warehouseId = req.params.warehouseId;
+        const result = await shelfBoxStorageServices.getWarehouseUsedSpaceAsync(warehouseId);
+        res.json(result);
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Failed to get warehouse used space",
+        });
+    }
+});
+
 // Create a new shelf box storage record
 router.post("/", async (req: Request, res: Response) => {
     try {
@@ -187,4 +243,22 @@ router.delete("/:id", async (req: Request, res: Response) => {
     }
 });
 
+router.get("/shelfboxremain/:id", async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id;
+        const result = await shelfBoxStorageServices.shelfboxremain(id);
+        res.json({
+            success: true,
+            responseObject: result,
+            message: "Successfully deleted shelf box storage record",
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error.message || "Failed to delete shelf box storage record",
+        });
+    }
+});
+
 export const shelfBoxStorageRouter = router;
+

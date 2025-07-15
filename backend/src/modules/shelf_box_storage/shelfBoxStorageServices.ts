@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { shelfBoxStorageRepository } from "./shelfBoxStorageRepository";
 import { msshelfRepository } from "../msshelf/msshelfRepository";
 import { PrismaClient } from "@prisma/client";
+import { calculateCapacitiesFromStoredBoxes, Warehouseremain } from "./utils/calculatecapacities";
 
 const prisma = new PrismaClient();
 const omitKeys = ['cal_box', 'modified', 'box_no'];
@@ -383,6 +384,238 @@ export const shelfBoxStorageServices = {
             };
         }
     },
+    shelfboxremain: async (master_warehouse_id: string) => {
+        try {
+            const data = await prisma.masterwarehouse.findUnique({
+                where: {
+                    master_warehouse_id: master_warehouse_id
+                },
+                include: {
+                    masterzone: { include: { racks: { include: { shelves: { include: { stored_boxes: { include: { cal_box: true } } } } } } } }
+                }
+            })
+            const res = calculateCapacitiesFromStoredBoxes(data as any)
 
+            return res
+        } catch (error: any) {
+            return null
+        }
+    },
+    // คำนวณ used space ของ shelf โดยรวมปริมาตรของกล่องทั้งหมด
+    getShelfUsedSpaceAsync: async (master_shelf_id: string) => {
+        try {
+            const storedBoxes = await prisma.shelf_box_storage.findMany({
+                where: {
+                    master_shelf_id: master_shelf_id,
+                    status: "stored" // เฉพาะกล่องที่ยังจัดเก็บอยู่
+                },
+                select: {
+                    cubic_centimeter_box: true,
+                    count: true,
+                    total_volume: true
+                }
+            });
+
+            // คำนวณปริมาตรรวมที่ใช้ไป
+            let totalUsedSpace = 0;
+            for (const box of storedBoxes) {
+                // ใช้ total_volume ถ้ามี หรือคำนวณจาก cubic_centimeter_box * count
+                if (box.total_volume) {
+                    totalUsedSpace += box.total_volume;
+                } else if (box.cubic_centimeter_box && box.count) {
+                    totalUsedSpace += box.cubic_centimeter_box * box.count;
+                }
+            }
+
+            return {
+                success: true,
+                responseObject: {
+                    usedSpace: totalUsedSpace,
+                    boxCount: storedBoxes.length
+                },
+                message: "Get shelf used space successful",
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message,
+            };
+        }
+    },
+
+    // คำนวณ used space ของ rack โดยรวมจาก shelves ทั้งหมด
+    getRackUsedSpaceAsync: async (master_rack_id: string) => {
+        try {
+            // ดึง shelves ทั้งหมดใน rack
+            const shelves = await prisma.mastershelf.findMany({
+                where: {
+                    master_rack_id: master_rack_id
+                },
+                select: {
+                    master_shelf_id: true
+                }
+            });
+
+            let totalUsedSpace = 0;
+            let totalBoxCount = 0;
+
+            // คำนวณ used space ของแต่ละ shelf
+            for (const shelf of shelves) {
+                const shelfUsedSpace = await prisma.shelf_box_storage.findMany({
+                    where: {
+                        master_shelf_id: shelf.master_shelf_id,
+                        status: "stored"
+                    },
+                    select: {
+                        cubic_centimeter_box: true,
+                        count: true,
+                        total_volume: true
+                    }
+                });
+
+                for (const box of shelfUsedSpace) {
+                    if (box.total_volume) {
+                        totalUsedSpace += box.total_volume;
+                    } else if (box.cubic_centimeter_box && box.count) {
+                        totalUsedSpace += box.cubic_centimeter_box * box.count;
+                    }
+                    totalBoxCount += box.count || 0;
+                }
+            }
+
+            return {
+                success: true,
+                responseObject: {
+                    usedSpace: totalUsedSpace,
+                    boxCount: totalBoxCount,
+                    shelfCount: shelves.length
+                },
+                message: "Get rack used space successful",
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message,
+            };
+        }
+    },
+
+    // คำนวณ used space ของ zone โดยรวมจาก racks ทั้งหมด
+    getZoneUsedSpaceAsync: async (master_zone_id: string) => {
+        try {
+            // ดึง racks ทั้งหมดใน zone
+            const racks = await prisma.masterrack.findMany({
+                where: {
+                    master_zone_id: master_zone_id
+                },
+                select: {
+                    master_rack_id: true
+                }
+            });
+
+            let totalUsedSpace = 0;
+            let totalBoxCount = 0;
+
+            // คำนวณ used space ของแต่ละ rack
+            for (const rack of racks) {
+                const rackResult = await prisma.shelf_box_storage.findMany({
+                    where: {
+                        master_rack_id: rack.master_rack_id,
+                        status: "stored"
+                    },
+                    select: {
+                        cubic_centimeter_box: true,
+                        count: true,
+                        total_volume: true
+                    }
+                });
+
+                for (const box of rackResult) {
+                    if (box.total_volume) {
+                        totalUsedSpace += box.total_volume;
+                    } else if (box.cubic_centimeter_box && box.count) {
+                        totalUsedSpace += box.cubic_centimeter_box * box.count;
+                    }
+                    totalBoxCount += box.count || 0;
+                }
+            }
+
+            return {
+                success: true,
+                responseObject: {
+                    usedSpace: totalUsedSpace,
+                    boxCount: totalBoxCount,
+                    rackCount: racks.length
+                },
+                message: "Get zone used space successful",
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message,
+            };
+        }
+    },
+
+    // คำนวณ used space ของ warehouse โดยรวมจาก zones ทั้งหมด
+    getWarehouseUsedSpaceAsync: async (master_warehouse_id: string) => {
+        try {
+            // ดึง zones ทั้งหมดใน warehouse
+            const zones = await prisma.masterzone.findMany({
+                where: {
+                    master_warehouse_id: master_warehouse_id
+                },
+                select: {
+                    master_zone_id: true
+                }
+            });
+
+            let totalUsedSpace = 0;
+            let totalBoxCount = 0;
+
+            // คำนวณ used space ของแต่ละ zone
+            for (const zone of zones) {
+                const zoneResult = await prisma.shelf_box_storage.findMany({
+                    where: {
+                        master_zone_id: zone.master_zone_id,
+                        status: "stored"
+                    },
+                    select: {
+                        cubic_centimeter_box: true,
+                        count: true,
+                        total_volume: true
+                    }
+                });
+
+                for (const box of zoneResult) {
+                    if (box.total_volume) {
+                        totalUsedSpace += box.total_volume;
+                    } else if (box.cubic_centimeter_box && box.count) {
+                        totalUsedSpace += box.cubic_centimeter_box * box.count;
+                    }
+                    totalBoxCount += box.count || 0;
+                }
+            }
+
+            return {
+                success: true,
+                responseObject: {
+                    usedSpace: totalUsedSpace,
+                    boxCount: totalBoxCount,
+                    zoneCount: zones.length
+                },
+                message: "Get warehouse used space successful",
+            };
+        } catch (error: any) {
+            return {
+                success: false,
+                responseObject: null,
+                message: error.message,
+            };
+        }
+    },
 
 };

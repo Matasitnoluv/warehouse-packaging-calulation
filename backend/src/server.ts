@@ -29,6 +29,7 @@ const prisma = new PrismaClient();
 const logger = pino({ name: "server start" });
 const app = express();
 
+
 app.use(cookieParser()); // ใช้ cookie-parser เพื่ออ่าน cookies
 
 // login
@@ -38,6 +39,12 @@ app.use(cors({
     credentials: true,
     exposedHeaders: ['Content-Type', 'Content-Disposition']
 }));
+
+// สำหรับ JSON
+app.use(express.json({ limit: '10mb' }));
+
+// สำหรับ x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Configure static file serving with CORS headers
 app.use('/uploads', (req, res, next) => {

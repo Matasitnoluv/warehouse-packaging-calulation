@@ -6,6 +6,7 @@ import { TypeShelfBoxStorage, TypeShelfExport } from "@/types/response/reponse.m
 import mainApi from "@/apis/main.api";
 import { ApiResponse } from "@/pages/warehouseCalculation/type";
 import { TypeWarehouseCompile } from "@/types/response/reponse.mswarehouse";
+import { RemainingSpaceResponse } from "@/types/response/response.remainingSpace";
 
 // Define the payload type for storing a box in a shelf
 export interface StoreBoxPayload {
@@ -155,6 +156,74 @@ export const getStoredBoxesByDocumentNo = async (document_product_no: string) =>
   }
 };
 
+// Get shelf used space
+export const getShelfUsedSpace = async (shelfId: string) => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/v1/shelf_box_storage/used-space/shelf/${shelfId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching shelf used space:", error);
+    return {
+      success: false,
+      responseObject: null,
+      message: "Failed to fetch shelf used space",
+    };
+  }
+};
+
+// Get rack used space
+export const getRackUsedSpace = async (rackId: string) => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/v1/shelf_box_storage/used-space/rack/${rackId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching rack used space:", error);
+    return {
+      success: false,
+      responseObject: null,
+      message: "Failed to fetch rack used space",
+    };
+  }
+};
+
+// Get zone used space
+export const getZoneUsedSpace = async (zoneId: string) => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/v1/shelf_box_storage/used-space/zone/${zoneId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching zone used space:", error);
+    return {
+      success: false,
+      responseObject: null,
+      message: "Failed to fetch zone used space",
+    };
+  }
+};
+
+// Get warehouse used space
+export const getWarehouseUsedSpace = async (warehouseId: string) => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/v1/shelf_box_storage/used-space/warehouse/${warehouseId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching warehouse used space:", error);
+    return {
+      success: false,
+      responseObject: null,
+      message: "Failed to fetch warehouse used space",
+    };
+  }
+};
+
 export const getStoredWareHouseDocumentNo = async (document_product_no: string) => {
   try {
     // Ensure document number has parentheses
@@ -210,7 +279,7 @@ export const storeMultipleBoxesInShelf = async (payload: StoreBoxPayload[]) => {
 export const updateStoredBox = async (storage_id: string, payload: Partial<StoreBoxPayload>) => {
   try {
     const response = await axios.put(
-      `${API_URL}/v1/shelf_box_storage/${storage_id}`,
+      `${API_URL}/v1/shelf_box_storage/update/${storage_id}`,
       payload
     );
     return response.data;
@@ -276,6 +345,21 @@ export const saveCalculateDialog = async (storage_id: string, calculateSummary: 
   }
 };
 
+export const getRemaining = async (master_warehouse_id: string): Promise<RemainingSpaceResponse> => {
+  try {
+    const response = await axios.get(`${API_URL}/v1/shelf_box_storage/shelfboxremain/${master_warehouse_id}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error saving calculate dialog:", error);
+    return {
+      success: false,
+      responseObject: null,
+      message: "Failed to save calculate dialog",
+    };
+  }
+};
+
 // Export all functions as a service object
 export const shelfBoxStorageService = {
   getAllStoredBoxes,
@@ -286,7 +370,11 @@ export const shelfBoxStorageService = {
   storeMultipleBoxesInShelf,
   updateStoredBox,
   deleteStoredBox,
-  getStoredWareHouseDocumentNo
+  getStoredWareHouseDocumentNo,
+  getShelfUsedSpace,
+  getRackUsedSpace,
+  getZoneUsedSpace,
+  getWarehouseUsedSpace
 };
 
 export const getShelfBoxStorage = async (document_product_no: string) => {

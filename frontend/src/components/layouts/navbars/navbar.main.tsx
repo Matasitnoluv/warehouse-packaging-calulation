@@ -82,7 +82,7 @@ const NavbarMain = () => {
           }`}
       >
         <TabNav.Root className="flex flex-col sm:flex-row">
-          <TabNav.Link href="/" className="p-2">Home</TabNav.Link>
+          <TabNav.Link href="/dashboard" className="p-2">Home</TabNav.Link>
           <TabNav.Link href="/msproduct" className="p-2">Product Management</TabNav.Link>
           <TabNav.Link href="/Msbox" className="p-2">Box Management</TabNav.Link>
           {isAdminOrManager && (

@@ -18,7 +18,7 @@ const Login: React.FC = () => {
 					withCredentials: true
 				});
 				if (response.data.success) {
-					navigate('/msproduct');
+					navigate('/dashboard');
 				}
 			} catch (error) {
 				//console.log('Token verification failed:', error);
@@ -35,7 +35,7 @@ const Login: React.FC = () => {
 			const response = await loginUser({ username, password });
 
 			if (response.success) {
-				navigate('/msproduct');
+				navigate('/dashboard');
 			} else {
 				setError(response.message || 'Invalid login credentials');
 			}

@@ -14,6 +14,7 @@ import CalEditButton from "./CalEditButton";
 import { shelfBoxStorageService } from "@/services/shelfBoxStorage.services";
 import AlrtdilogDeleteDocument from "./modals/alrtdilogDeleteDocument";
 import DilogAddCalwarehouse from "./modals/dilogAddCalwarehouse";
+import { DialogRemaining } from "./dialogRemaining";
 
 const CalWarehouseTable = () => {
     const navigate = useNavigate();
@@ -98,85 +99,71 @@ const CalWarehouseTable = () => {
             const msWarehouse = (msWarehouseList as TypeMswarehouse[]).find((w) => w.master_warehouse_id === warehouseId);
             if (!msWarehouse) return null;
 
+            // คำนวณ used space ของ warehouse
+            const warehouseUsedSpaceRes = await shelfBoxStorageService.getWarehouseUsedSpace(warehouseId);
+            const warehouseUsed = warehouseUsedSpaceRes.success ? warehouseUsedSpaceRes.responseObject.usedSpace : 0;
+            const warehouseTotal = msWarehouse.cubic_centimeter_warehouse || 0;
+            const warehouseRemaining = warehouseTotal - warehouseUsed;
+
             // Fetch zones
             const msZoneRes = await getMszone(msWarehouse.master_warehouse_id);
             const zones = msZoneRes.responseObject || [];
-            let warehouseTotal = msWarehouse.cubic_centimeter_warehouse || 0;
-            let warehouseUsed = 0;
-            let warehouseRemaining = 0;
             const zoneSummaries: any[] = [];
 
             await Promise.all(zones.map(async (zone: any) => {
+                // คำนวณ used space ของ zone
+                const zoneUsedSpaceRes = await shelfBoxStorageService.getZoneUsedSpace(zone.master_zone_id);
+                const zoneUsed = zoneUsedSpaceRes.success ? zoneUsedSpaceRes.responseObject.usedSpace : 0;
+                const zoneTotal = zone.cubic_centimeter_zone || 0;
+                const zoneRemaining = zoneTotal - zoneUsed;
+
                 const msRackRes = await getMsrack(zone.master_zone_id);
                 const racks = msRackRes.responseObject || [];
-                // console.log('racks:', racks);
-                // console.log('shelves use', racks.shelves.)
-                let zoneTotal = racks.reduce((sum: number, rack: any) => sum + sumShelf(rack.shelves, 'total'), 0);
-                let zoneUsed = racks.reduce((sum: number, rack: any) => sum + sumShelf(rack.shelves, 'used'), 0);
-                let zoneRemaining = racks.reduce((sum: number, rack: any) => sum + sumShelf(rack.shelves, 'remaining'), 0);
                 const rackSummaries: any[] = [];
+
                 await Promise.all(racks.map(async (rack: any) => {
+                    // คำนวณ used space ของ rack
+                    const rackUsedSpaceRes = await shelfBoxStorageService.getRackUsedSpace(rack.master_rack_id);
+                    const rackUsed = rackUsedSpaceRes.success ? rackUsedSpaceRes.responseObject.usedSpace : 0;
+                    const rackTotal = rack.cubic_centimeter_rack || 0;
+                    const rackRemaining = rackTotal - rackUsed;
+
                     const msShelfRes = await getMsshelf(rack.master_rack_id);
                     const shelves = msShelfRes.responseObject || [];
-                    rack.shelves = shelves;
-                    let rackTotal = rack.cubic_centimeter_rack || 0;
-                    let rackUsed = 0;
-                    let rackRemaining = 0;
                     const shelfSummaries: any[] = [];
-                    await Promise.all(shelves.map(async (shelf: any) => {
-                        // ดึงกล่องที่ถูกจัดเก็บใน shelf นี้
-                        let used = 0;
-                        let boxes = [];
-                        try {
-                            const boxRes = await shelfBoxStorageService.getStoredBoxesByShelfId(shelf.master_shelf_id);
-                            console.log('shelf:', shelf);
-                            console.log('boxRes:', boxRes);
-                            boxes = boxRes.success ? boxRes.responseObject : [];
-                            console.log('boxes:',);
 
-                            used = boxes.responseObject[0]._sum.cubic_centimeter_box;
-                        } catch (e) {
-                            used = 0;
-                            boxes = [];
-                        }
-                        console.log('used:', used);
-                        const total = shelf.cubic_centimeter_shelf || 0;
-                        const remaining = total - used;
-                        rackUsed += used;
-                        rackTotal += total;
-                        rackRemaining += remaining;
+                    await Promise.all(shelves.map(async (shelf: any) => {
+                        // คำนวณ used space ของ shelf
+                        const shelfUsedSpaceRes = await shelfBoxStorageService.getShelfUsedSpace(shelf.master_shelf_id);
+                        const shelfUsed = shelfUsedSpaceRes.success ? shelfUsedSpaceRes.responseObject.usedSpace : 0;
+                        const shelfTotal = shelf.cubic_centimeter_shelf || 0;
+                        const shelfRemaining = shelfTotal - shelfUsed;
+
                         shelfSummaries.push({
                             ...shelf,
-                            total,
-                            used,
-                            remaining,
-                            boxes,
+                            total: shelfTotal,
+                            used: shelfUsed,
+                            remaining: shelfRemaining,
                         });
                     }));
-                    zoneUsed += rackUsed;
-                    zoneTotal += rackTotal;
-                    zoneRemaining += rackRemaining;
+
                     rackSummaries.push({
                         ...rack,
                         total: rackTotal,
                         used: rackUsed,
-                        remaining: rackTotal - rackUsed,
+                        remaining: rackRemaining,
                         shelves: shelfSummaries,
                     });
                 }));
-                warehouseUsed += zoneUsed;
-                warehouseTotal += zoneTotal;
-                warehouseRemaining += zoneRemaining;
+
                 zoneSummaries.push({
                     ...zone,
                     total: zoneTotal,
                     used: zoneUsed,
-                    remaining: zoneTotal - zoneUsed,
+                    remaining: zoneRemaining,
                     racks: rackSummaries,
                 });
             }));
-
-            warehouseRemaining = warehouseTotal - warehouseUsed;
 
             return {
                 warehouse: {
@@ -198,11 +185,7 @@ const CalWarehouseTable = () => {
         }
     }
 
-    // ฟังก์ชันช่วยคำนวณรวมจาก shelves จริง
-    function sumShelf(shelves: any[], key: string): number {
-        if (!Array.isArray(shelves)) return 0;
-        return shelves.reduce((sum: number, shelf: any) => sum + (shelf[key] || 0), 0);
-    }
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
@@ -349,130 +332,13 @@ const CalWarehouseTable = () => {
                                         </div>
                                     </div>
                                 ) : (
-                                    <>
-                                        <div className="space-y-8">
-                                            {/* Warehouse Summary */}
-                                            <div className="bg-white rounded-xl p-6 shadow-md border border-gray-100">
-                                                <div className="flex justify-between items-center mb-4">
-                                                    <h4 className="font-bold text-xl text-blue-700">Warehouse: {remainingSpaceData.warehouse.name}</h4>
-                                                </div>
-                                                <div className="grid grid-cols-2 gap-4 mb-4">
-                                                    <div className="bg-blue-50 p-4 rounded-lg">
-                                                        <div className="text-sm text-blue-600 font-medium">Total Space</div>
-                                                        <div className="text-xl font-bold text-blue-800">{remainingSpaceData.warehouse.total.toLocaleString()} cm³</div>
-                                                    </div>
-                                                    <div className="bg-blue-50 p-4 rounded-lg">
-                                                        <div className="text-sm text-blue-600 font-medium">Dimensions</div>
-                                                        <div className="text-xl font-bold text-blue-800">
-                                                            {remainingSpaceData.warehouse.dimensions.width} × {remainingSpaceData.warehouse.dimensions.length} × {remainingSpaceData.warehouse.dimensions.height} cm
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="w-full bg-gray-200 rounded-full h-4 mt-2">
-                                                    <div
-                                                        className="bg-blue-500 h-4 rounded-full transition-all duration-500"
-                                                        style={{ width: `${remainingSpaceData.warehouse.total ? (remainingSpaceData.warehouse.used / remainingSpaceData.warehouse.total) * 100 : 0}%` }}
-                                                    />
-                                                </div>
-                                                <div className="text-right text-sm text-gray-500 mt-2">
-                                                    <span className="text-gray-600">Used: {remainingSpaceData.warehouse.used.toLocaleString()} cm³</span>
-                                                    <span className="ml-2 text-blue-600">
-                                                        (Remaining: {remainingSpaceData.warehouse.remaining.toLocaleString()} cm³)
-                                                    </span>
-                                                </div>
-                                            </div>
-
-                                            {/* Zones with nested Racks and Shelves */}
-                                            <div className="bg-white rounded-xl p-6 shadow-md border border-gray-100">
-                                                <h4 className="font-bold text-xl mb-4 text-green-700">Zones</h4>
-                                                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                                                    {remainingSpaceData.zones.map((zone: any) => (
-                                                        <div key={zone.master_zone_id} className="bg-green-50 rounded-lg p-4">
-                                                            <div className="flex justify-between items-center mb-2">
-                                                                <span className="font-semibold text-green-800">{zone.master_zone_name}</span>
-                                                                <span className="text-sm text-green-600">{zone.cubic_centimeter_zone.toLocaleString()} cm³</span>
-                                                            </div>
-                                                            <div className="w-full bg-gray-200 rounded-full h-3">
-                                                                <div
-                                                                    className="bg-green-500 h-3 rounded-full transition-all duration-500"
-                                                                    style={{ width: `${zone.cubic_centimeter_zone ? (zone.used / zone.cubic_centimeter_zone) * 100 : 0}%` }}
-                                                                />
-                                                            </div>
-                                                            <div className="flex justify-between text-xs text-gray-500 mt-1 mb-2">
-                                                                <span>Used: {zone.used.toLocaleString()} cm³</span>
-                                                                <span className="text-green-600">
-                                                                    (Remaining: {zone.remaining.toLocaleString()} cm³)
-                                                                </span>
-                                                            </div>
-                                                            {/* Racks in Zone */}
-                                                            {zone.racks.length > 0 && (
-                                                                <div className="ml-4 mt-2 space-y-2">
-                                                                    <div className="font-semibold text-yellow-700 mb-1">Racks</div>
-                                                                    {zone.racks.map((rack: any) => (
-                                                                        <div key={rack.master_rack_id} className="bg-yellow-50 rounded-lg p-3 mb-1">
-                                                                            <div className="flex justify-between items-center mb-1">
-                                                                                <span className="font-semibold text-yellow-800">{rack.master_rack_name}</span>
-                                                                                <span className="text-sm text-yellow-600">{rack.cubic_centimeter_rack.toLocaleString()} cm³</span>
-                                                                            </div>
-                                                                            <div className="w-full bg-gray-200 rounded-full h-2">
-                                                                                <div
-                                                                                    className="bg-yellow-500 h-2 rounded-full transition-all duration-500"
-                                                                                    style={{ width: `${rack.cubic_centimeter_rack ? (rack.used / rack.cubic_centimeter_rack) * 100 : 0}%` }}
-                                                                                />
-                                                                            </div>
-                                                                            <div className="flex justify-between text-xs text-gray-500 mt-1 mb-1">
-                                                                                <span>Used: {rack.used.toLocaleString()} cm³</span>
-                                                                                <span className="text-yellow-600">
-                                                                                    (Remaining: {rack.remaining.toLocaleString()} cm³)
-                                                                                </span>
-                                                                            </div>
-                                                                            {/* Shelves in Rack */}
-                                                                            {rack.shelves.length > 0 && (
-                                                                                <div className="ml-4 mt-1 space-y-1">
-                                                                                    <div className="font-semibold text-purple-700 mb-1">Shelves</div>
-                                                                                    {rack.shelves.map((shelf: any) => (
-                                                                                        <div key={shelf.master_shelf_id} className="bg-purple-50 rounded p-2 mb-1">
-                                                                                            <div className="flex justify-between items-center mb-1">
-                                                                                                <span className="font-semibold text-purple-800">{shelf.master_shelf_name}</span>
-                                                                                                <span className="text-xs text-purple-600">{shelf.cubic_centimeter_shelf.toLocaleString()} cm³</span>
-                                                                                            </div>
-                                                                                            <div className="w-full bg-gray-200 rounded-full h-2">
-                                                                                                <div
-                                                                                                    className="bg-purple-500 h-2 rounded-full transition-all duration-500"
-                                                                                                    style={{ width: `${shelf.cubic_centimeter_shelf ? (shelf.used / shelf.cubic_centimeter_shelf) * 100 : 0}%` }}
-                                                                                                />
-                                                                                            </div>
-                                                                                            <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                                                                                <span>Used: {shelf.used.toLocaleString()} cm³</span>
-                                                                                                <span className="text-purple-600">
-                                                                                                    (Remaining: {shelf.remaining.toLocaleString()} cm³)
-                                                                                                </span>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    ))}
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="mt-6 flex justify-end">
-                                            <Button
-                                                onClick={() => {
-                                                    setOpenRemainingSpace(false);
-                                                    setShowDetails(false);
-                                                }}
-                                                className="px-6 py-2 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition-colors"
-                                            >
-                                                Close
-                                            </Button>
-                                        </div>
-                                    </>
+                                    <DialogRemaining
+                                        master_warehouse_id={selectedWarehouseId}
+                                        onClose={() => {
+                                            setOpenRemainingSpace(false);
+                                            setShowDetails(false);
+                                        }}
+                                    />
                                 )}
                             </RemainingSpaceDialog.Description>
                         </RemainingSpaceDialog.Content>

@@ -1,8 +1,7 @@
-import  { useCallback, useEffect,  useRef,  useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import _ from "lodash";
 import {
   DndContext,
-  closestCenter,
   DragEndEvent,
   PointerSensor,
   useSensor,
@@ -22,11 +21,11 @@ const FormateCalBoxToShelfBoxStrorage = ({
   warehouseId,
   master_rack_id,
   master_shelf_id,
-  master_zone_id,cal_warehouse_id
+  master_zone_id, cal_warehouse_id
 }: {
   box: TypeCalBox;
   warehouseId: string;
-  cal_warehouse_id:string;
+  cal_warehouse_id: string;
   master_rack_id: string;
   master_shelf_id: string;
   master_zone_id: string;
@@ -37,11 +36,11 @@ const FormateCalBoxToShelfBoxStrorage = ({
     cal_box_id: box.cal_box_id,
     stored_date: new Date(),
     stored_by: null,
-    total_volume:0,
+    total_volume: 0,
     status: 'stored',
     position: null,
-    cal_box:{...box},
-  cal_warehouse_id,
+    cal_box: { ...box },
+    cal_warehouse_id,
     cubic_centimeter_box: box.cubic_centimeter_box ?? null,
     count: box.count ?? null,
     box_no: box.box_no ?? null,
@@ -144,139 +143,139 @@ export const CalculateManage = ({
     [master_warehouse_id, cal_warehouse_id]
   );
 
-const handleDragEnd = useCallback((event: DragEndEvent) => {
-  const { active, over } = event;
-  if (!over) return;
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over) return;
 
-  let sourceShelfId: string | null = null;
-  let sourceIndex: number | null = null;
-  let movedBox: TypeShelfBoxStorage | null = null;
+    let sourceShelfId: string | null = null;
+    let sourceIndex: number | null = null;
+    let movedBox: TypeShelfBoxStorage | null = null;
 
-  // หา shelf ต้นทางของกล่อง
-  for (const shelfId in shelfMap) {
-    const shelf = shelfMap[shelfId];
-    const index = shelf.stored_boxes.findIndex((b) => b.cal_box_id === active.id);
-    if (index !== -1) {
-      sourceShelfId = shelfId;
-      sourceIndex = index;
-      movedBox = shelf.stored_boxes[index];
-      break;
-    }
-  }
-
-  if (!sourceShelfId || sourceIndex === null || !movedBox) return;
-
-  let targetShelfId: string | null = null;
-  let targetIndex: number | null = null;
-
-  // หาว่า over.id เป็น cal_box_id ของกล่องอื่นไหม
-  for (const shelfId in shelfMap) {
-    const shelf = shelfMap[shelfId];
-    const index = shelf.stored_boxes.findIndex((b) => b.cal_box_id === over.id);
-    if (index !== -1) {
-      targetShelfId = shelfId;
-      targetIndex = index;
-      break;
-    }
-  }
-
-  // ถ้า over.id เป็น shelf id
-  if (!targetShelfId) {
-    if (shelfMap[over.id]) {
-      targetShelfId = String(over.id);
-      targetIndex = shelfMap[over.id].stored_boxes.length;
-    } else {
-      return;
-    }
-  }
-
-  setShelfMap((prev) => {
-    const newMap = { ...prev };
-
-    // หา shelf และตำแหน่ง index เดิมของกล่องนี้ใน initialShelfMap
-    const initialShelfEntry = Object.entries(initialShelfMap.current).find(
-      ([, shelf]) => shelf.stored_boxes.some((b) => b.cal_box_id === movedBox.cal_box_id)
-    );
-
-    let isModified = true; // default true ถ้าไม่เจอ shelf เดิมถือว่า modified
-
-    if (initialShelfEntry) {
-      const [initialShelfId, initialShelf] = initialShelfEntry;
-      const initialIndex = initialShelf.stored_boxes.findIndex((b) => b.cal_box_id === movedBox.cal_box_id);
-
-      const targetShelf = newMap[targetShelfId!];
-
-      // เช็คว่า zone/rack/shelf เปลี่ยนไหม
-      const locationChanged =
-        initialShelf.zoneId !== targetShelf.zoneId ||
-        initialShelf.rackId !== targetShelf.rackId ||
-        initialShelf.master_shelf_id !== targetShelf.master_shelf_id;
-
-      // ถ้าย้าย shelf หรือ zone หรือ rack ก็ modified
-      if (initialShelfId !== targetShelfId || locationChanged) {
-        isModified = true;
-      } else {
-        // ถ้าอยู่ shelf เดิม แต่ตำแหน่ง index เปลี่ยนก็ modified
-        isModified = initialIndex !== targetIndex;
+    // หา shelf ต้นทางของกล่อง
+    for (const shelfId in shelfMap) {
+      const shelf = shelfMap[shelfId];
+      const index = shelf.stored_boxes.findIndex((b) => b.cal_box_id === active.id);
+      if (index !== -1) {
+        sourceShelfId = shelfId;
+        sourceIndex = index;
+        movedBox = shelf.stored_boxes[index];
+        break;
       }
     }
 
-    // ✅ กรณีย้ายตำแหน่งภายใน shelf เดิม
-    if (sourceShelfId === targetShelfId) {
-      const shelf = newMap[sourceShelfId];
-      const newStoredBoxes = [...shelf.stored_boxes];
+    if (!sourceShelfId || sourceIndex === null || !movedBox) return;
 
-      // ลบกล่องเดิม
-      newStoredBoxes.splice(sourceIndex, 1);
-      // ปรับตำแหน่งใหม่
-      newStoredBoxes.splice(targetIndex!, 0, {
-        ...movedBox,
-        modified: isModified,
-      });
+    let targetShelfId: string | null = null;
+    let targetIndex: number | null = null;
 
-      newMap[sourceShelfId] = {
-        ...shelf,
-        stored_boxes: newStoredBoxes,
-      };
-    } else {
-      // ✅ ย้ายข้าม shelf
-      const sourceShelf = newMap[sourceShelfId];
-      const targetShelf = newMap[targetShelfId!];
+    // หาว่า over.id เป็น cal_box_id ของกล่องอื่นไหม
+    for (const shelfId in shelfMap) {
+      const shelf = shelfMap[shelfId];
+      const index = shelf.stored_boxes.findIndex((b) => b.cal_box_id === over.id);
+      if (index !== -1) {
+        targetShelfId = shelfId;
+        targetIndex = index;
+        break;
+      }
+    }
 
-      if (targetShelf.remainingVolume >= (movedBox.cubic_centimeter_box ?? 0)) {
-        // ลบจากต้นทาง
-        const newSourceBoxes = [...sourceShelf.stored_boxes];
-        newSourceBoxes.splice(sourceIndex!, 1);
+    // ถ้า over.id เป็น shelf id
+    if (!targetShelfId) {
+      if (shelfMap[over.id]) {
+        targetShelfId = String(over.id);
+        targetIndex = shelfMap[over.id].stored_boxes.length;
+      } else {
+        return;
+      }
+    }
 
-        // เพิ่มเข้าเป้าหมายที่ตำแหน่ง targetIndex
-        const newTargetBoxes = [...targetShelf.stored_boxes];
-        newTargetBoxes.splice(targetIndex!, 0, {
+    setShelfMap((prev) => {
+      const newMap = { ...prev };
+
+      // หา shelf และตำแหน่ง index เดิมของกล่องนี้ใน initialShelfMap
+      const initialShelfEntry = Object.entries(initialShelfMap.current).find(
+        ([, shelf]) => shelf.stored_boxes.some((b) => b.cal_box_id === movedBox.cal_box_id)
+      );
+
+      let isModified = true; // default true ถ้าไม่เจอ shelf เดิมถือว่า modified
+
+      if (initialShelfEntry) {
+        const [initialShelfId, initialShelf] = initialShelfEntry;
+        const initialIndex = initialShelf.stored_boxes.findIndex((b) => b.cal_box_id === movedBox.cal_box_id);
+
+        const targetShelf = newMap[targetShelfId!];
+
+        // เช็คว่า zone/rack/shelf เปลี่ยนไหม
+        const locationChanged =
+          initialShelf.zoneId !== targetShelf.zoneId ||
+          initialShelf.rackId !== targetShelf.rackId ||
+          initialShelf.master_shelf_id !== targetShelf.master_shelf_id;
+
+        // ถ้าย้าย shelf หรือ zone หรือ rack ก็ modified
+        if (initialShelfId !== targetShelfId || locationChanged) {
+          isModified = true;
+        } else {
+          // ถ้าอยู่ shelf เดิม แต่ตำแหน่ง index เปลี่ยนก็ modified
+          isModified = initialIndex !== targetIndex;
+        }
+      }
+
+      // ✅ กรณีย้ายตำแหน่งภายใน shelf เดิม
+      if (sourceShelfId === targetShelfId) {
+        const shelf = newMap[sourceShelfId];
+        const newStoredBoxes = [...shelf.stored_boxes];
+
+        // ลบกล่องเดิม
+        newStoredBoxes.splice(sourceIndex, 1);
+        // ปรับตำแหน่งใหม่
+        newStoredBoxes.splice(targetIndex!, 0, {
           ...movedBox,
           modified: isModified,
-          master_shelf_id: targetShelf.master_shelf_id,
-          master_rack_id: targetShelf.rackId,
-          master_zone_id: targetShelf.zoneId,
         });
 
         newMap[sourceShelfId] = {
-          ...sourceShelf,
-          stored_boxes: newSourceBoxes,
-          remainingVolume: sourceShelf.remainingVolume + (movedBox.cubic_centimeter_box ?? 0),
-        };
-
-        newMap[targetShelfId] = {
-          ...targetShelf,
-          stored_boxes: newTargetBoxes,
-          remainingVolume: targetShelf.remainingVolume - (movedBox.cubic_centimeter_box ?? 0),
+          ...shelf,
+          stored_boxes: newStoredBoxes,
         };
       } else {
-        alert("❗ พื้นที่ shelf ไม่พอสำหรับกล่องนี้!");
-      }
-    }
+        // ✅ ย้ายข้าม shelf
+        const sourceShelf = newMap[sourceShelfId];
+        const targetShelf = newMap[targetShelfId!];
 
-    return newMap;
-  });
-}, [shelfMap]);
+        if (targetShelf.remainingVolume >= (movedBox.cubic_centimeter_box ?? 0)) {
+          // ลบจากต้นทาง
+          const newSourceBoxes = [...sourceShelf.stored_boxes];
+          newSourceBoxes.splice(sourceIndex!, 1);
+
+          // เพิ่มเข้าเป้าหมายที่ตำแหน่ง targetIndex
+          const newTargetBoxes = [...targetShelf.stored_boxes];
+          newTargetBoxes.splice(targetIndex!, 0, {
+            ...movedBox,
+            modified: isModified,
+            master_shelf_id: targetShelf.master_shelf_id,
+            master_rack_id: targetShelf.rackId,
+            master_zone_id: targetShelf.zoneId,
+          });
+
+          newMap[sourceShelfId] = {
+            ...sourceShelf,
+            stored_boxes: newSourceBoxes,
+            remainingVolume: sourceShelf.remainingVolume + (movedBox.cubic_centimeter_box ?? 0),
+          };
+
+          newMap[targetShelfId] = {
+            ...targetShelf,
+            stored_boxes: newTargetBoxes,
+            remainingVolume: targetShelf.remainingVolume - (movedBox.cubic_centimeter_box ?? 0),
+          };
+        } else {
+          alert("❗ พื้นที่ shelf ไม่พอสำหรับกล่องนี้!");
+        }
+      }
+
+      return newMap;
+    });
+  }, [shelfMap]);
 
   // ✅ ใช้ครั้งแรก โหลดและเซฟค่าเริ่มต้นไว้ใน initialShelfMap
   useEffect(() => {
@@ -329,41 +328,41 @@ const generateColor = (index: number) => {
   const hue = (index * 137.5) % 360; // แจก hue ให้กระจาย
   return `hsl(${hue}, 70%, 60%)`; // ปรับ saturation + lightness
 };
-export const StorageRebder = ({ storage, shelfMap,cal_warehouse_id }: { cal_warehouse_id:string,shelfMap: ShelfMap; storage: TypeWarehouseCompile }) => {
+export const StorageRebder = ({ storage, shelfMap, cal_warehouse_id }: { cal_warehouse_id: string, shelfMap: ShelfMap; storage: TypeWarehouseCompile }) => {
   return (
-  <div className="lg:p-4 space-y-6">
-    <h2 className="text-xl font-bold">{`Warehouse: ${storage.master_warehouse_name}`}</h2>
-    {storage.masterzone?.map((zone, zoneIndex) => (
-      <div key={zone.master_zone_id} className="border rounded p-4" style={{ border: `2px solid ${generateColor(zoneIndex)}` }}>
-        <h3 className="text-lg font-semibold mb-2 max-sm:my-2 max-sm:mx-4">
-          {`Zone ${zoneIndex + 1}: ${zone.master_zone_name}`}
-        </h3>
-        <div className="flex gap-3 flex-wrap">
-          {_.isEmpty(zone.racks) ? (
-            <span className="text-yellow-700">No racks in zone</span>
-          ) : (
-            zone.racks?.map((rack) => (
-              <div key={rack.master_rack_id} className="border p-3 rounded shadow">
-                <h4 className="font-bold">Rack : {rack.master_rack_name}</h4>
-                <div className="mt-2 flex flex-wrap gap-3">
-                  {_.isEmpty(rack.shelves) ? (
-                    <span className="text-yellow-700">No shelves in rack</span>
-                  ) : (
-                    rack.shelves?.map((shelf) => {
-                      if (!shelf) return null;
-                      const shelfWithBoxes = shelfMap[shelf.master_shelf_id];
-                      return shelfWithBoxes ? (
+    <div className="lg:p-4 space-y-6">
+      <h2 className="text-xl font-bold">{`Warehouse: ${storage.master_warehouse_name}`}</h2>
+      {storage.masterzone?.map((zone, zoneIndex) => (
+        <div key={zone.master_zone_id} className="border rounded p-4" style={{ border: `2px solid ${generateColor(zoneIndex)}` }}>
+          <h3 className="text-lg font-semibold mb-2 max-sm:my-2 max-sm:mx-4">
+            {`Zone ${zoneIndex + 1}: ${zone.master_zone_name}`}
+          </h3>
+          <div className="flex gap-3 flex-wrap">
+            {_.isEmpty(zone.racks) ? (
+              <span className="text-yellow-700">No racks in zone</span>
+            ) : (
+              zone.racks?.map((rack) => (
+                <div key={rack.master_rack_id} className="border p-3 rounded shadow">
+                  <h4 className="font-bold">Rack : {rack.master_rack_name}</h4>
+                  <div className="mt-2 flex flex-wrap gap-3">
+                    {_.isEmpty(rack.shelves) ? (
+                      <span className="text-yellow-700">No shelves in rack</span>
+                    ) : (
+                      rack.shelves?.map((shelf) => {
+                        if (!shelf) return null;
+                        const shelfWithBoxes = shelfMap[shelf.master_shelf_id];
+                        return shelfWithBoxes ? (
                           <ShelfZone shelf={shelfWithBoxes} cal_warehouse_id={cal_warehouse_id} />
-                      ) : null;
-                    })
-                  )}
+                        ) : null;
+                      })
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
         </div>
-      </div>
-    ))}
-  </div>
+      ))}
+    </div>
   );
 };

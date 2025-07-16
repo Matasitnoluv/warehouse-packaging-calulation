@@ -1,6 +1,6 @@
 import { Text, Dialog, Button, TextField, TextArea } from "@radix-ui/themes";
 import { patchMsproduct } from "@/services/msproduct.services"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AlertCircle } from "lucide-react";
 import { TypeMsproductAll } from "@/types/response/reponse.msproduct";
 
@@ -51,6 +51,12 @@ const DialogEdit = ({
     const [selectedFileName, setSelectedFileName] = useState("");
     const [upimage, setUpImage] = useState<string>("");
 
+    // อัปเดตปริมาตรเมื่อขนาดเปลี่ยน
+    useEffect(() => {
+        const calculatedVolume = patchHeight * patchWidth * patchLength;
+        setCubic_centimeter_product(calculatedVolume);
+    }, [patchHeight, patchWidth, patchLength]);
+
     const validateForm = (): boolean => {
         const newErrors: ValidationErrors = {};
 
@@ -92,9 +98,6 @@ const DialogEdit = ({
         setIsSubmitting(true);
 
         try {
-            const calculatedVolume = patchHeight * patchWidth * patchLength;
-            setCubic_centimeter_product(calculatedVolume);
-
             const formData = new FormData();
             formData.append('master_product_id', master_product_id);
             formData.append('master_product_name', patchMaster_product_name);
@@ -102,7 +105,7 @@ const DialogEdit = ({
             formData.append('height', patchHeight.toString());
             formData.append('length', patchLength.toString());
             formData.append('width', patchWidth.toString());
-            formData.append('cubic_centimeter_product', calculatedVolume.toString());
+            formData.append('cubic_centimeter_product', patchCubic_centimeter_product.toString());
             formData.append('description', patchDescription || '');
             formData.append('sort_by', '0');
 
@@ -242,7 +245,7 @@ const DialogEdit = ({
                     <div>
                         <Text className="font-semibold text-gray-700 mb-1 block text-sm">Volume (cm³)</Text>
                         <div className="p-2 bg-gray-50 rounded-lg border border-gray-200 font-mono text-sm">
-                            {(patchWidth * patchHeight * patchLength).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                            {patchCubic_centimeter_product.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                         </div>
                     </div>
 
@@ -261,11 +264,27 @@ const DialogEdit = ({
 
                     {/* Image Section */}
                     <div>
+                        <Text className="font-semibold text-gray-700 mb-2 block text-sm">Product Image</Text>
+
+                        {/* Current Image Display */}
+                        {patchImage && !upimage && (
+                            <div className="mb-3">
+                                <Text className="text-xs text-gray-600 mb-1 block">Current Image:</Text>
+                                <img
+                                    src={patchImage}
+                                    alt="Current Product"
+                                    className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
+                                />
+                            </div>
+                        )}
+
+                        {/* New Image Preview */}
                         {selectedFileName && (
                             <p className="mt-1 text-xs text-gray-600">Selected: {selectedFileName}</p>
                         )}
                         {upimage && (
                             <div className="mt-2">
+                                <Text className="text-xs text-gray-600 mb-1 block">New Image Preview:</Text>
                                 <img
                                     src={upimage}
                                     alt="Preview"
@@ -273,8 +292,6 @@ const DialogEdit = ({
                                 />
                             </div>
                         )}
-                        <Text className="font-semibold text-gray-700 mb-2 block text-sm">Product Image</Text>
-                        {/* Current Image Preview */}
 
                         {/* Image Upload */}
                         <div className="flex items-center justify-center w-full">

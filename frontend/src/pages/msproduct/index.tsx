@@ -1,11 +1,10 @@
-import { Table, Card, AlertDialog } from "@radix-ui/themes";
+import { Table, Card } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { getMsproduct } from "@/services/msproduct.services";
-import { TypeMsproduct, TypeMsproductAll } from "@/types/response/reponse.msproduct";
+import { TypeMsproduct } from "@/types/response/reponse.msproduct";
 import DialogAdd from "./components/dilogAddMsproduct";
 import DialogEdit from "./components/dilogEditMsproduct";
 import AlertDialogDelete from "./components/alertdilogDeleteMsproduct";
-import { Plus } from "lucide-react";
 
 export default function MsproductFeature() {
     const [msproduct, setMsproduct] = useState<TypeMsproduct[]>([]);

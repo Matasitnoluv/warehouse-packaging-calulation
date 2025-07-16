@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { Dialog, Button, TextField } from "@radix-ui/themes";
 import { createMszone, getMszone } from "@/services/mszone.services";
-import { getMswarehouse } from "@/services/mswarehouse.services";
 
 // Simple UUID generator function
 function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         const r = Math.random() * 16 | 0;
         const v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
@@ -93,7 +92,7 @@ const DialogAddZone = ({ warehouseId, warehouseName, warehouseVolume, onZoneAdde
             };
 
             const response = await createMszone(zoneData);
-            
+
             if (response.success) {
                 // Reset form
                 setZoneName("");
@@ -102,10 +101,10 @@ const DialogAddZone = ({ warehouseId, warehouseName, warehouseVolume, onZoneAdde
                 setWidth(0);
                 setDescription("");
                 setVolume(0);
-                
+
                 // Notify parent component
                 onZoneAdded();
-                
+
                 // Close the dialog manually
                 document.querySelector('.rt-DialogClose')?.dispatchEvent(
                     new MouseEvent('click', { bubbles: true })
@@ -135,7 +134,7 @@ const DialogAddZone = ({ warehouseId, warehouseName, warehouseVolume, onZoneAdde
 
             <Dialog.Content className="bg-white rounded-xl shadow-xl p-6 max-w-md">
                 <Dialog.Title className="text-xl font-bold mb-4">Add New Zone to {warehouseName}</Dialog.Title>
-                
+
                 {error && (
                     <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg">
                         {error}
@@ -238,7 +237,7 @@ const DialogAddZone = ({ warehouseId, warehouseName, warehouseVolume, onZoneAdde
                             Cancel
                         </Button>
                     </Dialog.Close>
-                    <Button 
+                    <Button
                         id="btn-create-zone"
                         className="bg-blue-500 hover:bg-blue-600 text-white"
                         disabled={isSubmitting || volume > remainingSpace}

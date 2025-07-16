@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Dialog, Button, Table } from "@radix-ui/themes";
 import { MsboxResponse, TypeMsbox, TypeMsboxAll } from "@/types/response/reponse.msbox";
-import { patchMsbox, getBoxes } from "@/services/msbox.services";
 import React from "react";
 
 const DialogBox = ({
@@ -10,10 +9,10 @@ const DialogBox = ({
     getMsboxData
 }: {
     selectedBoxes: TypeMsboxAll[];
-    setSelectedBoxes: React.Dispatch<React.SetStateAction<TypeMsbox[]>>;
+    setSelectedBoxes: React.Dispatch<React.SetStateAction<TypeMsboxAll[]>>;
     getMsboxData: () => Promise<MsboxResponse>;
 }) => {
-    const [msbox, setMsbox] = useState<TypeMsbox[]>([]);
+    const [msbox, setMsbox] = useState<TypeMsboxAll[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [activeSearchTerm, setActiveSearchTerm] = useState("");
 
@@ -22,7 +21,12 @@ const DialogBox = ({
             try {
                 const response = await getMsboxData();
                 if (response?.responseObject) {
-                    setMsbox(response?.responseObject);
+                    // แปลง TypeMsbox เป็น TypeMsboxAll
+                    const boxesWithScale = response.responseObject.map((box: TypeMsbox) => ({
+                        ...box,
+                        scale_box: `${box.width} * ${box.length} * ${box.height}`
+                    }));
+                    setMsbox(boxesWithScale);
                 }
             } catch (error) {
                 console.error("Error fetching boxes:", error);
@@ -31,18 +35,18 @@ const DialogBox = ({
         fetchBoxes();
     }, [getMsboxData]);
 
-    const handleSelectBox = async (box: TypeMsbox) => {
+    const handleSelectBox = async (box: TypeMsboxAll) => {
         if (!box) return;
 
         //console.log("[DialogBox] Box selected:", box);
 
-        setSelectedBoxes((prev: TypeMsbox[]) => [...prev, box]);
+        setSelectedBoxes((prev: TypeMsboxAll[]) => [...prev, box]);
 
         // 1. Save box (patchMsbox) ถ้าต้องการ
         // await patchMsbox(box); // (คอมเมนต์ไว้ถ้าไม่ต้องการ save)
 
         // 2. Refresh box list
-        const result = await getMsboxData();
+        await getMsboxData();
         //console.log("[DialogBox] getMsboxData result:", result);
     };
 
@@ -123,13 +127,13 @@ const DialogBox = ({
                                 <Table.Row key={box.master_box_id}>
                                     <Table.Cell>{box.code_box}</Table.Cell>
                                     <Table.Cell>{box.master_box_name}</Table.Cell>
-                                    <Table.Cell>{box.width} * {box.length} * {box.height}</Table.Cell>
+                                    <Table.Cell>{box.scale_box}</Table.Cell>
                                     <Table.Cell>
                                         {(box.cubic_centimeter_box).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                                     </Table.Cell>
                                     <Table.Cell>
                                         <Button
-                                            onClick={() => handleSelectBox(box as TypeMsbox)}
+                                            onClick={() => handleSelectBox(box as TypeMsboxAll)}
                                             className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded w-full"
                                         >
                                             Select

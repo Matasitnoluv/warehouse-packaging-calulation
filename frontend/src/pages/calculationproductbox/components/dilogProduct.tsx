@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { Dialog, Button, Table } from "@radix-ui/themes";
 import { TypeMsproductAll } from "@/types/response/reponse.msproduct";
 import { patchMsproduct } from "@/services/msproduct.services";
-import { getMsbox, getBoxes } from "@/services/msbox.services";
+import { getMsbox } from "@/services/msbox.services";
+import { TypeMsboxAll } from "@/types/response/reponse.msbox";
 
 // นำเข้า icon จาก lucide-react หรือใช้ SVG inline
 // ถ้าคุณมี lucide-react ให้ import แบบนี้:
@@ -15,12 +16,12 @@ const DialogProduct = ({
     selectedBoxes
 }: {
     selectedProducts: TypeMsproductAll[];
-    setSelectedProducts: React.Dispatch<React.SetStateAction<any[]>>;
+    setSelectedProducts: React.Dispatch<React.SetStateAction<TypeMsproductAll[]>>;
     getMsproductData: () => any;
-    selectedBoxes: any[];
+    selectedBoxes: TypeMsboxAll[];
 }) => {
     const [msproduct, setMsproduct] = useState<TypeMsproductAll[]>([]);
-    const [msbox, setMsbox] = useState<any[]>([]);
+    const [msbox, setMsbox] = useState<TypeMsboxAll[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [activeSearchTerm, setActiveSearchTerm] = useState("");
     const [productCounts, setProductCounts] = useState<{ [key: string]: number }>({});
@@ -41,7 +42,12 @@ const DialogProduct = ({
                 // Fetch boxes
                 const boxResponse = await getMsbox();
                 if (boxResponse?.responseObject) {
-                    setMsbox(boxResponse.responseObject);
+                    // แปลง TypeMsbox เป็น TypeMsboxAll
+                    const boxesWithScale = boxResponse.responseObject.map((box: any) => ({
+                        ...box,
+                        scale_box: `${box.width} * ${box.length} * ${box.height}`
+                    }));
+                    setMsbox(boxesWithScale);
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -51,7 +57,7 @@ const DialogProduct = ({
     }, [getMsproductData]);
 
     // เพิ่มฟังก์ชันตรวจสอบว่าสินค้าใส่ในกล่องได้หรือไม่
-    const checkProductFitsInBox = (product: any, box: any) => {
+    const checkProductFitsInBox = (product: TypeMsproductAll, box: TypeMsboxAll) => {
         // ตรวจสอบว่ามีกล่องที่เลือกหรือไม่
         if (!box) {
             return {
@@ -96,6 +102,9 @@ const DialogProduct = ({
         const urlParams = new URLSearchParams(window.location.search);
         const calculationType = urlParams.get('type') || localStorage.getItem('calculationType') || 'mixed';
 
+        // Log calculation type for debugging (using the variable)
+        console.log('Calculation type:', calculationType);
+
         // ตรวจสอบว่ามีการใส่จำนวนสินค้าหรือไม่
         const count = productCounts[product.master_product_id] || 0;
         if (count <= 0) {
@@ -108,10 +117,10 @@ const DialogProduct = ({
             const newProduct = {
                 ...product,
                 count, // Add the count to the product object
-                sort_by: prev.length + 1, // คำนวณ `sort_by` ใหม่ให้ต่อเนื่อง
+                sort_by: (prev || []).length + 1, // คำนวณ `sort_by` ใหม่ให้ต่อเนื่อง
             };
 
-            const updatedList = [...prev, newProduct].map((item, index) => ({
+            const updatedList = [...(prev || []), newProduct].map((item, index) => ({
                 ...item,
                 sort_by: index + 1, // อัปเดตลำดับให้ทุกตัว
             }));
@@ -120,15 +129,15 @@ const DialogProduct = ({
         });
 
         // ถ้ามีกล่องที่เลือก ให้ตรวจสอบความเข้ากันได้
-        // if (selectedBoxes.length > 0) {
-        //     const fitCheck = checkProductFitsInBox(product, selectedBoxes[0]);
+        // if ((selectedBoxes || []).length > 0 && (selectedBoxes || [])[0]) {
+        //     const fitCheck = checkProductFitsInBox(product, (selectedBoxes || [])[0]);
         //     if (!fitCheck.fits) {
         //         if (!confirm(`${fitCheck.message}\nDo you want to continue adding the product anyway?`)) {
         //             return;
         //         }
         //     }
 
-        //     const box = selectedBoxes[0];
+        //     const box = (selectedBoxes || [])[0];
         //     const productsPerBox = Math.floor(box.cubic_centimeter_box / product.cubic_centimeter_product);
 
         //     if (count > productsPerBox) {
@@ -141,13 +150,13 @@ const DialogProduct = ({
 
         try {
             await Promise.all(
-                [product, ...selectedProducts].map((product: TypeMsproductAll) =>
+                [product, ...(selectedProducts || [])].map((product: TypeMsproductAll) =>
                     patchMsproduct(product)
                 )
             );
             console.log("Product updated successfully");
         } catch (error) {
-            console.error("Failed to update product order:", error);
+            console.error("Failed to update product order:", error instanceof Error ? error.message : String(error));
         }
     };
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,7 +175,7 @@ const DialogProduct = ({
     };
 
     const filteredProducts = msproduct.filter(product => {
-        const alreadySelected = selectedProducts.some(
+        const alreadySelected = (selectedProducts || []).some(
             selectedProduct => selectedProduct.master_product_id === product.master_product_id
         );
         return !alreadySelected && product.master_product_name.toLowerCase().includes(activeSearchTerm.toLowerCase());
@@ -247,13 +256,13 @@ const DialogProduct = ({
                                             <Table.Row key={product.master_product_id} className="hover:bg-blue-50 transition-colors duration-150">
                                                 <Table.Cell className="px-4 py-3 whitespace-nowrap">{product.code_product}</Table.Cell>
                                                 <Table.Cell className="px-4 py-3 whitespace-nowrap overflow-hidden text-ellipsis">{product.master_product_name}</Table.Cell>
-                                                <Table.Cell className={`px-4 py-3 text-right font-mono whitespace-nowrap ${selectedBoxes.length > 0 && !checkProductFitsInBox(product, selectedBoxes[0]).fits
+                                                <Table.Cell className={`px-4 py-3 text-right font-mono whitespace-nowrap ${(selectedBoxes || []).length > 0 && (selectedBoxes || [])[0] && !checkProductFitsInBox(product, (selectedBoxes || [])[0]).fits
                                                     ? 'text-red-500 font-bold'
                                                     : ''
                                                     }`}>
-                                                    {`${product.width}×${product.length}×${product.height}`}
+                                                    {product.scale_product}
                                                 </Table.Cell>
-                                                <Table.Cell className={`px-4 py-3 text-right font-mono whitespace-nowrap ${selectedBoxes.length > 0 && product.cubic_centimeter_product > selectedBoxes[0].cubic_centimeter_box
+                                                <Table.Cell className={`px-4 py-3 text-right font-mono whitespace-nowrap ${(selectedBoxes || []).length > 0 && (selectedBoxes || [])[0] && product.cubic_centimeter_product > (selectedBoxes || [])[0].cubic_centimeter_box
                                                     ? 'text-red-500 font-bold'
                                                     : ''
                                                     }`}>
@@ -299,7 +308,7 @@ const DialogProduct = ({
                     <div className="bg-gray-50 rounded-lg p-6">
                         <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
                             <span className="mr-2">📥</span>
-                            Selected Boxes
+                            Selected Boxes ({msbox.length} available)
                         </h3>
                         <div className="rounded-lg border border-gray-200">
                             <Table.Root className="w-full">
@@ -313,14 +322,14 @@ const DialogProduct = ({
                                     </Table.Row>
                                 </Table.Header>
                                 <Table.Body>
-                                    {selectedBoxes.length > 0 ? (
-                                        selectedBoxes.map((box) => (
+                                    {(selectedBoxes || []).length > 0 ? (
+                                        (selectedBoxes || []).map((box) => (
                                             <Table.Row key={box.master_box_id} className="hover:bg-blue-50 transition-colors duration-150">
-                                                <Table.Cell className="px-4 py-3 whitespace-nowrap">{box.sort_by}</Table.Cell>
+                                                <Table.Cell className="px-4 py-3 whitespace-nowrap">{(selectedBoxes || []).indexOf(box) + 1}</Table.Cell>
                                                 <Table.Cell className="px-4 py-3 whitespace-nowrap">{box.code_box}</Table.Cell>
                                                 <Table.Cell className="px-4 py-3 whitespace-nowrap overflow-hidden text-ellipsis">{box.master_box_name}</Table.Cell>
                                                 <Table.Cell className="px-4 py-3 text-right font-mono whitespace-nowrap">
-                                                    {`${box.width}×${box.length}×${box.height}`}
+                                                    {box.scale_box}
                                                 </Table.Cell>
                                                 <Table.Cell className="px-4 py-3 text-right font-mono whitespace-nowrap">
                                                     {(box.cubic_centimeter_box).toLocaleString("th-TH", { minimumFractionDigits: 2 })}

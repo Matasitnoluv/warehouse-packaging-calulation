@@ -19,7 +19,7 @@ const DialogEditRack = ({ rack, zoneVolume, onRackUpdated }: DialogEditRackProps
     const [volume, setVolume] = useState<number>(rack.cubic_centimeter_rack);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [originalVolume, setOriginalVolume] = useState<number>(rack.cubic_centimeter_rack);
+    const originalVolume = rack.cubic_centimeter_rack;
     const [remainingZoneSpace, setRemainingZoneSpace] = useState<number>(zoneVolume - rack.cubic_centimeter_rack);
 
     // Calculate volume when dimensions change
@@ -68,11 +68,11 @@ const DialogEditRack = ({ rack, zoneVolume, onRackUpdated }: DialogEditRackProps
             };
 
             const response = await updateMsrack(rackData);
-            
+
             if (response.success) {
                 // Notify parent component
                 onRackUpdated();
-                
+
                 // Close the dialog manually
                 document.querySelector('.rt-DialogClose')?.dispatchEvent(
                     new MouseEvent('click', { bubbles: true })
@@ -91,8 +91,8 @@ const DialogEditRack = ({ rack, zoneVolume, onRackUpdated }: DialogEditRackProps
     return (
         <Dialog.Root>
             <Dialog.Trigger>
-                <Button 
-                    variant="soft" 
+                <Button
+                    variant="soft"
                     size="1"
                     data-testid={`edit-rack-btn-${rack.master_rack_id}`}
                 >
@@ -102,7 +102,7 @@ const DialogEditRack = ({ rack, zoneVolume, onRackUpdated }: DialogEditRackProps
 
             <Dialog.Content className="bg-white rounded-xl shadow-xl p-6 max-w-md">
                 <Dialog.Title className="text-xl font-bold mb-4">Edit Rack</Dialog.Title>
-                
+
                 {error && (
                     <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg">
                         {error}
@@ -186,7 +186,7 @@ const DialogEditRack = ({ rack, zoneVolume, onRackUpdated }: DialogEditRackProps
                             Cancel
                         </Button>
                     </Dialog.Close>
-                    <Button 
+                    <Button
                         className="bg-blue-500 hover:bg-blue-600 text-white"
                         disabled={isSubmitting || (volume - originalVolume > remainingZoneSpace)}
                         onClick={handleSubmit}

@@ -2,7 +2,6 @@ import { postBoxInShelfOnStorage } from "@/services/box_in_shelf_onstorage.servi
 import { Dialog, Button } from "@radix-ui/themes";
 import { ShelfWithFitBoxes, CalculateSummary, BoxPlacement } from "../type";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 import { useCalculateContext } from "../context/useCalculateCotext";
 
@@ -170,7 +169,7 @@ const DialogCaulate = ({ shelfBoxStorage }: { shelfBoxStorage?: TypeShelfBoxStor
                     if (dateA !== dateB) {
                         return dateA - dateB;
                     }
-                    return Number(a.cal_box.box_no) - Number(b.cal_box.box_no);
+                    return Number(a.cal_box?.box_no ?? 0) - Number(b.cal_box?.box_no ?? 0);
                 })
 
             const movedBoxes = boxs.filter(box =>

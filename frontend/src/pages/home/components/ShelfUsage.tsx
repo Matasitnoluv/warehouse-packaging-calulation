@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Flex, Text, Badge } from '@radix-ui/themes';
+import { Card, Text, Badge } from '@radix-ui/themes';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface ShelfUsageProps {

@@ -1,4 +1,4 @@
-import { Table, Card, AlertDialog } from "@radix-ui/themes";
+import { Table, Card } from "@radix-ui/themes";
 import React, { useEffect, useState } from "react";
 import { getMswarehouse } from "@/services/mswarehouse.services";
 import { TypeMswarehouseAll } from "@/types/response/reponse.mswarehouse";
@@ -6,32 +6,23 @@ import DialogAdd from "./components/dilogAddMswarehouse";
 import DialogEdit from "./components/dilogEditMswarehouse";
 import AlertDialogDelete from "./components/alertdilogDeleteMswarehouse";
 import DialogViewWarehouse from "./components/DialogViewWarehouse";
-import { Warehouse, Search, Plus } from "lucide-react";
+import { Warehouse, Search } from "lucide-react";
 
 export default function MsWarehousePage() {
     const [mswarehouse, setMswarehouse] = useState<TypeMswarehouseAll[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [master_warehouse, setFilteredWarehouses] = useState<TypeMswarehouseAll[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [open, setOpen] = useState(false);
 
     const getmswarehouseData = () => {
-        setIsLoading(true);
-        setError(null);
         getMswarehouse()
             .then((res) => {
                 const data = res.responseObject || [];
                 setMswarehouse(data);
                 setFilteredWarehouses(data);
             })
-            .catch((err) => {
-                setError("เกิดข้อผิดพลาดในการโหลดข้อมูล: " + err.message);
+            .catch(() => {
                 setMswarehouse([]);
                 setFilteredWarehouses([]);
-            })
-            .finally(() => {
-                setIsLoading(false);
             });
     };
 

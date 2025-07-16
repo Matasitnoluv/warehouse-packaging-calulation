@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Flex, Text, Badge } from '@radix-ui/themes';
+import { Card, Text, Badge } from '@radix-ui/themes';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface ZoneUsageProps {
@@ -77,8 +77,8 @@ const ZoneUsage: React.FC<ZoneUsageProps> = ({ zoneData, loading }) => {
               <span>{stats.usagePercentage.toFixed(2)}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-              <div 
-                className="bg-blue-500 h-2.5 rounded-full" 
+              <div
+                className="bg-blue-500 h-2.5 rounded-full"
                 style={{ width: `${Math.min(stats.usagePercentage, 100)}%` }}
               ></div>
             </div>

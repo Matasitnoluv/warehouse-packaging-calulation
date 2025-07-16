@@ -20,7 +20,6 @@ const CalWarehouseTable = () => {
     const navigate = useNavigate();
     const [calculations, setCalculations] = useState<any[]>([]);
     const [openRemainingSpace, setOpenRemainingSpace] = useState(false);
-    const [remainingSpaceData, setRemainingSpaceData] = useState<any>(null);
     const [warehouses, setWarehouses] = useState<TypeMswarehouse[]>([]);
     const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>("");
     const [isLoading, setIsLoading] = useState(false);
@@ -80,7 +79,6 @@ const CalWarehouseTable = () => {
                 alert("No data found for this warehouse or data is incomplete");
                 return;
             }
-            setRemainingSpaceData(data);
             setShowDetails(true);
         } catch (e) {
             console.error("Error in handleConfirm:", e);

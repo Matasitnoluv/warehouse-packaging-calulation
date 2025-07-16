@@ -1,7 +1,7 @@
 import { GET_CAL_WAREHOUSE, CREATE_CAL_WAREHOUSE, UPDATE_CAL_WAREHOUSE, DELETE_CAL_WAREHOUSE, GET_CAL_WAREHOUSE_EDIT } from "@/apis/endpoint.api";
 import { PayloadCreateCal_Warehouse, PayloadUpdateCal_Warehouse, PayloadDeleteCal_Warehouse } from "@/types/requests/request.cal_warehouse";
 import mainApi from "@/apis/main.api";
-import { CalWarehouseResponse, TypeCalWarehouse } from "@/types/response/reponse.cal_warehouse";
+import { CalWarehouseResponse } from "@/types/response/reponse.cal_warehouse";
 
 export const getCalWarehouse = async (): Promise<CalWarehouseResponse> => {
     const { data: response } = await mainApi.get(

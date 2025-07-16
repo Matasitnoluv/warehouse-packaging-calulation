@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Flex, Button } from '@radix-ui/themes';
 import { LayoutGrid, Package, Calculator, FileText } from 'lucide-react';

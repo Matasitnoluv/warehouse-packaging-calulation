@@ -16,7 +16,7 @@ export const getCalMsproduct = async (status?: boolean): Promise<CalMsproductRes
 };
 
 
-export const getCalMsproductByNo = async (document_product_no: string): Promise<CalMsproductResponse> => {
+export const getCalMsproductByNo = async (): Promise<CalMsproductResponse> => {
     const { data: response } = await mainApi.get(
         GET_CAL_MSPRODUCT,
     );

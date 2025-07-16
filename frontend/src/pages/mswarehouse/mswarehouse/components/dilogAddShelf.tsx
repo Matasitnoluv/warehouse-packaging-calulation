@@ -4,7 +4,7 @@ import { createMsshelf, getMsshelf } from "@/services/msshelf.services";
 
 // Simple UUID generator function
 function generateUUID() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         const r = Math.random() * 16 | 0;
         const v = c === 'x' ? r : (r & 0x3 | 0x8);
         return v.toString(16);
@@ -37,7 +37,7 @@ const DialogAddShelf = ({ rackId, rackName, rackVolume, onShelfAdded }: DialogAd
     useEffect(() => {
         const newVolume = height * length * width;
         setVolume(newVolume);
-        
+
         // Validate dimensions
         if (height > 0 && length > 0 && width > 0) {
             if (newVolume > remainingSpace) {
@@ -59,7 +59,7 @@ const DialogAddShelf = ({ rackId, rackName, rackVolume, onShelfAdded }: DialogAd
                     const totalUsedSpace = shelves.reduce((total: number, shelf: any) => total + (shelf.cubic_centimeter_shelf || 0), 0);
                     setUsedSpace(totalUsedSpace);
                     setRemainingSpace(rackVolume - totalUsedSpace);
-                    
+
                     // Set default shelf level to one higher than the highest existing level
                     if (shelves.length > 0) {
                         const highestLevel = Math.max(...shelves.map((shelf: any) => shelf.shelf_level));
@@ -136,7 +136,7 @@ const DialogAddShelf = ({ rackId, rackName, rackVolume, onShelfAdded }: DialogAd
             };
 
             const response = await createMsshelf(shelfData);
-            
+
             if (response.success) {
                 resetForm();
                 onShelfAdded();
@@ -171,6 +171,19 @@ const DialogAddShelf = ({ rackId, rackName, rackVolume, onShelfAdded }: DialogAd
                         {error}
                     </div>
                 )}
+
+                {/* Rack Space Information */}
+                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded">
+                    <div className="text-sm text-blue-800">
+                        <div className="font-semibold mb-1">Rack Space Summary:</div>
+                        <div>Total Rack Volume: {rackVolume.toLocaleString()} cm³</div>
+                        <div>Used Space: {usedSpace.toLocaleString()} cm³</div>
+                        <div>Available Space: {remainingSpace.toLocaleString()} cm³</div>
+                        <div className="mt-1 text-xs">
+                            Utilization: {((usedSpace / rackVolume) * 100).toFixed(1)}%
+                        </div>
+                    </div>
+                </div>
 
                 <div className="space-y-4">
                     <div>

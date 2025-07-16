@@ -7,16 +7,7 @@ import { Layers } from "lucide-react";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { TypeMswarehouse } from "@/types/response/reponse.mswarehouse";
 
-interface ZoneType {
-    master_zone_id: string;
-    master_zone_name: string;
-}
 
-interface SelectedZone {
-    id: string;
-    name: string;
-
-}
 
 interface ZoneDocumentSelectorProps {
     className?: string,
@@ -129,7 +120,7 @@ export const SelectZone = ({ selectedZone, setSelectedZone, className, setZoneNa
     const zonesData = zones?.responseObject;
     return (
         <div className={className}>
-            <label className="block text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+            <label className="block text-xl font-bold text-gray-800 mb-2 items-center gap-2">
                 <Layers className="text-blue-500 w-5 h-5" /> Select Zone
             </label>
             <select
@@ -179,7 +170,7 @@ export const SelectProducts = ({ document, setDocument, className, disabled, set
 
     return (
         <div className={className}>
-            <label className="block text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+            <label className="block text-xl font-bold text-gray-800 mb-2 items-center gap-2">
                 <Layers className="text-blue-500 w-5 h-5" /> Select Products
             </label>
             <select
@@ -199,7 +190,7 @@ export const SelectProducts = ({ document, setDocument, className, disabled, set
     )
 }
 
-export const SelectWarehouse = ({ warehouseId, className, setWarehouseId, setWarehouse, master_zone_id }: { master_zone_id?: string, setWarehouse?: React.Dispatch<React.SetStateAction<TypeMswarehouse | null>>, className?: string, warehouseId: string, setWarehouseId: (warehouseId: string) => void }) => {
+export const SelectWarehouse = ({ warehouseId, className, setWarehouseId, setWarehouse }: { setWarehouse?: React.Dispatch<React.SetStateAction<TypeMswarehouse | null>>, className?: string, warehouseId: string, setWarehouseId: (warehouseId: string) => void }) => {
     const { data: warehouses, status } = useQuery({
         queryKey: ["warehouses"],
         queryFn: () => getMswarehouse(),
@@ -220,7 +211,7 @@ export const SelectWarehouse = ({ warehouseId, className, setWarehouseId, setWar
     if (status === "pending") return "load";
     return (
         <div className={className}>
-            <label className="block text-xl font-bold text-gray-800 mb-2 flex items-center gap-2">
+            <label className="block text-xl font-bold text-gray-800 mb-2 items-center gap-2">
                 <Layers className="text-blue-500 w-5 h-5" /> Select Warehouse
             </label>
             <select

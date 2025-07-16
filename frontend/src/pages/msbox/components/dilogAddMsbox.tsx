@@ -5,7 +5,6 @@ import { AlertCircle, Upload, Plus } from "lucide-react";
 
 type DialogMsboxProps = {
     getMsboxData: () => void;
-    buttonId?: string;
 }
 
 interface ValidationErrors {
@@ -14,19 +13,17 @@ interface ValidationErrors {
     dimensions?: string;
 }
 
-const DialogAdd = ({ getMsboxData, buttonId }: DialogMsboxProps) => {
+const DialogAdd = ({ getMsboxData }: DialogMsboxProps) => {
     const [master_box_name, setMaster_box_name] = useState("");
     const [height, setHeight] = useState<number | "">("");
     const [length, setLength] = useState<number | "">("");
     const [width, setWidth] = useState<number | "">("");
-    const [cubic_centimeter_box, setCubic_centimeter_box] = useState(0);
     const [description, setDescription] = useState("");
     const [code_box, setCode_box] = useState("");
     const [errors, setErrors] = useState<ValidationErrors>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [selectedFileName, setSelectedFileName] = useState("");
-    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [image, setImage] = useState<string>("");
 
     const validateForm = (): boolean => {
@@ -86,7 +83,6 @@ const DialogAdd = ({ getMsboxData, buttonId }: DialogMsboxProps) => {
 
         try {
             const calculatedVolume = Number(width) * Number(length) * Number(height);
-            setCubic_centimeter_box(calculatedVolume);
 
             const formData = new FormData();
             formData.append('master_box_name', master_box_name);
@@ -108,20 +104,15 @@ const DialogAdd = ({ getMsboxData, buttonId }: DialogMsboxProps) => {
                 setHeight("");
                 setLength("");
                 setWidth("");
-                setCubic_centimeter_box(0);
                 setDescription("");
                 setCode_box("");
                 setSelectedFile(null);
                 setSelectedFileName("");
                 setImage("");
-                setShowSuccessAlert(true);
 
                 setTimeout(() => {
-                    setShowSuccessAlert(false);
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 500);
-                }, 800);
+                    window.location.reload();
+                }, 500);
 
                 getMsboxData();
             } else {
@@ -149,39 +140,39 @@ const DialogAdd = ({ getMsboxData, buttonId }: DialogMsboxProps) => {
 
                 <div className="space-y-6">
                     {/* Code Name & Box Name Section */}
-                        <div>
-                            <label className="block">
-                                <Text className="font-semibold text-gray-700 mb-1 block">Box Code *</Text>
-                                <TextField.Root
-                                    placeholder="Enter box code"
-                                    onChange={(e) => setCode_box(e.target.value)}
-                                    className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400 transition-all duration-200 ${errors.code_box ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
-                                />
-                                {errors.code_box && (
-                                    <div className="flex items-center gap-1 mt-1 text-red-500 text-sm">
-                                        <AlertCircle size={12} />
-                                        <span>{errors.code_box}</span>
-                                    </div>
-                                )}
-                            </label>
-                        </div>
+                    <div>
+                        <label className="block">
+                            <Text className="font-semibold text-gray-700 mb-1 block">Box Code *</Text>
+                            <TextField.Root
+                                placeholder="Enter box code"
+                                onChange={(e) => setCode_box(e.target.value)}
+                                className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400 transition-all duration-200 ${errors.code_box ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
+                            />
+                            {errors.code_box && (
+                                <div className="flex items-center gap-1 mt-1 text-red-500 text-sm">
+                                    <AlertCircle size={12} />
+                                    <span>{errors.code_box}</span>
+                                </div>
+                            )}
+                        </label>
+                    </div>
 
-                        <div>
-                            <label className="block">
-                                <Text className="font-semibold text-gray-700 mb-1 block">Box Name *</Text>
-                                <TextField.Root
-                                    placeholder="Enter box name"
-                                    onChange={(e) => setMaster_box_name(e.target.value)}
-                                    className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400 transition-all duration-200 ${errors.master_box_name ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
-                                />
-                                {errors.master_box_name && (
-                                    <div className="flex items-center gap-1 mt-1 text-red-500 text-sm">
-                                        <AlertCircle size={12} />
-                                        <span>{errors.master_box_name}</span>
-                                    </div>
-                                )}
-                            </label>
-                        </div>
+                    <div>
+                        <label className="block">
+                            <Text className="font-semibold text-gray-700 mb-1 block">Box Name *</Text>
+                            <TextField.Root
+                                placeholder="Enter box name"
+                                onChange={(e) => setMaster_box_name(e.target.value)}
+                                className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-400 transition-all duration-200 ${errors.master_box_name ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
+                            />
+                            {errors.master_box_name && (
+                                <div className="flex items-center gap-1 mt-1 text-red-500 text-sm">
+                                    <AlertCircle size={12} />
+                                    <span>{errors.master_box_name}</span>
+                                </div>
+                            )}
+                        </label>
+                    </div>
 
                     {/* Dimensions Section */}
                     <div>

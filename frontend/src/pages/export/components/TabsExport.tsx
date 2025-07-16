@@ -10,22 +10,34 @@ export const TabsExport = ({ wareHouse, zone }: { wareHouse: string, zone: strin
         enabled: !!wareHouse && !!zone
     })
     const exportData = data?.responseObject;
-    return (<Tabs.Root className="TabsRoot max-w-7xl mx-auto" defaultValue="tab1" id={`${zone}-${wareHouse}`}>
-        <Tabs.List className="TabsList mb-3" aria-label="Manage your account">
-            <Tabs.Trigger className="TabsTrigger" value="tab1">
-                กล่องที่รอส่งออก
-            </Tabs.Trigger>
-            <Tabs.Trigger className="TabsTrigger" value="tab2" disabled={exportData?.shelfBoxStorage.length === 0}>
-                ประวัติการส่งออก
-            </Tabs.Trigger>
-        </Tabs.List>
-        <Tabs.Content className="TabsContent " value="tab1">
-            <TabsExportContent exportData={exportData!} />
-        </Tabs.Content>
-        <Tabs.Content className="TabsContent" value="tab2">
-            <TabsExportContent exportData={exportData!} exportTabs />
-        </Tabs.Content>
-    </Tabs.Root>)
+    return (
+        <>
+            {isLoading && (
+                <div className="flex justify-center items-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                    <span className="ml-2 text-gray-600">กำลังโหลดข้อมูล...</span>
+                </div>
+            )}
+            {!isLoading && (
+                <Tabs.Root className="TabsRoot max-w-7xl mx-auto" defaultValue="tab1" id={`${zone}-${wareHouse}`}>
+                    <Tabs.List className="TabsList mb-3" aria-label="Manage your account">
+                        <Tabs.Trigger className="TabsTrigger" value="tab1">
+                            กล่องที่รอส่งออก
+                        </Tabs.Trigger>
+                        <Tabs.Trigger className="TabsTrigger" value="tab2" disabled={exportData?.shelfBoxStorage.length === 0}>
+                            ประวัติการส่งออก
+                        </Tabs.Trigger>
+                    </Tabs.List>
+                    <Tabs.Content className="TabsContent " value="tab1">
+                        <TabsExportContent exportData={exportData!} />
+                    </Tabs.Content>
+                    <Tabs.Content className="TabsContent" value="tab2">
+                        <TabsExportContent exportData={exportData!} exportTabs />
+                    </Tabs.Content>
+                </Tabs.Root>
+            )}
+        </>
+    )
 
 
 }

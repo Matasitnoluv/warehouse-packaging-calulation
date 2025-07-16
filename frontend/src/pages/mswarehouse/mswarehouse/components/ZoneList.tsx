@@ -6,7 +6,6 @@ import RackList from './RackList';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import DialogAddZone from "./dilogAddZone";
 import DialogEditZone from "./dilogEditZone";
-import DialogAddRack from "./dilogAddRack";
 
 // Function to determine color based on usage percentage
 const getUsageColor = (percentage: number): string => {

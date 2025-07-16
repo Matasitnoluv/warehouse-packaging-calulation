@@ -1,11 +1,11 @@
-import { Table, Card, AlertDialog } from "@radix-ui/themes";
+import { Table, Card } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { getMsbox } from "@/services/msbox.services";
-import { TypeMsbox, TypeMsboxAll } from "@/types/response/reponse.msbox";
+import { TypeMsbox } from "@/types/response/reponse.msbox";
 import DialogAdd from "./components/dilogAddMsbox";
 import DialogEdit from "./components/dilogEditMsbox";
 import AlertDialogDelete from "./components/alertdilogDeleteMsbox";
-import { Package, Search, Plus } from "lucide-react";
+import { Package, Search } from "lucide-react";
 
 export default function MsboxFeature() {
     const [msbox, setMsbox] = useState<TypeMsbox[]>([]);
@@ -126,7 +126,7 @@ export default function MsboxFeature() {
                             </button>
                         </form>
                         {/* Create Button (Dialog) */}
-                        <DialogAdd getMsboxData={loadMsboxData} buttonId="create-box" />
+                        <DialogAdd getMsboxData={loadMsboxData} />
                     </div>
                 </div>
             </div>

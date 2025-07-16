@@ -18,7 +18,6 @@ const UserManagement = () => {
   const [form, setForm] = useState<CreateUserForm>(initialForm);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [editUser, setEditUser] = useState<User | null>(null);
@@ -56,7 +55,6 @@ const UserManagement = () => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setSuccess(null);
     if (form.password !== confirmPassword) {
       setError('Password and Confirm Password do not match');
       setLoading(false);
@@ -66,7 +64,6 @@ const UserManagement = () => {
       const payload = { ...form, age: Number(form.age), address: '' };
       const res = await createUser(payload);
       if (res.success) {
-        setSuccess('User created successfully!');
         setForm(initialForm);
         setConfirmPassword('');
         setOpen(false);

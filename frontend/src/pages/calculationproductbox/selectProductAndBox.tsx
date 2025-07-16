@@ -1,4 +1,4 @@
-import { useLocation, useSearchParams, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button, Table, Dialog } from "@radix-ui/themes";
 import { getMsproduct, patchMsproduct } from "@/services/msproduct.services";
@@ -66,7 +66,6 @@ interface BoxItem {
 const CalculationProductAndBox = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
     const documentProductNo = location.state?.documentProductNo || "ไม่พบข้อมูล";
     const calculationType = location.state?.calculationType || "mixed"; // ค่าเริ่มต้นเป็น mixed ถ้าไม่ได้ระบุ
 
@@ -431,7 +430,7 @@ const CalculationProductAndBox = () => {
                 );
 
                 // map ข้อมูลให้ตรงกับ calculationResults
-                const formatted = filteredData.map((item: any, idx: number) => ({
+                const formatted = filteredData.map((item: any) => ({
                     no: item.box_no,
                     boxCode: item.code_box,
                     boxName: item.master_box_name,

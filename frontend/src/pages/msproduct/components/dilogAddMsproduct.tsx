@@ -1,6 +1,6 @@
 import { Text, Dialog, Button, TextField, TextArea } from "@radix-ui/themes";
 import { postMsproduct } from "@/services/msproduct.services";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AlertCircle, Plus, Upload } from "lucide-react";
 
 type DialogMsproductProps = {
@@ -27,6 +27,16 @@ const DialogAdd = ({ getMsproductData }: DialogMsproductProps) => {
     const [selectedFileName, setSelectedFileName] = useState("");
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [image, setImage] = useState<string>("");
+
+    // อัปเดตปริมาตรเมื่อขนาดเปลี่ยน
+    useEffect(() => {
+        if (height && length && width) {
+            const calculatedVolume = Number(height) * Number(length) * Number(width);
+            setCubic_centimeter_product(calculatedVolume);
+        } else {
+            setCubic_centimeter_product(0);
+        }
+    }, [height, length, width]);
 
     const validateForm = (): boolean => {
         const newErrors: ValidationErrors = {};
@@ -83,16 +93,13 @@ const DialogAdd = ({ getMsproductData }: DialogMsproductProps) => {
         setIsSubmitting(true);
 
         try {
-            const calculatedVolume = Number(width) * Number(length) * Number(height);
-            setCubic_centimeter_product(calculatedVolume);
-
             const formData = new FormData();
             formData.append('master_product_name', master_product_name);
             formData.append('code_product', code_product);
             formData.append('height', height.toString());
             formData.append('length', length.toString());
             formData.append('width', width.toString());
-            formData.append('cubic_centimeter_product', calculatedVolume.toString());
+            formData.append('cubic_centimeter_product', cubic_centimeter_product.toString());
             formData.append('description', description);
             formData.append('sort_by', '0');
             if (selectedFile) {
@@ -227,11 +234,11 @@ const DialogAdd = ({ getMsproductData }: DialogMsproductProps) => {
                     </div>
 
                     {/* Volume Display */}
-                    {(height && length && width) && (
+                    {cubic_centimeter_product > 0 && (
                         <div>
                             <Text className="font-semibold text-gray-700 mb-1 block text-sm">Volume (cm³)</Text>
                             <div className="p-2 bg-gray-50 rounded-lg border border-gray-200 font-mono text-sm">
-                                {(Number(height) * Number(length) * Number(width)).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                                {cubic_centimeter_product.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                             </div>
                         </div>
                     )}
@@ -249,38 +256,38 @@ const DialogAdd = ({ getMsproductData }: DialogMsproductProps) => {
 
                     {/* Image Upload Section */}
                     <div>
-                    <div>
-                        <Text className="font-semibold text-gray-700 mb-2 block text-sm">Product Image</Text>
-                        <div className="flex items-center justify-center w-full">
-                            <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all duration-200">
-                                <div className="flex flex-col items-center justify-center p-3">
-                                    <Upload className="w-6 h-6 mb-2 text-gray-500" />
-                                    <p className="text-xs text-gray-500">
-                                        <span className="font-semibold">Click to upload</span> or drag and drop
-                                    </p>
-                                    <p className="text-xs text-gray-500">PNG, JPG or GIF (MAX. 5MB)</p>
-                                </div>
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    onChange={handleFileChange}
-                                    accept="image/*"
-                                />
-                            </label>
-                        </div>
-                        {selectedFileName && (
-                            <p className="mt-1 text-xs text-gray-600">Selected: {selectedFileName}</p>
-                        )}
-                        {image && (
-                            <div className="mt-2">
-                                <img
-                                    src={image}
-                                    alt="Preview"
-                                    className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
-                                />
+                        <div>
+                            <Text className="font-semibold text-gray-700 mb-2 block text-sm">Product Image</Text>
+                            <div className="flex items-center justify-center w-full">
+                                <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all duration-200">
+                                    <div className="flex flex-col items-center justify-center p-3">
+                                        <Upload className="w-6 h-6 mb-2 text-gray-500" />
+                                        <p className="text-xs text-gray-500">
+                                            <span className="font-semibold">Click to upload</span> or drag and drop
+                                        </p>
+                                        <p className="text-xs text-gray-500">PNG, JPG or GIF (MAX. 5MB)</p>
+                                    </div>
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        onChange={handleFileChange}
+                                        accept="image/*"
+                                    />
+                                </label>
                             </div>
-                        )}
-                    </div>
+                            {selectedFileName && (
+                                <p className="mt-1 text-xs text-gray-600">Selected: {selectedFileName}</p>
+                            )}
+                            {image && (
+                                <div className="mt-2">
+                                    <img
+                                        src={image}
+                                        alt="Preview"
+                                        className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Action Buttons */}

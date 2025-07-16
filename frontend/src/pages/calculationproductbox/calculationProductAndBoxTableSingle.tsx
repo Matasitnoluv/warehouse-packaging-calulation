@@ -11,7 +11,6 @@ import { FileSpreadsheet, ArrowLeft } from "lucide-react";
 const CalculationProductAndBoxTableSingle = () => {
     const navigate = useNavigate();
     const [calculations, setCalculations] = useState<TypeCalMsproductAll[]>([]);
-    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
     const getCalMsproductData = () => {
         getCalMsproductByType("single").then((res) => {

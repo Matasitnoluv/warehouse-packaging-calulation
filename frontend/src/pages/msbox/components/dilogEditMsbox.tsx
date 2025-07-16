@@ -140,7 +140,7 @@ const DialogEdit = ({
     return (
         <Dialog.Root>
             <Dialog.Trigger>
-                <Button id="btn-edit" className={buttonClassName || "bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors"}>
+                <Button id={buttonId || "btn-edit"} className={buttonClassName || "bg-yellow-400 hover:bg-yellow-500 text-white font-bold rounded-xl shadow-md px-6 py-2 focus:outline-none transition-colors"}>
                     Edit
                 </Button>
             </Dialog.Trigger>
@@ -244,7 +244,7 @@ const DialogEdit = ({
                     <div>
                         <Text className="font-semibold text-gray-700 mb-1 block text-sm">Volume (cm³)</Text>
                         <div className="p-2 bg-gray-50 rounded-lg border border-gray-200 font-mono text-sm">
-                            {(patchWidth * patchHeight * patchLength).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+                            {patchCubic_centimeter_box.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                         </div>
                     </div>
 
@@ -277,6 +277,20 @@ const DialogEdit = ({
                         )}
                         <Text className="font-semibold text-gray-700 mb-2 block text-sm">Box Image</Text>
                         {/* Current Image Preview */}
+                        {patchImage && !upimage && (
+                            <div className="mt-2 mb-3">
+                                <img
+                                    src={`${import.meta.env.VITE_API_URL}/uploads/${patchImage.replace(/^\/uploads\//, "")}`}
+                                    alt="Current"
+                                    className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.onerror = null;
+                                        target.src = "/placeholder.svg";
+                                    }}
+                                />
+                            </div>
+                        )}
 
                         {/* Image Upload */}
                         <div className="flex items-center justify-center w-full">

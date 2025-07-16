@@ -35,7 +35,6 @@ export type MsproductResponse = {
 
 
 import { z } from "zod";
-import { TypeMsbox } from "./reponse.msbox";
 import { TypeCalBox } from "./reponse.cal_box";
 import { TypeMswarehouse } from "./reponse.mswarehouse";
 import { TypeMszone } from "./reponse.mszone";

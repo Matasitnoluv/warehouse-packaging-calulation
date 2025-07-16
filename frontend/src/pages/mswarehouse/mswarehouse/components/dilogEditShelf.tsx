@@ -20,7 +20,6 @@ const DialogEditShelf = ({ shelf, rackVolume, onShelfUpdated }: DialogEditShelfP
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [remainingSpace, setRemainingSpace] = useState<number>(rackVolume);
-    const [usedSpace, setUsedSpace] = useState<number>(0);
     const [existingShelves, setExistingShelves] = useState<any[]>([]);
 
     // Calculate volume when dimensions change
@@ -36,15 +35,14 @@ const DialogEditShelf = ({ shelf, rackVolume, onShelfUpdated }: DialogEditShelfP
                 if (response.success) {
                     const shelves = response.responseObject || [];
                     setExistingShelves(shelves);
-                    
+
                     // Calculate total used space excluding the current shelf
                     const otherShelves = shelves.filter((s: any) => s.master_shelf_id !== shelf.master_shelf_id);
                     const otherShelvesUsedSpace = otherShelves.reduce(
-                        (total: any, s: any) => total + (s.cubic_centimeter_shelf || 0), 
+                        (total: any, s: any) => total + (s.cubic_centimeter_shelf || 0),
                         0
                     );
-                    
-                    setUsedSpace(otherShelvesUsedSpace);
+
                     setRemainingSpace(rackVolume - otherShelvesUsedSpace);
                 }
             } catch (error) {
@@ -72,10 +70,10 @@ const DialogEditShelf = ({ shelf, rackVolume, onShelfUpdated }: DialogEditShelfP
         }
 
         // Check if shelf level already exists (excluding this shelf)
-        const levelExists = existingShelves.some(s => 
+        const levelExists = existingShelves.some(s =>
             s.shelf_level === shelfLevel && s.master_shelf_id !== shelf.master_shelf_id
         );
-        
+
         if (levelExists) {
             setError(`Shelf level ${shelfLevel} already exists. Please choose a different level.`);
             return;
@@ -104,11 +102,11 @@ const DialogEditShelf = ({ shelf, rackVolume, onShelfUpdated }: DialogEditShelfP
             };
 
             const response = await updateMsshelf(shelfData);
-            
+
             if (response.success) {
                 // Notify parent component
                 onShelfUpdated();
-                
+
                 // Close the dialog manually
                 document.querySelector('.rt-DialogClose')?.dispatchEvent(
                     new MouseEvent('click', { bubbles: true })

@@ -14,7 +14,7 @@ import { CSS } from '@dnd-kit/utilities';
 import clsx from 'clsx';
 import { Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { getCalWarehouse, getCalWarehouseEdit } from '@/services/calwarehouse.services';
+import { getCalWarehouseEdit } from '@/services/calwarehouse.services';
 
 type Item = {
     id: string;
@@ -36,10 +36,9 @@ export default function MainEditCal({ warehouseId }: { warehouseId?: string }) {
     if (status === 'success' && (error || !data?.success)) {
         return <Navigate to="/404" replace />;
     }
-    const calWarehouse = data?.responseObject
+
     return (
         <>
-
             <PreviewWarehouseEdit />
             <SecctionDnd />
         </>

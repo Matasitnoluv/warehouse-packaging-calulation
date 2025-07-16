@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import * as Label from '@radix-ui/react-label';
 import { loginUser } from '@/services/login.services';
 import mainApi from '@/apis/main.api';
-import { Package, User, Lock } from 'lucide-react';
+import { User, Lock } from 'lucide-react';
 
 const Login: React.FC = () => {
 	const [username, setUsername] = useState("");

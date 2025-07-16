@@ -75,7 +75,7 @@ const DialogAdd = ({ getCalmsproductData, calculationType = "mixed" }: DialogCal
                 alert(response.message || "Unexpected error");
             }
         } catch (error) {
-            console.error("Error creating product", error.message);
+            console.error("Error creating product", error instanceof Error ? error.message : String(error));
             alert("Failed to create product. Please try again.");
         } finally {
             setIsLoading(false);

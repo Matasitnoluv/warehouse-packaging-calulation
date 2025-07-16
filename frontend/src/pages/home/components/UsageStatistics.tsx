@@ -126,7 +126,7 @@ const UsageStatistics: React.FC<UsageStatisticsProps> = ({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis domain={[0, 100]} />
-              <Tooltip formatter={(value) => `${value.toFixed(1)}%`} />
+              <Tooltip formatter={(value: number) => `${value.toFixed(1)}%`} />
               <Legend />
               <Line
                 type="monotone"

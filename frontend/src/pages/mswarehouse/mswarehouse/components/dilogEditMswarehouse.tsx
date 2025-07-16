@@ -1,6 +1,6 @@
 import { Text, Dialog, Button, TextField, TextArea } from "@radix-ui/themes";
 import { patchMswarehouse } from "@/services/mswarehouse.services";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AlertCircle } from "lucide-react";
 
 type DialogWarehouseProps = {
@@ -38,6 +38,12 @@ const DialogEdit = ({
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // อัปเดตปริมาตรเมื่อขนาดเปลี่ยน
+  useEffect(() => {
+    const calculatedVolume = patchHeight * patchLength * patchWidth;
+    setCubic_centimeter_warehouse(calculatedVolume);
+  }, [patchHeight, patchLength, patchWidth]);
+
   const validateForm = (): boolean => {
     const newErrors: ValidationErrors = {};
 
@@ -58,16 +64,13 @@ const DialogEdit = ({
     setIsSubmitting(true);
 
     try {
-      const calculatedVolume = patchHeight * patchLength * patchWidth;
-      setCubic_centimeter_warehouse(calculatedVolume);
-
       const response = await patchMswarehouse({
         master_warehouse_id: master_warehouse_id,
         master_warehouse_name: patchMasterWarehouseName,
         height: patchHeight,
         length: patchLength,
         width: patchWidth,
-        cubic_centimeter_warehouse: calculatedVolume,
+        cubic_centimeter_warehouse: patchCubic_centimeter_warehouse,
         description: patchDescription
       });
 
@@ -180,7 +183,7 @@ const DialogEdit = ({
           <div>
             <Text className="font-semibold text-gray-700 mb-1 block text-sm">Volume (cm³)</Text>
             <div className="p-2 bg-gray-50 rounded-lg border border-gray-200 font-mono text-sm">
-              {(patchWidth * patchHeight * patchLength).toLocaleString("th-TH", { minimumFractionDigits: 2 })}
+              {patchCubic_centimeter_warehouse.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
             </div>
           </div>
 

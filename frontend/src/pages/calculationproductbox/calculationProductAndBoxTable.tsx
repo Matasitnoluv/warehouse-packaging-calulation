@@ -11,13 +11,14 @@ import { getMsproduct } from "@/services/msproduct.services";
 import { getMsbox } from "@/services/msbox.services";
 import DialogProduct from "./components/dilogProduct";
 import DialogBox from "./components/dilogBox";
+import { TypeMsproduct, TypeMsproductAll } from "@/types/response/reponse.msproduct";
+import { TypeMsbox, TypeMsboxAll, MsboxResponse } from "@/types/response/reponse.msbox";
 
 const CalculationProductAndBoxTable = () => {
     const navigate = useNavigate();
     const [calculations, setCalculations] = useState<TypeCalMsproductAll[]>([]);
-    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-    const [productList, setProductList] = useState([]);
-    const [boxList, setBoxList] = useState([]);
+    const [productList, setProductList] = useState<TypeMsproductAll[]>([]);
+    const [boxList, setBoxList] = useState<TypeMsboxAll[]>([]);
 
     const getCalMsproductData = () => {
         getCalMsproduct().then((res) => {
@@ -28,12 +29,23 @@ const CalculationProductAndBoxTable = () => {
 
     const getMsproductData = async () => {
         const res = await getMsproduct();
-        setProductList(res.responseObject || []);
+        // แปลง TypeMsproduct เป็น TypeMsproductAll โดยเพิ่ม scale_product
+        const productsWithScale = (res.responseObject || []).map((product: TypeMsproduct) => ({
+            ...product,
+            scale_product: `${product.width} * ${product.length} * ${product.height}`
+        }));
+        setProductList(productsWithScale);
     };
 
-    const getMsboxData = async () => {
+    const getMsboxData = async (): Promise<MsboxResponse> => {
         const res = await getMsbox();
-        setBoxList(res.responseObject || []);
+        // แปลง TypeMsbox เป็น TypeMsboxAll โดยเพิ่ม scale_box
+        const boxesWithScale = (res.responseObject || []).map((box: TypeMsbox) => ({
+            ...box,
+            scale_box: `${box.width} * ${box.length} * ${box.height}`
+        }));
+        setBoxList(boxesWithScale);
+        return res;
     };
 
     useEffect(() => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Table, Card, Button, AlertDialog } from "@radix-ui/themes";
 import { getShelfBoxStorage, storeMultipleBoxes } from '@/services/shelfBoxStorage.services';
 import { getMsshelf } from '@/services/msshelf.services';
@@ -6,7 +6,6 @@ import { getMsshelf } from '@/services/msshelf.services';
 interface CalculationSummaryProps {
     selectedZone: string;
     selectedDocument: string;
-    onCalculate: () => void;
 }
 
 interface BoxPlacement {
@@ -22,8 +21,7 @@ interface BoxPlacement {
 
 const CalculationSummary: React.FC<CalculationSummaryProps> = ({
     selectedZone,
-    selectedDocument,
-    onCalculate
+    selectedDocument
 }) => {
     const [boxPlacements, setBoxPlacements] = useState<BoxPlacement[]>([]);
     const [loading, setLoading] = useState(false);
@@ -109,7 +107,7 @@ const CalculationSummary: React.FC<CalculationSummaryProps> = ({
                 }
                 const finalPayload = Object.values(groupedPayload);
                 //console.log('Final payload to DB:', finalPayload);
-                const response = await storeMultipleBoxes(finalPayload);
+                await storeMultipleBoxes(finalPayload);
                 setAlertMessage('Boxes have been successfully stored in shelves');
                 setShowAlert(true);
             }

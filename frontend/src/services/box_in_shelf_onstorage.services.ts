@@ -1,7 +1,7 @@
 import axios from "axios";
 import { PayloadCreateBoxInShelfOnStorage, PayloadUpdateBoxInShelfOnStorage } from "../types/requests/request.box_in_shelf_onstorage";
 
-const BASE_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_BASE_API;
 
 export const postBoxInShelfOnStorage = async (payload: PayloadCreateBoxInShelfOnStorage) => {
     try {

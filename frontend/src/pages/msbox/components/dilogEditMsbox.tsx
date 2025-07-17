@@ -280,7 +280,7 @@ const DialogEdit = ({
                         {patchImage && !upimage && (
                             <div className="mt-2 mb-3">
                                 <img
-                                    src={`${import.meta.env.VITE_API_URL}/uploads/${patchImage.replace(/^\/uploads\//, "")}`}
+                                    src={`${import.meta.env.VITE_BASE_API}/uploads/${patchImage.replace(/^\/uploads\//, "")}`}
                                     alt="Current"
                                     className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
                                     onError={(e) => {

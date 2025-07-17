@@ -143,7 +143,7 @@ export default function MsproductFeature() {
                                             <Table.Cell className="px-6 py-4">
                                                 <div className="relative w-16 h-16 rounded-lg overflow-hidden border-2 border-green-100">
                                                     <img
-                                                        src={product.image_path ? `${import.meta.env.VITE_API_URL}/uploads/${product.image_path.replace(/^\/uploads\//, '')}` : "/placeholder.svg"}
+                                                        src={product.image_path ? `${import.meta.env.VITE_BASE_API}/uploads/${product.image_path.replace(/^\/uploads\//, '')}` : "/placeholder.svg"}
                                                         alt={product.master_product_name}
                                                         className="w-full h-full object-cover"
                                                         onError={(e) => {

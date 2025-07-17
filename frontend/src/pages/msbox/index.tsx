@@ -181,7 +181,7 @@ export default function MsboxFeature() {
                                                     <img
                                                         src={
                                                             box.image_path
-                                                                ? `${import.meta.env.VITE_API_URL}/uploads/${box.image_path.replace(/^\/uploads\//, "")}`
+                                                                ? `${import.meta.env.VITE_BASE_API}/uploads/${box.image_path.replace(/^\/uploads\//, "")}`
                                                                 : "/placeholder.svg"
                                                         }
                                                         alt={box.master_box_name}

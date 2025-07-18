@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "dist/src/index.js",
   "scripts": {
-    "dev": "tsx watch --clear-screen=false src/index.js | pino-pretty",
+    "dev": "npx tsx watch --clear-screen=false src/index.js | npx pino-pretty",
     "prisma:migrate": "prisma migrate dev",
     "prisma:generate": "prisma generate",
     "prisma:seed": "prisma db seed"

@@ -37,6 +37,7 @@ app.use(cookieParser()); // ใช้ cookie-parser เพื่ออ่าน 
 app.use(cors({
     origin: env.CORS_ORIGIN,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     exposedHeaders: ['Content-Type', 'Content-Disposition']
 }));
 

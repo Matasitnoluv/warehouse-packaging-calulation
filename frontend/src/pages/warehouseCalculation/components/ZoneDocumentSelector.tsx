@@ -210,12 +210,12 @@ export const SelectWarehouse = ({ warehouseId, className, setWarehouseId, setWar
 
     if (status === "pending") return "load";
     return (
-        <div className={className}>
-            <label className="block text-xl font-bold text-gray-800 mb-2 items-center gap-2">
+        <div className={`flex-1 ${className}`}>
+            <label className="block text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
                 <Layers className="text-blue-500 w-5 h-5" /> Select Warehouse
             </label>
             <select
-                className="w-full px-5 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none text-lg shadow-sm transition-all duration-200 hover:border-blue-400"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none text-base shadow-sm transition-all duration-200 hover:border-blue-400"
                 value={warehouseId}
                 onChange={e => setWarehouseId(e.target.value)}
             >

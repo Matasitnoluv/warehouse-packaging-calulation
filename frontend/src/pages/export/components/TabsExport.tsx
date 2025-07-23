@@ -3,7 +3,7 @@ import { Tabs } from "@radix-ui/themes"
 import { useQuery } from "@tanstack/react-query";
 import { getShelfExport } from "@/services/shelfBoxStorage.services";
 import { TabsExportContent } from "./TabsExportContent";
-export const TabsExport = ({ wareHouse, zone }: { wareHouse: string, zone: string }) => {
+export const TabsExport = ({ wareHouse, zone, searchKeyword }: { wareHouse: string, zone: string, searchKeyword?: string }) => {
     const { data, isLoading } = useQuery({
         queryKey: ["export", wareHouse, zone],
         queryFn: () => getShelfExport(wareHouse, zone),
@@ -29,10 +29,10 @@ export const TabsExport = ({ wareHouse, zone }: { wareHouse: string, zone: strin
                         </Tabs.Trigger>
                     </Tabs.List>
                     <Tabs.Content className="TabsContent " value="tab1">
-                        <TabsExportContent exportData={exportData!} />
+                        <TabsExportContent exportData={exportData!} searchKeyword={searchKeyword} />
                     </Tabs.Content>
                     <Tabs.Content className="TabsContent" value="tab2">
-                        <TabsExportContent exportData={exportData!} exportTabs />
+                        <TabsExportContent exportData={exportData!} exportTabs searchKeyword={searchKeyword} />
                     </Tabs.Content>
                 </Tabs.Root>
             )}
